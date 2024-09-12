@@ -158,7 +158,7 @@ const handleSubmit = (event:any) => {
 {#if isFormOpen}
 <div class="w-screen h-screen top-0 left-0 fixed pointer-events-none z-20">
 	<button transition:fade class="w-full h-full absolute top-0 left-0 bg-black opacity-40 pointer-events-auto" on:click={()=>isFormOpen=false}/>
-	<div transition:fly={{x:"-100%"}} class="w-4/5 lg:w-3/5 h-4/5 lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-[10%] lg:top-[20%] bg-black left-[10%] gap-16 lg:left-[20%] pointer-events-auto">
+	<div transition:fly={{x:"-100%"}} class="w-4/5 lg:w-3/5 h-4/5 lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-[10%] lg:top-[20%] bg-black left-[10%] gap-16 lg:left-[20%] pointer-events-auto overflow-y-scroll">
 		<button class="absolute top-6 right-6" on:click={()=>isFormOpen=false}><i class="text-white hover:text-light transtition bump fa-regular fa-sharp fa-close fa-2xl"/></button>
 
 		<div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
@@ -206,7 +206,7 @@ const handleSubmit = (event:any) => {
 {/if}
 
 <div class="h-16 w-screen  fixed top-0 left-0 z-10">
-	<ContentWidth class="h-16 flex flex-row justify-center items-center relative">
+	<ContentWidth class="h-16 flex flex-row justify-between lg:justify-center items-center relative">
 	
 		<button on:click={()=>window.scrollTo({top:0, left:0, behavior:"smooth"})}><img src={logo} alt="evidence 360" /></button>
 		
