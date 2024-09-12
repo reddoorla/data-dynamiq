@@ -1,0 +1,64 @@
+{
+	"/": [
+		"src/routes/+layout.server.js"
+	],
+	"/api/preview": [
+		"src/routes/api/preview/+server.js"
+	],
+	"/blogs": [
+		"src/routes/+layout.server.js"
+	],
+	"/contacts": [
+		"src/routes/+layout.server.js"
+	],
+	"/content": [
+		"src/routes/+layout.server.js"
+	],
+	"/ctas": [
+		"src/routes/+layout.server.js"
+	],
+	"/faqs": [
+		"src/routes/+layout.server.js"
+	],
+	"/footers": [
+		"src/routes/+layout.server.js"
+	],
+	"/lists": [
+		"src/routes/+layout.server.js"
+	],
+	"/mastheads": [
+		"src/routes/+layout.server.js"
+	],
+	"/navs": [
+		"src/routes/+layout.server.js"
+	],
+	"/plans": [
+		"src/routes/+layout.server.js"
+	],
+	"/portfolios": [
+		"src/routes/+layout.server.js"
+	],
+	"/slice-simulator": [
+		"src/routes/+layout.server.js"
+	],
+	"/sliders": [
+		"src/routes/+layout.server.js"
+	],
+	"/teams": [
+		"src/routes/+layout.server.js"
+	],
+	"/testimonials": [
+		"src/routes/+layout.server.js"
+	],
+	"/values": [
+		"src/routes/+layout.server.js"
+	],
+	"/[[preview=preview]]": [
+		"src/routes/[[preview=preview]]/+page.server.js",
+		"src/routes/+layout.server.js"
+	],
+	"/[[preview=preview]]/[uid]": [
+		"src/routes/[[preview=preview]]/[uid]/+page.server.js",
+		"src/routes/+layout.server.js"
+	]
+}
