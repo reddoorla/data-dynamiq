@@ -44,7 +44,7 @@ if(icon==="placeholder"){
      style="background-color: {backgroundColor}"
 >
     {#if icon}
-        <img src={icon} alt={iconAltText} class="w-[70px] h-[70px] mb-7 {horizontalFloatMargin}"/>
+        <img src={icon} alt={iconAltText} class="w-[40px] h-[40px] mb-7 {horizontalFloatMargin}"/>
     {/if}
     {#if labelText}
         <h6 class="mb-7">{labelText}</h6>

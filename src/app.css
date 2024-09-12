@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body{
-    font-family: "Helvetica Neue LT Std", "helvetica", sans-serif;
+    font-family: "Nunito Sans", "nunito-sans", sans-serif;
     transition-property: all;
     transition-timing-function: cubic-bezier(.5,0,0,1);
     transition-duration: 500ms;
@@ -11,6 +11,7 @@ body{
     overflow-x: clip;
     scrollbar-width: none !important;
     overflow-y: auto;
+    background-color: black;
 }
 
 body::-webkit-scrollbar { 
@@ -20,12 +21,16 @@ body::-webkit-scrollbar {
     width: 0 !important;  /* Remove scrollbar space */  /* Optional: just make scrollbar invisible */
 }
 
-.bump{
+.bump, .negative-bump{
     transition: transform 300ms ease-out;
 }
 
 .bump:active{
     transform: translateY(-8px);
+}
+
+.negative-bump:active{
+    transform: translateY(8px);
 }
 
 a{
@@ -43,16 +48,34 @@ button{
 }
 
 h1{
-    font-size: 66px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 80px; /* 121.212% */
+    color: var(--White, #FFF);
+text-align: center;
+leading-trim: both;
+text-edge: cap;
+font-feature-settings: 'liga' off, 'clig' off;
+
+/* H1 */
+font-family: "Chakra Petch";
+font-size: 66px;
+font-style: normal;
+font-weight: 700;
+line-height: 80px; /* 121.212% */
 }
 
 h2{
-    font-size: 50px;
-    font-weight: 700;
-    line-height: 64px; /* 128% */
+    text-align: center;
+leading-trim: both;
+text-edge: cap;
+font-feature-settings: 'liga' off, 'clig' off;
+
+/* H2 - Bold */
+-webkit-text-stroke-width: 1;
+-webkit-text-stroke-color: var(--White, #FFF);
+font-family: "Chakra Petch";
+font-size: 50px;
+font-style: normal;
+font-weight: 700;
+line-height: 64px; /* 128% */
 }
 
 h3{
@@ -70,28 +93,68 @@ h4{
 }
 
 h5{
-   font-size: 1.5rem; 
-   line-height: 1.5em;
-}
 
-h6{
-    font-size: 14px;
+    font-feature-settings: 'liga' off, 'clig' off;
+    
+    /* H5 - Bold */
+    font-family: "Chakra Petch";
+    font-size: 21px;
     font-style: normal;
     font-weight: 700;
-    line-height: 24px; /* 171.429% */
-    letter-spacing: 1px;
+    line-height: 30px; /* 142.857% */
+    letter-spacing: 2px;
     text-transform: uppercase;
 }
 
+h6{
+    color: var(--White, #FFF);
+text-align: center;
+leading-trim: both;
+text-edge: cap;
+font-feature-settings: 'liga' off, 'clig' off;
+
+/* H6 - Bold */
+font-family: "Chakra Petch";
+font-size: 14px;
+font-style: normal;
+font-weight: 500;
+line-height: 24px; /* 171.429% */
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
 p{
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 24px; /* 150% */
+    color: var(--White, #FFF);
+text-align: center;
+font-feature-settings: 'liga' off, 'clig' off;
+
+/* Paragraph */
+font-family: "Nunito Sans";
+font-size: 16px;
+font-style: normal;
+font-weight: 400;
+line-height: 24px; /* 150% */
+}
+
+.paragraph-large{
+    color: var(--White, #FFF);
+font-feature-settings: 'liga' off, 'clig' off;
+
+/* Paragraph Large */
+font-family: "Nunito Sans";
+font-size: 18px;
+font-style: normal;
+font-weight: 400;
+line-height: 30px; /* 166.667% */
 }
 
 .label{
-    font-family: "helvetica";
+    color: var(--White, #FFF);
+    text-align: center;
+    font-feature-settings: 'liga' off, 'clig' off;
+    
+    /* Label */
+    font-family: "Nunito Sans";
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -183,6 +246,19 @@ a{
 
 ::placeholder{
     color: #C2D1D9 !important;
+
+leading-trim: both;
+text-edge: cap;
+font-feature-settings: 'liga' off, 'clig' off;
+
+/* H6 - Bold */
+font-family: "Chakra Petch";
+font-size: 14px;
+font-style: normal;
+font-weight: 500;
+line-height: 24px; /* 171.429% */
+letter-spacing: 1px;
+text-transform: uppercase;
     
 }
 

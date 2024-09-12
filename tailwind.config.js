@@ -34,6 +34,7 @@ export default {
       white: '#fff',
       light:'#C2D1D9',
       dark: '#424B5A',
+      primary: "#B5251A"
     },
     extend: {
       transitionTimingFunction: {
