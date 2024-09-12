@@ -164,7 +164,7 @@ const handleSubmit = (event:any) => {
 			{:else}
 			
 			<form bind:this={form} class="h-full w-full mt-8 md:mt-0  flex flex-col gap-2 text-white items-start"  name="contact" method="POST" on:submit={handleSubmit} data-netlify="true" data-netlify-honeypot="bot-field">
-               <Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
+               
                 
                 <input type="hidden" name="form-name" value="contact" />
                     
@@ -181,6 +181,8 @@ const handleSubmit = (event:any) => {
                       
           
                         <textarea name="message" required placeholder="YOUR MESSAGE" class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"/>
+
+						<Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
                  
                         <ContactButton text="request info" click={()=>form.submit()}/>
                   
