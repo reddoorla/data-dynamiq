@@ -276,10 +276,10 @@ const handleSubmit = (event:any) => {
 					></div>
 					
 			</div>
-			<button transition:fade on:click={()=>activeValue--} class="{activeValue==1||innerWidth>1024 ? "hidden" : ""} absolute left-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-500 hover:bg-primary hover:border-primary">
+			<button  on:click={()=>activeValue--} class="{activeValue==1||innerWidth>1024 ? "opacity-0 pointer-events-none" : ""} absolute left-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle justify-center cursor-pointer transition duration-500 hover:bg-primary hover:border-primary">
 				<img alt='chevron-left' src={chevronLeft} class='-translate-x-[1px] brightness-200' />
 			  </button>
-			  <button transition:fade on:click={()=>activeValue++} class="{activeValue==3||innerWidth>1024 ? "hidden" : ""} absolute right-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle cursor-pointer transition-all duration-500 justify-center hover:bg-primary hover:border-primary">
+			  <button on:click={()=>activeValue++} class="{activeValue==3||innerWidth>1024 ? "opacity-0 pointer-events-none" : ""} absolute right-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle cursor-pointer transition duration-500 justify-center hover:bg-primary hover:border-primary">
 				<img alt='chevron-right' src={chevronRight} class='translate-x-[1px] brightness-200' />
 			  </button>
 		</ContentWidth>
