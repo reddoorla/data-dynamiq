@@ -83,6 +83,7 @@
 			document.body.style.position = '';
 			document.body.style.top = '';
 			window.scrollTo(0, parseInt(scrollY || '0') * -1);
+			submitted=false;
 		}}
 	}
 
@@ -131,21 +132,7 @@ const handleSubmit = (event:any) => {
 <svelte:window bind:innerWidth />
 
 <style>
-	.hollow{
-		text-align: center;
-leading-trim: both;
-text-edge: cap;
-font-feature-settings: 'liga' off, 'clig' off;
 
-/* H2 - Bold */
--webkit-text-stroke-width: 1;
--webkit-text-stroke-color: var(--White, #FFF);
-font-family: "Chakra Petch";
-font-size: 50px;
-font-style: normal;
-font-weight: 700;
-line-height: 64px; /* 128% */
-	}
 
 	.outlined {
   color: black;
@@ -167,6 +154,14 @@ line-height: 64px; /* 128% */
 			<p class="text-white text-left">We’re here to help you step into the future of data management. Reach out if you have questions or would like a demo.</p>
 		</div>
 		<div class="w-full xl:w-1/2 xl:h-4/5">
+			{#if submitted}
+	
+
+					<i class="fa-solid fa-thin fa-close fa-2xl text-white hover:text-light transition absolute top-8 right-5" />
+					<h4 class="text-white">Thanks for reaching out! <br/> <br/>We'll get back to you as soon as we can.</h4>
+	
+			{:else}
+			
 			<form bind:this={form} class="h-full w-full mt-8 md:mt-0  flex flex-col gap-2 text-white items-start"  name="contact" method="POST" on:submit={handleSubmit} data-netlify="true" data-netlify-honeypot="bot-field" on:submit={()=>submitted=true}>
                 <!-- <Turnstile siteKey="0x4AAAAAAAh2fGW6xIcdsqNr" /> -->
                 
@@ -190,6 +185,7 @@ line-height: 64px; /* 128% */
                   
                          
                </form>
+			   {/if}
 		</div>
 	</div>
 </div>
@@ -208,7 +204,7 @@ line-height: 64px; /* 128% */
 	<div class="w-full h-full flex flex-col justify-between items-center py-12 md:py-32">
 	<div/>
 	<h1 class=" max-w-screen-xl"> The software system that unifies the Digital Evidence workflow. </h1>
-	<ContactButton text="DIVE IN" isVertical click={()=>window.scrollTo({left:0, top:window.innerHeight, behavior:'smooth'})}/>
+	<ContactButton text="LET’S ANALYZE" isVertical click={()=>window.scrollTo({left:0, top:window.innerHeight, behavior:'smooth'})}/>
 	</div>
 </ScreenWidthImage>
 <div class="h-screen w-screen">
@@ -272,12 +268,10 @@ line-height: 64px; /* 128% */
 
 <ScreenWidthImage image={mac}>
 	<div class="md:w-1/2 md:max-w-[540px] h-full flex flex-col justify-center items-start gap-10">
-		<h5 class="text-primary">They’re not like us</h5>
-		<p class="text-left paragraph-large">Evidence360 is a software solution that comprises digital evidence management, case management, forensic management, and allows for interdepartmental collaboration. <br/> <br/>
-
-			Evidence360 offers a comprehensive and integrative approach to investigators by providing an exhaustive and thorough platform for evidence handling, case tracking, analysis, and communication.
+		<h5 class="text-primary">Finally, the complete evidence workflow.</h5>
+		<p class="text-left paragraph-large">Evidence360 offers a comprehensive and integrative approach to investigators by providing an exhaustive and thorough platform for evidence handling, case tracking, analysis, and communication.
 		</p>
-		<ContactButton click={()=>isFormOpen=true} text="try now" />
+		<ContactButton click={()=>isFormOpen=true} text="request demo" />
 	</div>
 </ScreenWidthImage>
 <ContentWidth class="flex flex-col items-center justify-evenly gap-24 py-24">
@@ -306,13 +300,13 @@ line-height: 64px; /* 128% */
 			<ContentBox 
 				icon={hex3}
 				labelText="collaborate with agencies"
-				paragraphText="Easily work with other vendors, agencies, and consultants on a secure network to process cases faster and more effectively."
+				paragraphText="Easily work with other vendors, agencies, and consultants using a secure chain of custody to process cases faster and more effectively."
 				class="text-white"
 			/>
 			</div>
 		</div>
 
-		<h5 class="text-primary"> A Complete Experience </h5>
+		<h5 class="text-primary"> The Complete Experience </h5>
 		<div class="w-full max-w-screen-md flex flex-row flex-wrap justify-around items-center gap-16">
 			<div class="w-40 h-32 flex flex-col items-center justify-center gap-5">
 				<img src={folder} class="w-12 h-12" alt="folder"/>
@@ -366,7 +360,7 @@ line-height: 64px; /* 128% */
 	<div class="h-full w-full flex flex-col justify-between items-center">
 		<div/>
 		<div/>
-		<h2 class="text-white max-w-[640px]">Boost your Productivity and Unify your Team</h2>
+		<h2 class="text-white max-w-[640px]">Reduce Backlog, Boost Productivity, and Unify Your Team</h2>
 		<ContactButton click={()=>isFormOpen=true} text="REQUEST A DEMO" />
 		<div class="label text-white mb-4">©2024 Data Dynamiq  |   All Rights Reserved</div>
 	</div>
