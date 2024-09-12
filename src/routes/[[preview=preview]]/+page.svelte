@@ -208,7 +208,7 @@ const handleSubmit = (event:any) => {
 <div class="h-16 w-screen  fixed top-0 left-0 z-10">
 	<ContentWidth class="h-16 flex flex-row justify-between lg:justify-center items-center relative">
 	
-		<button on:click={()=>window.scrollTo({top:0, left:0, behavior:"smooth"})}><img src={logo} alt="evidence 360" /></button>
+		<button class="h-6" on:click={()=>window.scrollTo({top:0, left:0, behavior:"smooth"})}><img src={logo} alt="evidence 360" /></button>
 		
 		<ContactButton text="CONTACT US" isSmall class="absolute right-0 top-1/2 -translate-y-1/2" click={()=>isFormOpen=true}/>
 	</ContentWidth>
