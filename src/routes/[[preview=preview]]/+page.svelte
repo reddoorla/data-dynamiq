@@ -131,6 +131,7 @@ const handleSubmit = (event:any) => {
 </script>
 
 <svelte:window bind:innerWidth />
+<svelte:head><title>Evidence360</title></svelte:head>
 
 <style>
 
