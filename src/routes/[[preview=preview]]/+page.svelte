@@ -32,7 +32,7 @@
   import { fade, fly } from "svelte/transition";
   import { swipe } from "svelte-gestures";
   import { onMount } from "svelte";
-  import { elasticIn } from "svelte/easing";
+
 
   let isEvolveHollow = true;
 
@@ -116,18 +116,28 @@ const handleSubmit = (event:any) => {
 
 	let evolve:HTMLSpanElement
    
-	onMount(()=>{
-		
-		window.addEventListener("scroll", ()=>{
-			
-			if(evolve.getBoundingClientRect().top<window.innerHeight/2){
-				isEvolveHollow=false;
-			}else{
-				isEvolveHollow=true;
-			}
-		})
-	})
+	onMount(() => {
+  const handleScroll = () => {
+    if (evolve) {
+      if (evolve.getBoundingClientRect().top < window.innerHeight / 2) {
+        isEvolveHollow = false;
+      } else {
+        isEvolveHollow = true;
+      }
+    }
+  };
 
+  // Initial check
+  handleScroll();
+
+  // Add scroll event listener
+  window.addEventListener("scroll", handleScroll);
+
+  // Clean up the event listener when the component is destroyed
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+});
 </script>
 
 <svelte:window bind:innerWidth />
@@ -364,7 +374,7 @@ const handleSubmit = (event:any) => {
 	<div class="h-full w-full flex flex-col justify-between items-center">
 		<div/>
 		<div/>
-		<h2 class="text-white max-w-[640px]">Reduce Backlog, Boost Productivity, and Unify Your Team</h2>
+		<h2 class="text-white max-w-[960px]">Reduce Backlog, Boost Productivity, and Unify Your Team</h2>
 		<ContactButton click={()=>isFormOpen=true} text="REQUEST A DEMO" />
 		<div class="label text-white mb-4">©2024 Data Dynamiq  |   All Rights Reserved</div>
 	</div>
