@@ -110,6 +110,7 @@ const handleSubmit = (event:any) => {
    
    .catch((error) => alert(error));
 
+   submitted=true;
    myForm.reset();
 };
 
@@ -162,7 +163,7 @@ const handleSubmit = (event:any) => {
 	
 			{:else}
 			
-			<form bind:this={form} class="h-full w-full mt-8 md:mt-0  flex flex-col gap-2 text-white items-start"  name="contact" method="POST" on:submit={handleSubmit} data-netlify="true" data-netlify-honeypot="bot-field" on:submit={()=>submitted=true}>
+			<form bind:this={form} class="h-full w-full mt-8 md:mt-0  flex flex-col gap-2 text-white items-start"  name="contact" method="POST" on:submit={handleSubmit} data-netlify="true" data-netlify-honeypot="bot-field">
                <Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
                 
                 <input type="hidden" name="form-name" value="contact" />
