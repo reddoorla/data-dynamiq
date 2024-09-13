@@ -187,9 +187,9 @@ const handleSubmit = (event:any) => {
                 <input type="hidden" name="form-name" value="contact" />
                     
                        
-                        <input type="text" name="name" required placeholder="NAME" class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black" />
+                        <input type="text" name="Name" required placeholder="NAME" class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black" />
                  
-                        <input type="email" name="email" required placeholder="EMAIL" class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black" />
+                        <input type="email" name="Email" required placeholder="EMAIL" class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black" />
                        
                         <p class="hidden">
                             <label>
@@ -198,7 +198,7 @@ const handleSubmit = (event:any) => {
                           </p>
                       
           
-                        <textarea name="message" required placeholder="YOUR MESSAGE" class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"/>
+                        <textarea name="Message" required placeholder="YOUR MESSAGE" class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"/>
 
 						<Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
                  
