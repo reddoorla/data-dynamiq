@@ -176,8 +176,8 @@ const handleSubmit = (event:any) => {
 			{#if submitted}
 	
 
-					<i class="fa-solid fa-thin fa-close fa-2xl text-white hover:text-light transition absolute top-8 right-5" />
-					<h4 class="text-white">Thanks for reaching out! <br/> <br/>We'll get back to you as soon as we can.</h4>
+					
+					<h5 class="text-primary">Thanks for reaching out! <br/> <br/>We'll get back to you as soon as we can.</h5>
 	
 			{:else}
 			
