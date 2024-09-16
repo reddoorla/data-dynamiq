@@ -284,7 +284,8 @@ const handleSubmit = (event:any) => {
 				<img alt='chevron-right' src={chevronRight} class='translate-x-[1px] brightness-200' />
 			  </button>
 		</ContentWidth>
-		<ContactButton click={()=>isFormOpen=true} text="REQUEST A DEMO" />
+		<div/>
+		
 	</ContentWidth>
 </div>
 
@@ -293,7 +294,7 @@ const handleSubmit = (event:any) => {
 		<h5 class="text-primary">Finally, the complete evidence workflow.</h5>
 		<p class="text-left paragraph-large">Evidence360 offers a comprehensive and integrative approach to investigators by providing an exhaustive and thorough platform for evidence handling, case tracking, analysis, and communication.
 		</p>
-		<ContactButton click={()=>isFormOpen=true} text="request demo" />
+		<ContactButton click={()=>isFormOpen=true} text="Contact Us" />
 	</div>
 </ScreenWidthImage>
 <ContentWidth class="flex flex-col items-center justify-evenly gap-24 py-24">
@@ -370,7 +371,6 @@ const handleSubmit = (event:any) => {
 			
 		</div>
 
-		<ContactButton click={()=>isFormOpen=true} text="REQUEST A DEMO" />
 
 
 		
@@ -383,7 +383,7 @@ const handleSubmit = (event:any) => {
 		<div/>
 		<div/>
 		<h2 class="text-white max-w-[960px]">Reduce Backlog, Boost Productivity, and Unify Your Team</h2>
-		<ContactButton click={()=>isFormOpen=true} text="REQUEST A DEMO" />
+		<ContactButton click={()=>isFormOpen=true} text="Contact Us" />
 		<div class="label text-white mb-4">©2024 Data Dynamiq  |   All Rights Reserved</div>
 	</div>
 </ScreenWidthImage>
