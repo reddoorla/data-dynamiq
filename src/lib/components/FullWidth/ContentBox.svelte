@@ -1,51 +1,55 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang='ts'>
     import placeholderIcon from "../../assets/icons/logos/logo.svg"
     import DefaultButton from "../Buttons/DefaultButton.svelte";
     import ArrowButton from "../Buttons/ArrowButton.svelte";
 
+    interface Props {
+        icon?: string;
+        iconAltText?: string;
+        labelText?: string;
+        titleText?: string;
+        titleTag?: string;
+        subtitleText?: string;
+        paragraphText?: string;
+        buttonText?: string;
+        linkText?: string;
+        linkHref?: string;
+        backgroundColor?: string;
+        float?: string;
+        class?: string;
+    }
 
-export let icon = "";
-export let iconAltText = "logo"
-export let labelText = ""
-export let titleText = ""
-export let titleTag = "h3"
-export let subtitleText = ""
-export let paragraphText = ""
-export let buttonText = ""
-export let linkText=""
-export let linkHref=""
+    let {
+        icon = "",
+        iconAltText = "logo",
+        labelText = "",
+        titleText = "",
+        titleTag = "h3",
+        subtitleText = "",
+        paragraphText = "",
+        buttonText = "",
+        linkText = "",
+        linkHref = "",
+        backgroundColor = "transparent",
+        float = "center",
+        class: klass = "",
+    }: Props = $props();
 
-export let backgroundColor="transparent"
-export let float = "center"
-let justify=float;
-let horizontalFloatMargin = "mx-auto"
+    let justify = $derived(
+        float === "left" ? "start" : float === "right" ? "end" : float
+    );
+    let horizontalFloatMargin = $derived(
+        float === "left" ? "ml-0 mr-auto" : float === "right" ? "ml-auto mr-0" : "mx-auto"
+    );
 
-$:{
-    justify=float;
-if(float==="left")
-    justify="start";
-if(float==="right")
-    justify="end"
-
-horizontalFloatMargin = "mx-auto"
-if(float==="left")
-    horizontalFloatMargin="ml-0 mr-auto";
-if(float==="right")
-    horizontalFloatMargin="ml-auto mr-0"
-}
-
-if(icon==="placeholder"){
-    icon = placeholderIcon;
-}
-
+    let resolvedIcon = $derived(icon === "placeholder" ? placeholderIcon : icon);
 </script>
 
-<div class="w-full flex flex-col  p-2 sm:p-8 justify-{justify} text-{float} {$$props.class || ''}"
+<div class="w-full flex flex-col  p-2 sm:p-8 justify-{justify} text-{float} {klass}"
      style="background-color: {backgroundColor}"
 >
-    {#if icon}
-        <img src={icon} alt={iconAltText} class="w-[40px] h-[40px] mb-7 {horizontalFloatMargin}"/>
+    {#if resolvedIcon}
+        <img src={resolvedIcon} alt={iconAltText} class="w-[40px] h-[40px] mb-7 {horizontalFloatMargin}"/>
     {/if}
     {#if labelText}
         <h6 class="mb-7">{labelText}</h6>
@@ -69,8 +73,8 @@ if(icon==="placeholder"){
         {#if titleTag==="h6"}
             <h6 class="mb-7">{titleText}</h6>
         {/if}
-        
-        
+
+
     {/if}
     {#if subtitleText}
         <h6 class="mb-7">{subtitleText}</h6>

@@ -6,7 +6,7 @@
   import placeholder from "$lib/assets/images/image_placeholder.svg"
   import ContactBox from "$lib/components/FullWidth/SocialsRow.svelte";
 
-  let innerWidth:number = $state();
+  let innerWidth:number = $state(0);
   const LOREM = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi."
 </script>
 

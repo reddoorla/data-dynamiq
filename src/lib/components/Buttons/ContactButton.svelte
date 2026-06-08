@@ -1,13 +1,23 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import chevron from "$lib/assets/icons/hollowChevronRight.svg"
 
-    export let text = "BUTTON";
-    export let click = ()=>{};
-    export let isSmall =false;
-    export let isVertical=false;
+    interface Props {
+        text?: string;
+        click?: () => void;
+        isSmall?: boolean;
+        isVertical?: boolean;
+        class?: string;
+    }
 
-    let isHovered = false;
+    let {
+        text = "BUTTON",
+        click = () => {},
+        isSmall = false,
+        isVertical = false,
+        class: klass = "",
+    }: Props = $props();
+
+    let isHovered = $state(false);
 </script>
 
 <style>
@@ -32,7 +42,7 @@
     }
 </style>
 
-<button on:click={click} class="flex {isVertical?"flex-col negative-bump":"flex-row bump "} items-center gap-2 text-white {$$props.class||""}" on:mouseover={()=>isHovered=true} on:focus={()=>isHovered=true} on:mouseout={()=>isHovered=false} on:blur={()=>isHovered=false}>
+<button onclick={click} class="flex {isVertical?"flex-col negative-bump":"flex-row bump "} items-center gap-2 text-white {klass}" onmouseover={()=>isHovered=true} onfocus={()=>isHovered=true} onmouseout={()=>isHovered=false} onblur={()=>isHovered=false}>
     <div class={isSmall?"small":"large"}>{text}</div>
     {#if isVertical}
     <svg xmlns="http://www.w3.org/2000/svg" class="{isHovered?"translate-y-1":""} transition-transform" width="20" height="14" viewBox="0 0 20 14" fill="none">

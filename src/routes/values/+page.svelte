@@ -13,7 +13,7 @@
   import { swipe } from "svelte-gestures";
 
 
-    let innerWidth:number = $state();    
+    let innerWidth:number = $state(0);    
     const loremParagraph = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco."
     
 

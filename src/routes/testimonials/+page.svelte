@@ -15,7 +15,7 @@
 
     const LOREM = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliquat enim ad minim veniam."
 
-    let innerWidth:number = $state();
+    let innerWidth:number = $state(0);
 
     let activeValue = $state(2);
     let showValueBox = true;
@@ -159,7 +159,7 @@
 
 <!-- testimonial #2 -->
 
-<ScreenWidthImage classContent="flex flex-col justify-evenly">
+<ScreenWidthImage>
     <ContentBox
         titleTag="h2"
         titleText="Why People Love Wireframes"

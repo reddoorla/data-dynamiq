@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang='ts'>
     import { onMount } from "svelte";
     import { swipe } from "svelte-gestures";
@@ -8,21 +7,29 @@
     import chevronLeft from "$lib/assets/icons/chevron-left.svg"
     import chevronRight from "$lib/assets/icons/chevron-right.svg"
 
-      
-      export let imageArray = [placeholder, placeholder, placeholder, placeholder];
-      export let altText = "background image"
+      interface Props {
+        imageArray?: string[];
+        altText?: string;
+        class?: string;
+      }
 
-      
-  
+      let {
+        imageArray = [placeholder, placeholder, placeholder, placeholder],
+        altText = "background image",
+        class: klass = "",
+      }: Props = $props();
+
+
+
       const SLIDER_TRANSITION_FUNCTION="cubic-bezier(.5,0,0,1)";
       const SLIDER_TRANSITION_LENGTH_IN_MS=2000;
       const SLIDER_INTERVAL_IN_MS = 5000;
 
-      let viewportWidth:number;
-  
-      let sliderIndex = 0;
-      
-      let isSlideAnimated = true;
+      let viewportWidth:number = $state(0);
+
+      let sliderIndex = $state(0);
+
+      let isSlideAnimated = $state(true);
 
       const resetSliderToStart = () => {
           setTimeout(()=>isSlideAnimated=false, SLIDER_TRANSITION_LENGTH_IN_MS)
@@ -70,11 +77,11 @@
 
   
  
-      const tripledImages = imageArray.concat(imageArray).concat(imageArray)
+      const tripledImages = $derived(imageArray.concat(imageArray).concat(imageArray))
   </script>
   <svelte:window bind:innerWidth={viewportWidth} />
       
-  <section class="pb-32 {$$props.class || ''}">
+  <section class="pb-32 {klass}">
       <div use:swipe on:swipe={handleSwipe} class="h-[320px] py-2 relative" >
         <div class="overflow-hidden w-screen mt-20 lg:mt-0" style="margin-left:{viewportWidth>1340 ? (viewportWidth-1220/2):viewportWidth*0.04};">
       <div  class="h-full flex flex-row flex-nowrap {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}"
@@ -94,10 +101,10 @@
         <ContentWidth class="h-full relative w-full">
           
 
-          <button on:click={slideLeft} class="absolute left-0 lg:top-auto lg:-left-2 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-500 hover:bg-[#424B5A] hover:border-[#424B5A] active:bg-black bump {sliderIndex===0 ? "opacity-20 pointer-events-none":""}">
+          <button onclick={slideLeft} class="absolute left-0 lg:top-auto lg:-left-2 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-500 hover:bg-[#424B5A] hover:border-[#424B5A] active:bg-black bump {sliderIndex===0 ? "opacity-20 pointer-events-none":""}">
             <img alt='chevron-left' src={chevronLeft} class='-translate-x-[1px]' />
           </button>
-          <button on:click={slideRight} class="absolute right-0 lg:right-auto lg:-left-2 lg:top-12  -translate-y-[0.7px] h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-500 justify-center hover:bg-[#424B5A] hover:border-[#424B5A] active:bg-black bump {sliderIndex===imageArray.length-1 ? "opacity-20 pointer-events-none":""}">
+          <button onclick={slideRight} class="absolute right-0 lg:right-auto lg:-left-2 lg:top-12  -translate-y-[0.7px] h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-500 justify-center hover:bg-[#424B5A] hover:border-[#424B5A] active:bg-black bump {sliderIndex===imageArray.length-1 ? "opacity-20 pointer-events-none":""}">
             <img alt='chevron-right' src={chevronRight} class='translate-x-[1px] ' />
           </button>
         </ContentWidth>

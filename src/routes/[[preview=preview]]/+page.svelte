@@ -39,7 +39,7 @@
   let isEvolveHollow = $state(true);
 
 
-    let innerWidth:number = $state();    
+    let innerWidth:number = $state(0);
     const loremParagraph = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco."
     
 
@@ -80,7 +80,7 @@
     }
 
 	let isFormOpen =$state(false);
-	let form:HTMLFormElement = $state();
+	let form:HTMLFormElement | undefined = $state();
 
 	run(() => {
 		if(typeof window !== 'undefined'){
@@ -123,7 +123,7 @@ const handleSubmit = (event:any) => {
    myForm.reset();
 };
 
-	let evolve:HTMLSpanElement = $state()
+	let evolve:HTMLSpanElement | undefined = $state()
    
 	onMount(() => {
   const handleScroll = () => {
@@ -205,7 +205,7 @@ const handleSubmit = (event:any) => {
 
 						<Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
                  
-                        <ContactButton text="request info" click={()=>form.submit()}/>
+                        <ContactButton text="request info" click={()=>form?.submit()}/>
                   
                          
                </form>

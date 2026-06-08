@@ -13,7 +13,7 @@
   import { fade } from "svelte/transition";
   import ScreenWidthImageSlider from "$lib/components/ScreenWidth/ScreenWidthImageSlider.svelte";
   
-  let innerWidth:number = $state();  
+  let innerWidth:number = $state(0);
   
   let imageArray = [placeholder, placeholder, placeholder, placeholder];
   let showImage=true;

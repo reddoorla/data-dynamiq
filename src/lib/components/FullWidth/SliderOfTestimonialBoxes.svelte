@@ -8,7 +8,7 @@
     import arrow from "$lib/assets/icons/wireframe-link-arrow-right.svg"
   
   interface Props {
-    testimonialBoxPropsArray?: ComponentProps<TestimonialBox>[];
+    testimonialBoxPropsArray?: ComponentProps<typeof TestimonialBox>[];
   }
 
   let { testimonialBoxPropsArray = [
@@ -32,7 +32,7 @@
 
     const SLIDER_INTERVAL_IN_MS = 5000;
     let sliderIndex = $state(0);
-    let sliderInterval: NodeJS.Timeout;
+    let sliderInterval: ReturnType<typeof setInterval>;
     let sliderWidth = 100 / testimonialBoxPropsArray.length / 5;
     let isSlideAnimated = $state(true);
 

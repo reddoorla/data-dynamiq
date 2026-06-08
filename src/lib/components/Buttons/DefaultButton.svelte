@@ -1,8 +1,17 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
-    export let text = "BUTTON";
-    export let click = ()=>{};
-    export let filled = true;
+    interface Props {
+        text?: string;
+        click?: () => void;
+        filled?: boolean;
+        class?: string;
+    }
+
+    let {
+        text = "BUTTON",
+        click = () => {},
+        filled = true,
+        class: klass = "",
+    }: Props = $props();
 </script>
 
 <style>
@@ -33,11 +42,11 @@
 </style>
 
 
-<button on:click={click} 
+<button onclick={click}
         class="{filled ?
-         "bg-dark bg-opacity-80 hover:bg-opacity-100 active:bg-black  text-white" 
-         : 
-         "hover:bg-dark text-dark hover:text-white active:bg-black " 
-         } border-2 border-dark w-full md:w-auto text-center mb-5 sm:mb-0 uppercase cursor-pointer text-nowrap transition-all duration-300 active:-translate-y-2 {$$props.class || ''}">
+         "bg-dark bg-opacity-80 hover:bg-opacity-100 active:bg-black  text-white"
+         :
+         "hover:bg-dark text-dark hover:text-white active:bg-black "
+         } border-2 border-dark w-full md:w-auto text-center mb-5 sm:mb-0 uppercase cursor-pointer text-nowrap transition-all duration-300 active:-translate-y-2 {klass}">
         {text}
 </button>
