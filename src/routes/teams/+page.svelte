@@ -57,7 +57,7 @@
         },
     ];
 
-    let innerWidth:number;
+    let innerWidth:number = $state();
 </script>
 
 <svelte:head><title>Teams | Reddoor Wireframe</title></svelte:head>

@@ -37,7 +37,7 @@
     duration: 200
   });
 
-    let isOverlayVisible = false;
+    let isOverlayVisible = $state(false);
 
     const toggleOverlayOn = () => isOverlayVisible = true;
     const toggleOverlayOff = () => isOverlayVisible = false;
@@ -54,7 +54,7 @@
         <a href={item.href} class="text-white text-2xl">{item.label}</a>
     {/each}
 
-    <button class="absolute top-5 right-5 opacity-60 hover:opacity-100 transition-all z-40" on:click={toggleOverlayOff}>
+    <button class="absolute top-5 right-5 opacity-60 hover:opacity-100 transition-all z-40" onclick={toggleOverlayOff}>
         <div in:fade={{delay: 600}} out:fade class="text-white">
         <FontAwesomeIcon icon={faClose} size="3x" />
         </div>
@@ -79,7 +79,7 @@
         <div class="hidden md:flex">   
             <DefaultButton text="BUTTON" click={toggleOverlayOn} />
         </div> 
-        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all " on:click={toggleOverlayOn}>
+        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all " onclick={toggleOverlayOn}>
            
             <FontAwesomeIcon icon={faBars} size="2x"/>
         
@@ -106,7 +106,7 @@
                 {/each}
             </div>
        
-        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
             <FontAwesomeIcon icon={faBars} size="2x"/>
             {/if}
@@ -122,7 +122,7 @@
 <div class="h-16 w-screen">
     <ContentWidth class="flex flex-row justify-between items-center h-full">
 
-        <button class="opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
             <FontAwesomeIcon icon={faBars} size="2x"/>
             {/if}
@@ -133,7 +133,7 @@
             <img src={logoFull} alt="logo"/>
         </a>
 
-        <button class="ml-6 opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
             {#if !isOverlayVisible}
              <FontAwesomeIcon icon={faSearch} size="xl"/>
              {/if}
@@ -153,7 +153,7 @@
         <a href="/" class="hover:opacity-80 transition-all duration-500 bump">
             <img src={logoFull} alt="logo"/>
         </a>
-        <button class="opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
             {#if !isOverlayVisible}
              <FontAwesomeIcon icon={faBars} size="2x"/>
              {/if}
@@ -175,7 +175,7 @@
                 {/each}
             </div>
        
-        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
             <FontAwesomeIcon icon={faBars} size="2x"/>
             {/if}
@@ -208,13 +208,13 @@
                 {/each}
             </div>
        
-        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
             <FontAwesomeIcon icon={faBars} size="2x"/>
             {/if}
         
         </button>
-        <button class="ml-6 opacity-60 hover:opacity-100 transition-all" on:click={toggleOverlayOn}>
+        <button class="ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
             
             {#if !isOverlayVisible}
              <FontAwesomeIcon icon={faSearch} size="xl"/>

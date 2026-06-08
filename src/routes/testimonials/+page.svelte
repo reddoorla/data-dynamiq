@@ -1,4 +1,6 @@
 <script lang='ts'>
+  import { run } from 'svelte/legacy';
+
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
     import TestimonialBox from "$lib/components/FullWidth/TestimonialBox.svelte";
@@ -13,9 +15,9 @@
 
     const LOREM = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliquat enim ad minim veniam."
 
-    let innerWidth:number;
+    let innerWidth:number = $state();
 
-    let activeValue = 2;
+    let activeValue = $state(2);
     let showValueBox = true;
     const setActiveValue = (i:number) => activeValue=i;
     const setActiveValueWithDelay = (i:number) => {
@@ -27,12 +29,12 @@
   }
 
     
-  let sliderNumber = (2-activeValue)*100
-    let sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
-    $:{
+  let sliderNumber = $state((2-activeValue)*100)
+    let sliderStyleString = $state("transform:translateX(" + sliderNumber + "vw);");
+    run(() => {
         sliderNumber = (2-activeValue)*100
         sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
-    }
+    });
 
     const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) =>{
         let direction = e.detail.direction;
@@ -93,7 +95,7 @@
         </div>
     </div>
     {:else}
-    <div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} on:swipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
+    <div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} onswipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
     style={innerWidth < 1024 ? sliderStyleString : ""}>
 <div class="w-[320px]">
     <TestimonialBox 
@@ -136,15 +138,15 @@
 <div class="absolute h-10 flex align-middle justify-start xl:left-8 translate-x-[2px] -bottom-16 lg:hidden">
 
     <div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===1 ? "bg-dark border-dark" : "border-light"}"
-        on:click={()=>setActiveValue(1)}
+        onclick={()=>setActiveValue(1)}
         aria-hidden
     ></div>
     <div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===2 ? "bg-dark border-dark" : "border-light"}"
-        on:click={()=>setActiveValue(2)}
+        onclick={()=>setActiveValue(2)}
         aria-hidden
     ></div>
     <div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===3 ? "bg-dark border-dark" : "border-light"}"
-        on:click={()=>setActiveValue(3)}
+        onclick={()=>setActiveValue(3)}
         aria-hidden
     ></div>
     

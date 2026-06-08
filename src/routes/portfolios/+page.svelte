@@ -53,11 +53,11 @@
     ];
 
     let filters = ['Dev', 'UX', 'UI'];
-    let activeFilters:any[]|undefined;;
-    let activeFilterValues:string[]|undefined;
-    $: activeFilterValues = activeFilters?.map(filter => filter.value);
+    let activeFilters:any[]|undefined = $state();;
+    let activeFilterValues:string[]|undefined = $derived(activeFilters?.map(filter => filter.value));
+    
 
-    $: filteredPortfolioItems = PORTFOLIO_ITEMS.filter(item => {
+    let filteredPortfolioItems = $derived(PORTFOLIO_ITEMS.filter(item => {
     if (!activeFilterValues||activeFilterValues.length==0) {
       return true;
     }
@@ -66,10 +66,10 @@
       return false;
     }
         return  activeFilterValues.every(tag => item.filters.includes(tag));
-  });
+  }));
 
 
-    let selectHover = false;
+    let selectHover = $state(false);
 
 
 </script>
@@ -105,7 +105,7 @@
         float="center"
         />
     </div>
-    <div class="max-w-[720px] w-full mx-auto cursor-pointer relative" role="separator" on:mouseover={()=> selectHover=true} on:focus={()=> selectHover=true} on:mouseout={()=> selectHover=false} on:blur={()=> selectHover=false} >
+    <div class="max-w-[720px] w-full mx-auto cursor-pointer relative" role="separator" onmouseover={()=> selectHover=true} onfocus={()=> selectHover=true} onmouseout={()=> selectHover=false} onblur={()=> selectHover=false} >
         <Select items={filters} bind:value={activeFilters} placeholder="Type of Project" multiple={true} searchable={false} class="svelte-select" />
         <div class="absolute h-full aspect-square right-0 top-0 flex items-center justify-center pointer-events-none">
             <img src={dropdownArrow} alt="decorative dropdown arrow" aria-hidden class:opacity-55={selectHover}  class=" transition-all pointer-events-none"/>

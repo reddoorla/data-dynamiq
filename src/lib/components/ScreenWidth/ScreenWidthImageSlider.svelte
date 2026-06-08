@@ -6,18 +6,29 @@
 	import chevronLeft from "$lib/assets/icons/chevron-left.svg"
     import chevronRight from "$lib/assets/icons/chevron-right.svg"
     
-    export let imageArray = [placeholder, placeholder, placeholder, placeholder];
-    export let altText = "background image"
-	export let dotFloat = "left";
-	export let hasArrows = false;
+	interface Props {
+		imageArray?: any;
+		altText?: string;
+		dotFloat?: string;
+		hasArrows?: boolean;
+		children?: import('svelte').Snippet;
+	}
+
+	let {
+		imageArray = [placeholder, placeholder, placeholder, placeholder],
+		altText = "background image",
+		dotFloat = "left",
+		hasArrows = false,
+		children
+	}: Props = $props();
 
 	const SLIDER_TRANSITION_FUNCTION="cubic-bezier(.5,0,0,1)";
 	const SLIDER_TRANSITION_LENGTH_IN_MS=2000;
 	const SLIDER_INTERVAL_IN_MS = 5000;
 
-    let sliderIndex = 0;
+    let sliderIndex = $state(0);
 	
-	let isSlideAnimated = true;
+	let isSlideAnimated = $state(true);
 	let nextSlideIndex = 1;
 	let previousSlideIndex = imageArray.length-1;
 
@@ -100,7 +111,7 @@
 </script>
     
 <section>
-    <div use:swipe on:swipe={handleSwipe} class="h-[160vw] sm:h-[90vw] xl:h-[60vw] lg:max-h-screen relative overflow-hidden" >
+    <div use:swipe onswipe={handleSwipe} class="h-[160vw] sm:h-[90vw] xl:h-[60vw] lg:max-h-screen relative overflow-hidden" >
     <div  class="h-full flex flex-row flex-nowrap {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}"
     style= "width:{100*tripledImages.length}vw; transform:translateX({-(sliderIndex+imageArray.length)*100}vw); ">
 		
@@ -115,12 +126,12 @@
     </div>
     <div class="absolute flex justify-center w-full h-full top-0 left-0">
         <ContentWidth class="h-full relative w-full">
-        <slot />
+        {@render children?.()}
         <div class="absolute h-10 flex align-middle justify-start {dotFloat === "left" ? "left-[4%]  xl:left-8" : ""} {dotFloat === "left" ? "left-[4%]  xl:left-8 translate-x-[2px]" : ""} {dotFloat === "right" ? "right-[4%]  xl:right-8 -translate-x-[2px]" : ""} {dotFloat === "center" ? "left-1/2 -translate-x-1/2" : ""}  bottom-10">
             {#each  imageArray as image, i}
                 <button class="h-[10px] w-[10px] border-2  rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4 
 								{(sliderIndex%imageArray.length>=0&&sliderIndex%imageArray.length===i)|| (sliderIndex%imageArray.length<=0&&imageArray.length+sliderIndex%imageArray.length===i) ? "bg-dark border-dark" : "border-light"}"
-                    on:click={()=>setSliderIndex(i)}
+                    onclick={()=>setSliderIndex(i)}
                     aria-label="image {i} of {imageArray.length}"
                     aria-hidden
                 ></button>
@@ -129,8 +140,8 @@
 		
 	</ContentWidth>
 		{#if hasArrows}
-			<button on:click={slideRight} class="absolute top-1/2 -translate-y-1/2 left-6"><img src={chevronLeft} class="w-3 md:w-4" /></button>
-			<button on:click={slideLeft} class="absolute top-1/2 -translate-y-1/2 right-6"><img src={chevronRight} class="w-3 md:w-4" /></button>
+			<button onclick={slideRight} class="absolute top-1/2 -translate-y-1/2 left-6"><img src={chevronLeft} class="w-3 md:w-4" /></button>
+			<button onclick={slideLeft} class="absolute top-1/2 -translate-y-1/2 right-6"><img src={chevronRight} class="w-3 md:w-4" /></button>
 		{/if}
     </div>
 </div>

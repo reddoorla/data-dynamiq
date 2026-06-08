@@ -14,8 +14,8 @@
 
     Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.`;
 
-    let step = 1;
-    let showStepBox = true;
+    let step = $state(1);
+    let showStepBox = $state(true);
 
     const setStepWithDelay = (i:number) => {
         showStepBox = false;
@@ -102,18 +102,18 @@
     <div class="w-11/12 h-24 relative flex flex-row justify-between">
         <div class="plan-line absolute top-6 translate-y-[1.5px] left-[50px] -z-10"></div>
         <button class="flex flex-col justify-center items-center hover:opacity-95"
-            on:click={()=>setStepWithDelay(1)}
+            onclick={()=>setStepWithDelay(1)}
         >
             <div class="w-12 h-12 {step==1 ? "bg-black":"bg-dark"} hover:bg-black transition-all duration-300 rounded-full text-white flex justify-center items-center mb-5"><p class="translate-y-[1px]">1</p></div>
             <h6>Sign Up</h6>
         </button>
         <button class="flex flex-col justify-center items-center hover:bg-opacity-95"
-        on:click={()=>setStepWithDelay(2)}>
+        onclick={()=>setStepWithDelay(2)}>
             <div class="w-12 h-12 {step==2 ? "bg-black":"bg-dark"} transition-all duration-300 hover:bg-black rounded-full text-white flex justify-center items-center mb-5"><p class="translate-y-[1px]">2</p></div>
             <h6>Set Up</h6>
         </button> 
         <button class="flex flex-col justify-center items-center transition-opacity hover:opacity-95 cursor-pointer"
-             on:click={()=>setStepWithDelay(3)}
+             onclick={()=>setStepWithDelay(3)}
         >
             <div class="w-12 h-12 {step==3 ? "bg-black":"bg-dark"} hover:bg-black transition-all duration-300 rounded-full text-white flex justify-center items-center mb-5"><p class="translate-y-[1px]">3</p></div>
             <h6>Share</h6>

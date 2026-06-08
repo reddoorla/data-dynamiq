@@ -13,7 +13,7 @@
   import { fade } from "svelte/transition";
   import ScreenWidthImageSlider from "$lib/components/ScreenWidth/ScreenWidthImageSlider.svelte";
   
-  let innerWidth:number;  
+  let innerWidth:number = $state();  
   
   let imageArray = [placeholder, placeholder, placeholder, placeholder];
   let showImage=true;
@@ -23,9 +23,9 @@
   const SLIDER_INTERVAL_IN_MS = 5000;
 
 
-  let sliderIndex = 0;
+  let sliderIndex = $state(0);
       
-      let isSlideAnimated = true;
+      let isSlideAnimated = $state(true);
 
       const resetSliderToStart = () => {
           setTimeout(()=>isSlideAnimated=false, SLIDER_TRANSITION_LENGTH_IN_MS)
@@ -126,7 +126,7 @@
     
 <ContentWidth class="flex flex-col lg:flex-row relative">
     {#if innerWidth<=768}
-        <div use:swipe on:swipe={handleSwipe} class="w-full">
+        <div use:swipe onswipe={handleSwipe} class="w-full">
             <div style="width: {tripledImages.length*108}%; margin-left:-112%; transform:translateX({-(sliderIndex)/tripledImages.length*100}%);" class="flex flex-row justify-between flex-nowrap overflow-hidden {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}">
             {#each tripledImages as image }
                 <div style="width: {92/tripledImages.length}%" class="mx-auto">
@@ -137,18 +137,18 @@
         </div>
 
         <div class="h-10 w-5/6 flex align-middle justify-center mt-6 mx-auto pr-4">
-            <button class="h-[10px] mr-8" on:click={slideRight}>
+            <button class="h-[10px] mr-8" onclick={slideRight}>
                 <img src={chevronLeft} alt="previous slide"/>
             </button>
             {#each  imageArray as image, i}
                 <button class="h-[10px] w-[10px] border-2  rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4 
 								{(sliderIndex%imageArray.length>=0&&sliderIndex%imageArray.length===i)|| (sliderIndex%imageArray.length<=0&&imageArray.length+sliderIndex%imageArray.length===i) ? "bg-dark border-dark" : "border-light"}"
-                    on:click={()=>setSliderIndex(i)}
+                    onclick={()=>setSliderIndex(i)}
                     aria-label="image {i} of {imageArray.length}"
                     aria-hidden
                 ></button>
             {/each}
-            <button class="h-[10px] ml-4" on:click={slideLeft}>
+            <button class="h-[10px] ml-4" onclick={slideLeft}>
                 <img src={chevronRight}  alt="next slide"/>
             </button>
         </div>
@@ -165,18 +165,18 @@
         />
         {#if innerWidth>768}
         <div class="h-10 w-5/6 flex align-middle justify-center mt-6 -ml-8">
-            <button class="h-[10px] mr-8" on:click={slideRight}>
+            <button class="h-[10px] mr-8" onclick={slideRight}>
                 <img src={chevronLeft} alt="previous slide"/>
             </button>
             {#each  imageArray as image, i}
                 <button class="h-[10px] w-[10px] border-2  rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4 
 								{(sliderIndex%imageArray.length>=0&&sliderIndex%imageArray.length===i)|| (sliderIndex%imageArray.length<=0&&imageArray.length+sliderIndex%imageArray.length===i) ? "bg-dark border-dark" : "border-light"}"
-                    on:click={()=>setSliderIndex(i)}
+                    onclick={()=>setSliderIndex(i)}
                     aria-label="image {i} of {imageArray.length}"
                     aria-hidden
                 ></button>
             {/each}
-            <button class="h-[10px] ml-4" on:click={slideLeft}>
+            <button class="h-[10px] ml-4" onclick={slideLeft}>
                 <img src={chevronRight}  alt="next slide"/>
             </button>
         </div>
@@ -185,7 +185,7 @@
     </div>
     <div class="w-0 h-0 lg:w-1/2"></div>
     {#if innerWidth<=1024&&innerWidth>768}
-        <div use:swipe on:swipe={handleSwipe} class="w-full">
+        <div use:swipe onswipe={handleSwipe} class="w-full">
             <div style="width: {tripledImages.length*108}%; margin-left:-112%; transform:translateX({-(sliderIndex)/tripledImages.length*100}%);" class="flex flex-row justify-between flex-nowrap overflow-hidden {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}">
             {#each tripledImages as image }
                 <div style="width: {92/tripledImages.length}%" class="mx-auto">
@@ -197,7 +197,7 @@
     {/if}
 </ContentWidth>
 {#if innerWidth>1024}
-<div use:swipe on:swipe={handleSwipe} class="w-1/2 absolute top-0 right-0 ">
+<div use:swipe onswipe={handleSwipe} class="w-1/2 absolute top-0 right-0 ">
     {#key sliderIndex}
         <div out:fade={{duration:300}} in:fade={{delay:500, duration:300}}>
             {#each tripledImages as image, i }

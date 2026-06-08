@@ -2,10 +2,10 @@
     import { FontAwesomeIcon} from '@fortawesome/svelte-fontawesome'
     import { faFacebook, faTwitter, faReddit, faInstagram, faLinkedin} from '@fortawesome/free-brands-svg-icons'
     
-    export let socials= [{
+    let { socials = [{
         platform: "",
         href:""
-                        }];
+                        }] } = $props();
 
     
 </script>

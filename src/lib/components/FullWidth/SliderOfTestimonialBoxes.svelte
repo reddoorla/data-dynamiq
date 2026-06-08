@@ -7,7 +7,11 @@
     import chevronRight from "../../assets/icons/chevron-right.svg";
     import arrow from "$lib/assets/icons/wireframe-link-arrow-right.svg"
   
-    export let testimonialBoxPropsArray: ComponentProps<TestimonialBox>[] = [
+  interface Props {
+    testimonialBoxPropsArray?: ComponentProps<TestimonialBox>[];
+  }
+
+  let { testimonialBoxPropsArray = [
       {
         icon: "",
         float: "left",
@@ -23,14 +27,14 @@
         attributionLabel: "a knowledgable person"
     },
       
-    ];
+    ] }: Props = $props();
   
 
     const SLIDER_INTERVAL_IN_MS = 5000;
-    let sliderIndex = 0;
+    let sliderIndex = $state(0);
     let sliderInterval: NodeJS.Timeout;
     let sliderWidth = 100 / testimonialBoxPropsArray.length / 5;
-    let isSlideAnimated = true;
+    let isSlideAnimated = $state(true);
 
   
     const resetSlider = () => {
@@ -73,7 +77,7 @@
     const quintupledPropsArray = [...testimonialBoxPropsArray, ...testimonialBoxPropsArray, ...testimonialBoxPropsArray, ...testimonialBoxPropsArray, ...testimonialBoxPropsArray];
   </script>
   
-  <div use:swipe on:swipe={handleSwipe} class="w-full h-full relative overflow-hidden">
+  <div use:swipe onswipe={handleSwipe} class="w-full h-full relative overflow-hidden">
     <div class="flex flex-row flex-nowrap  {isSlideAnimated ? 'transition-transform duration-500 ease-in-out' : ''}" style="width: {quintupledPropsArray.length * 100}%; transform: translateX(-{(sliderIndex+testimonialBoxPropsArray.length) * sliderWidth}%);">
       {#each quintupledPropsArray as testimonialBoxProps}
         <div class="h-full z-0" style="width: {sliderWidth}%;">
@@ -83,10 +87,10 @@
     </div>
   
     <div class="ml-8 h-6 w-16 flex justify-between z-10 absolute bottom-0  left-0">
-      <button on:click={slideRight} class="h-6 w-6 rounded-full p-1 flex align-middle justify-center cursor-pointer transition-all duration-300 active:-translate-y-2  hover:bg-[#C2D1D9] ">
+      <button onclick={slideRight} class="h-6 w-6 rounded-full p-1 flex align-middle justify-center cursor-pointer transition-all duration-300 active:-translate-y-2  hover:bg-[#C2D1D9] ">
         <img alt='chevron-left' src={arrow} class='-translate-x-[1px] rotate-180 opacity-40 hover:opacity-100' />
       </button>
-      <button on:click={slideLeft} class="h-6 w-6 rounded-full p-1 flex align-middle cursor-pointer transition-all duration-300 active:-translate-y-2 justify-center hover:bg-[#C2D1D9] ">
+      <button onclick={slideLeft} class="h-6 w-6 rounded-full p-1 flex align-middle cursor-pointer transition-all duration-300 active:-translate-y-2 justify-center hover:bg-[#C2D1D9] ">
         <img alt='chevron-right' src={arrow} class='opacity-40 hover:opacity-100 translate-x-[1px]' />
       </button>
     </div>

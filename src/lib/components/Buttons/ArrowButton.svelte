@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script>
     import linkArrow from "$lib/assets/icons/wireframe-link-arrow-right.svg"
     export let text = "";

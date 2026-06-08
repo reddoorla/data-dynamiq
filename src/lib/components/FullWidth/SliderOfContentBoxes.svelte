@@ -6,7 +6,13 @@
     import chevronLeft from "../../assets/icons/chevron-left.svg";
     import chevronRight from "../../assets/icons/chevron-right.svg";
   
-    export let contentBoxPropsArray: ComponentProps<ContentBox>[] = [
+
+  interface Props {
+    contentBoxPropsArray?: ComponentProps<ContentBox>[];
+    isNumbered?: boolean;
+  }
+
+  let { contentBoxPropsArray = [
       {
         icon: "",
         float: "left",
@@ -19,16 +25,14 @@
         titleText: "Generic Content 2",
         paragraphText: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi."
       }
-    ];
-
-    export let isNumbered = false;
+    ], isNumbered = false }: Props = $props();
   
 
     const SLIDER_INTERVAL_IN_MS = 5000;
-    let sliderIndex = 0;
+    let sliderIndex = $state(0);
     let sliderInterval: NodeJS.Timeout;
     let sliderWidth = 100 / contentBoxPropsArray.length / 5;
-    let isSlideAnimated = true;
+    let isSlideAnimated = $state(true);
 
   
     const resetSlider = () => {
@@ -71,7 +75,7 @@
     const quintupledPropsArray = [...contentBoxPropsArray, ...contentBoxPropsArray, ...contentBoxPropsArray, ...contentBoxPropsArray, ...contentBoxPropsArray];
   </script>
   
-  <div use:swipe on:swipe={handleSwipe} class="w-full h-full relative overflow-hidden">
+  <div use:swipe onswipe={handleSwipe} class="w-full h-full relative overflow-hidden">
     <div class="flex flex-row flex-nowrap  {isSlideAnimated ? 'transition-transform duration-500 ease-in-out' : ''}" style="width: {quintupledPropsArray.length * 100}%; transform: translateX(-{(sliderIndex+contentBoxPropsArray.length) * sliderWidth}%);">
       {#each quintupledPropsArray as contentBoxProps, i (i)}
         <div class="h-full z-0" style="width: {sliderWidth}%;">
@@ -84,10 +88,10 @@
     </div>
   
     <div class="ml-8 h-6 w-16 flex justify-between z-10 absolute bottom-0 lg:bottom-[10%] xl:bottom-[20%] left-0">
-      <button on:click={slideRight} class="h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-300 active:-translate-y-2  hover:bg-[#424B5A] hover:border-[#424B5A]">
+      <button onclick={slideRight} class="h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-300 active:-translate-y-2  hover:bg-[#424B5A] hover:border-[#424B5A]">
         <img alt='chevron-left' src={chevronLeft} class='-translate-x-[1px]' />
       </button>
-      <button on:click={slideLeft} class="h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-300 active:-translate-y-2 justify-center hover:bg-[#424B5A] hover:border-[#424B5A]">
+      <button onclick={slideLeft} class="h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-300 active:-translate-y-2 justify-center hover:bg-[#424B5A] hover:border-[#424B5A]">
         <img alt='chevron-right' src={chevronRight} class='translate-x-[1px]' />
       </button>
     </div>

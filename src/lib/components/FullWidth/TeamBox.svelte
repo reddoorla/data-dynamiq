@@ -5,15 +5,26 @@
     import { faFacebook, faTwitter, faReddit, faInstagram} from '@fortawesome/free-brands-svg-icons'
     
 
-    export let src = profile_placeholder;
-    export let alt = "profile picture placeholder"
-    export let href = ""
-    export let name = ""
-    export let title =""
-    export let socials= [{
+    interface Props {
+        src?: any;
+        alt?: string;
+        href?: string;
+        name?: string;
+        title?: string;
+        socials?: any;
+    }
+
+    let {
+        src = profile_placeholder,
+        alt = "profile picture placeholder",
+        href = "",
+        name = "",
+        title = "",
+        socials = [{
         platform: "",
         href:""
-                        }];
+                        }]
+    }: Props = $props();
 
     
 </script>

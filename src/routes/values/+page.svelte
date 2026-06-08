@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import Spacer from "$lib/components/Spacer.svelte";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
@@ -11,12 +13,12 @@
   import { swipe } from "svelte-gestures";
 
 
-    let innerWidth:number;    
+    let innerWidth:number = $state();    
     const loremParagraph = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco."
     
 
-    let activeValue = 2;
-    let showValueBox = true;
+    let activeValue = $state(2);
+    let showValueBox = $state(true);
     const setActiveValue = (i:number) => activeValue=i;
     const setActiveValueWithDelay = (i:number) => {
         showValueBox = false;
@@ -27,12 +29,12 @@
   }
 
     
-  let sliderNumber = (2-activeValue)*100
-    let sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
-    $:{
+  let sliderNumber = $state((2-activeValue)*100)
+    let sliderStyleString = $state("transform:translateX(" + sliderNumber + "vw);");
+    run(() => {
         sliderNumber = (2-activeValue)*100
         sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
-    }
+    });
 
     const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) =>{
         let direction = e.detail.direction;
@@ -55,7 +57,7 @@
 <!-- values block #1 -->
 <ContentWidth>
     <h2 class="mb-16 text-center">Here is our Value Proposition</h2>
-    <div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} on:swipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
+    <div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} onswipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
             style={innerWidth < 1024 ? sliderStyleString : ""}>
         <div class="w-[360px]">
         <ContentBox 
@@ -85,23 +87,23 @@
     <div class="absolute h-10 flex align-middle justify-start xl:left-8 translate-x-[2px] -bottom-4 lg:hidden">
         
             <div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===1 ? "bg-dark border-dark" : "border-light"}"
-                on:click={()=>setActiveValue(1)}
+                onclick={()=>setActiveValue(1)}
                 aria-hidden
             ></div>
             <div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===2 ? "bg-dark border-dark" : "border-light"}"
-                on:click={()=>setActiveValue(2)}
+                onclick={()=>setActiveValue(2)}
                 aria-hidden
             ></div>
             <div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===3 ? "bg-dark border-dark" : "border-light"}"
-                on:click={()=>setActiveValue(3)}
+                onclick={()=>setActiveValue(3)}
                 aria-hidden
             ></div>
             
     </div>
-    <button on:click={()=>activeValue--} class="{activeValue==1||innerWidth>1024 ? "hidden" : ""} absolute left-0 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-500 hover:bg-[#424B5A] hover:border-[#424B5A]">
+    <button onclick={()=>activeValue--} class="{activeValue==1||innerWidth>1024 ? "hidden" : ""} absolute left-0 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-500 hover:bg-[#424B5A] hover:border-[#424B5A]">
         <img alt='chevron-left' src={chevronLeft} class='-translate-x-[1px]' />
       </button>
-      <button on:click={()=>activeValue++} class="{activeValue==3||innerWidth>1024 ? "hidden" : ""} absolute right-0 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-500 justify-center hover:bg-[#424B5A] hover:border-[#424B5A]">
+      <button onclick={()=>activeValue++} class="{activeValue==3||innerWidth>1024 ? "hidden" : ""} absolute right-0 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-500 justify-center hover:bg-[#424B5A] hover:border-[#424B5A]">
         <img alt='chevron-right' src={chevronRight} class='translate-x-[1px]' />
       </button>
 </ContentWidth>

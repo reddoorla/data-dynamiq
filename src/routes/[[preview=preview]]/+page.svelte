@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import logo from "$lib/assets/icons/logos/evidence360.svg"
 	import bg1 from "$lib/assets/images/digitalBg.jpg"
 	import mac from "$lib/assets/images/mac.jpg"
@@ -34,14 +36,14 @@
   import { onMount } from "svelte";
 
 
-  let isEvolveHollow = true;
+  let isEvolveHollow = $state(true);
 
 
-    let innerWidth:number;    
+    let innerWidth:number = $state();    
     const loremParagraph = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco."
     
 
-    let activeValue = 1;
+    let activeValue = $state(1);
     let showValueBox = true;
     const setActiveValue = (i:number) => activeValue=i;
     const setActiveValueWithDelay = (i:number) => {
@@ -52,20 +54,20 @@
         }, 300);
   }
 
-  $:{
+  run(() => {
 	if(activeValue<1)
 		activeValue=1;
 	if(activeValue>3)
 		activeValue=3;
-  }
+  });
 
     
-  let sliderNumber = (2-activeValue)*100
-    let sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
-    $:{
+  let sliderNumber = $state((2-activeValue)*100)
+    let sliderStyleString = $state("transform:translateX(" + sliderNumber + "vw);");
+    run(() => {
         sliderNumber = (2-activeValue)*100
         sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
-    }
+    });
 
     const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) =>{
         let direction = e.detail.direction;
@@ -77,10 +79,10 @@
 
     }
 
-	let isFormOpen =false;
-	let form:HTMLFormElement;
+	let isFormOpen =$state(false);
+	let form:HTMLFormElement = $state();
 
-	$: {
+	run(() => {
 		if(typeof window !== 'undefined'){
 		if(isFormOpen){
 			document.body.style.top = `-${window.scrollY}px`;
@@ -92,9 +94,9 @@
 			window.scrollTo(0, parseInt(scrollY || '0') * -1);
 			submitted=false;
 		}}
-	}
+	});
 
-	let submitted=false;
+	let submitted=$state(false);
 
 const handleSubmit = (event:any) => {
  event.preventDefault();
@@ -121,7 +123,7 @@ const handleSubmit = (event:any) => {
    myForm.reset();
 };
 
-	let evolve:HTMLSpanElement
+	let evolve:HTMLSpanElement = $state()
    
 	onMount(() => {
   const handleScroll = () => {
@@ -164,9 +166,9 @@ const handleSubmit = (event:any) => {
 
 {#if isFormOpen}
 <div class="w-screen h-screen top-0 left-0 fixed pointer-events-none z-20">
-	<button transition:fade class="w-full h-full absolute top-0 left-0 bg-black opacity-40 pointer-events-auto" on:click={()=>isFormOpen=false}/>
+	<button transition:fade class="w-full h-full absolute top-0 left-0 bg-black opacity-40 pointer-events-auto" onclick={()=>isFormOpen=false}></button>
 	<div transition:fly={{x:"-100%"}} class="w-full lg:w-3/5 h-full lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-0 lg:top-[20%] bg-black left-0 gap-16 lg:left-[20%] pointer-events-auto overflow-y-scroll">
-		<button class="absolute top-6 right-6" on:click={()=>isFormOpen=false}><i class="text-white hover:text-light transtition bump fa-regular fa-sharp fa-close fa-2xl"/></button>
+		<button class="absolute top-6 right-6" onclick={()=>isFormOpen=false}><i class="text-white hover:text-light transtition bump fa-regular fa-sharp fa-close fa-2xl"></i></button>
 
 		<div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
 			<h5 class="text-white">Contact us</h5>
@@ -181,7 +183,7 @@ const handleSubmit = (event:any) => {
 	
 			{:else}
 			
-			<form bind:this={form} class="h-full w-full mt-8 md:mt-0  flex flex-col gap-2 text-white items-start"  name="contact" method="POST" on:submit={handleSubmit} data-netlify="true" data-netlify-honeypot="bot-field">
+			<form bind:this={form} class="h-full w-full mt-8 md:mt-0  flex flex-col gap-2 text-white items-start"  name="contact" method="POST" onsubmit={handleSubmit} data-netlify="true" data-netlify-honeypot="bot-field">
                
                 
                 <input type="hidden" name="form-name" value="contact" />
@@ -199,7 +201,7 @@ const handleSubmit = (event:any) => {
                           </p>
                       
 						  <label for="message" class="hidden">Message</label>
-                        <textarea id="message" name="message" required placeholder="YOUR MESSAGE" class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"/>
+                        <textarea id="message" name="message" required placeholder="YOUR MESSAGE" class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"></textarea>
 
 						<Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
                  
@@ -216,7 +218,7 @@ const handleSubmit = (event:any) => {
 <div class="h-16 w-screen  fixed top-0 left-0 z-10">
 	<ContentWidth class="h-16 flex flex-row justify-between lg:justify-center items-center relative">
 	
-		<button class="h-6" on:click={()=>window.scrollTo({top:0, left:0, behavior:"smooth"})}><img src={logo} alt="evidence 360" /></button>
+		<button class="h-6" onclick={()=>window.scrollTo({top:0, left:0, behavior:"smooth"})}><img src={logo} alt="evidence 360" /></button>
 		
 		<ContactButton text="CONTACT US" isSmall class="absolute right-0 top-1/2 -translate-y-1/2" click={()=>isFormOpen=true}/>
 	</ContentWidth>
@@ -224,7 +226,7 @@ const handleSubmit = (event:any) => {
 
 <ScreenWidthImage image={bg1} >
 	<div class="w-full h-full flex flex-col justify-between items-center py-12 md:py-32">
-	<div/>
+	<div></div>
 	<h1 class=" max-w-screen-xl"> The software system that unifies the Digital Evidence workflow. </h1>
 	<ContactButton text="LET’S ANALYZE" isVertical click={()=>window.scrollTo({left:0, top:window.innerHeight, behavior:'smooth'})}/>
 	</div>
@@ -234,7 +236,7 @@ const handleSubmit = (event:any) => {
 		<h2 class="text-white outlined">We Live in an <span bind:this={evolve} class="{isEvolveHollow?"text-black":"text-white"} transition duration-[3200ms] ease-fast-slow">Evolving</span> Digital Age</h2>
 		<ContentWidth>
 
-			<div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} on:swipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
+			<div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} onswipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
 					style={innerWidth < 1024 ? sliderStyleString : ""}>
 				<div class="w-[380px]">
 				<ContentBox 
@@ -264,27 +266,27 @@ const handleSubmit = (event:any) => {
 			<div class="absolute h-10 flex align-middle justify-start xl:left-8 translate-x-[2px] -bottom-4 lg:hidden">
 				
 					<div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===1 ? "bg-primary border-primary" : "border-white"}"
-						on:click={()=>setActiveValue(1)}
+						onclick={()=>setActiveValue(1)}
 						aria-hidden
 					></div>
 					<div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===2 ? "bg-primary border-primary" : "border-white"}"
-						on:click={()=>setActiveValue(2)}
+						onclick={()=>setActiveValue(2)}
 						aria-hidden
 					></div>
 					<div class="h-[10px] w-[10px] border-[1.5px] rounded-full transition-all duration-1000 cursor-pointer hover:opacity-60 mr-4 {activeValue===3 ? "bg-primary border-primary" : "border-white"}"
-						on:click={()=>setActiveValue(3)}
+						onclick={()=>setActiveValue(3)}
 						aria-hidden
 					></div>
 					
 			</div>
-			<button  on:click={()=>activeValue--} class="{activeValue==1||innerWidth>1024 ? "opacity-0 pointer-events-none" : ""} absolute left-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle justify-center cursor-pointer transition duration-500 hover:bg-primary hover:border-primary">
+			<button  onclick={()=>activeValue--} class="{activeValue==1||innerWidth>1024 ? "opacity-0 pointer-events-none" : ""} absolute left-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle justify-center cursor-pointer transition duration-500 hover:bg-primary hover:border-primary">
 				<img alt='chevron-left' src={chevronLeft} class='-translate-x-[1px] brightness-200' />
 			  </button>
-			  <button on:click={()=>activeValue++} class="{activeValue==3||innerWidth>1024 ? "opacity-0 pointer-events-none" : ""} absolute right-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle cursor-pointer transition duration-500 justify-center hover:bg-primary hover:border-primary">
+			  <button onclick={()=>activeValue++} class="{activeValue==3||innerWidth>1024 ? "opacity-0 pointer-events-none" : ""} absolute right-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle cursor-pointer transition duration-500 justify-center hover:bg-primary hover:border-primary">
 				<img alt='chevron-right' src={chevronRight} class='translate-x-[1px] brightness-200' />
 			  </button>
 		</ContentWidth>
-		<div/>
+		<div></div>
 		
 	</ContentWidth>
 </div>
@@ -380,8 +382,8 @@ const handleSubmit = (event:any) => {
 
 <ScreenWidthImage image={finalBg}>
 	<div class="h-full w-full flex flex-col justify-between items-center">
-		<div/>
-		<div/>
+		<div></div>
+		<div></div>
 		<h2 class="text-white max-w-[960px]">Reduce Backlog, Boost Productivity, and Unify Your Team</h2>
 		<ContactButton click={()=>isFormOpen=true} text="Contact Us" />
 		<div class="label text-white mb-4">©2024 Data Dynamiq  |   All Rights Reserved</div>
