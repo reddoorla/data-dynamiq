@@ -1,6 +1,6 @@
 <script lang='ts'>
 	import { onMount } from "svelte";
-	import { swipe } from "svelte-gestures";
+	import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
     import placeholder from "../../assets/images/background_placeholder.svg";
 	import ContentWidth from "../ContentWidth/ContentWidth.svelte";
 	import chevronLeft from "$lib/assets/icons/chevron-left.svg"
@@ -95,13 +95,15 @@
 
 	let sliderInterval:NodeJS.Timeout;
 
-	const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) => {
-      if(e.detail.direction==="left") 
+	const handleSwipe = (e: SwipeCustomEvent) => {
+      if(e.detail.direction==="left")
         slideLeft();
 
-        if(e.detail.direction==="right") 
+        if(e.detail.direction==="right")
         slideRight();
     }
+
+    const swipe = createSwipeAction(handleSwipe);
 
     onMount(()=>{
        sliderInterval = setInterval(()=>slideLeft(), SLIDER_INTERVAL_IN_MS);
@@ -111,7 +113,7 @@
 </script>
     
 <section>
-    <div use:swipe onswipe={handleSwipe} class="h-[160vw] sm:h-[90vw] xl:h-[60vw] lg:max-h-screen relative overflow-hidden" >
+    <div use:swipe class="h-[160vw] sm:h-[90vw] xl:h-[60vw] lg:max-h-screen relative overflow-hidden" >
     <div  class="h-full flex flex-row flex-nowrap {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}"
     style= "width:{100*tripledImages.length}vw; transform:translateX({-(sliderIndex+imageArray.length)*100}vw); ">
 		

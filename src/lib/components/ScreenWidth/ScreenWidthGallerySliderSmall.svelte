@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { swipe } from "svelte-gestures";
+    import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
     import placeholder from "../../assets/images/background_placeholder.svg";
     import ContentWidth from "../ContentWidth/ContentWidth.svelte";
     import FourByThreeImage from "../FullWidth/FourByThreeImage.svelte";
@@ -65,13 +65,15 @@
   
       let sliderInterval:NodeJS.Timeout;
   
-      const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) => {
-        if(e.detail.direction==="left") 
+      const handleSwipe = (e: SwipeCustomEvent) => {
+        if(e.detail.direction==="left")
           slideRight();
-  
-          if(e.detail.direction==="right") 
+
+          if(e.detail.direction==="right")
           slideLeft();
       }
+
+      const swipe = createSwipeAction(handleSwipe);
 
       let progressPosistion = $state(0);
       let progressWrapForwardPosition = $state(-100);
@@ -100,7 +102,7 @@
   </script>
       
   <section class="pb-32 {klass}">
-      <div use:swipe on:swipe={handleSwipe} class="h-[320px] py-2 relative" >
+      <div use:swipe class="h-[320px] py-2 relative" >
       <div  class="h-full flex flex-row flex-nowrap {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}"
       style= "width:{352*tripledImages.length}px; margin-left:calc(50vw - 176px); transform:translateX({-(sliderIndex+imageArray.length)*352}px); ">
           

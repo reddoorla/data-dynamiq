@@ -9,7 +9,7 @@
   import chevronRight from '$lib/assets/icons/chevron-right.svg'
   import chevronLeft from '$lib/assets/icons/chevron-left.svg'
   import { onMount } from "svelte";
-  import { swipe } from "svelte-gestures";
+  import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
   import { fade } from "svelte/transition";
   import ScreenWidthImageSlider from "$lib/components/ScreenWidth/ScreenWidthImageSlider.svelte";
   
@@ -80,13 +80,14 @@
   
       let sliderInterval:NodeJS.Timeout;
   
-      const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) => {
-        if(e.detail.direction==="left") 
+      const handleSwipe = (e: SwipeCustomEvent) => {
+        if(e.detail.direction==="left")
           slideLeft();
-  
-          if(e.detail.direction==="right") 
+
+          if(e.detail.direction==="right")
           slideRight();
       }
+      const swipe = createSwipeAction(handleSwipe);
 
       let progressPosistion = 0;
       let progressWrapForwardPosition = -100;
@@ -126,7 +127,7 @@
     
 <ContentWidth class="flex flex-col lg:flex-row relative">
     {#if innerWidth<=768}
-        <div use:swipe onswipe={handleSwipe} class="w-full">
+        <div use:swipe class="w-full">
             <div style="width: {tripledImages.length*108}%; margin-left:-112%; transform:translateX({-(sliderIndex)/tripledImages.length*100}%);" class="flex flex-row justify-between flex-nowrap overflow-hidden {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}">
             {#each tripledImages as image }
                 <div style="width: {92/tripledImages.length}%" class="mx-auto">
@@ -185,7 +186,7 @@
     </div>
     <div class="w-0 h-0 lg:w-1/2"></div>
     {#if innerWidth<=1024&&innerWidth>768}
-        <div use:swipe onswipe={handleSwipe} class="w-full">
+        <div use:swipe class="w-full">
             <div style="width: {tripledImages.length*108}%; margin-left:-112%; transform:translateX({-(sliderIndex)/tripledImages.length*100}%);" class="flex flex-row justify-between flex-nowrap overflow-hidden {isSlideAnimated ? 'transition-transform duration-[2000ms]': ''}">
             {#each tripledImages as image }
                 <div style="width: {92/tripledImages.length}%" class="mx-auto">
@@ -197,7 +198,7 @@
     {/if}
 </ContentWidth>
 {#if innerWidth>1024}
-<div use:swipe onswipe={handleSwipe} class="w-1/2 absolute top-0 right-0 ">
+<div use:swipe class="w-1/2 absolute top-0 right-0 ">
     {#key sliderIndex}
         <div out:fade={{duration:300}} in:fade={{delay:500, duration:300}}>
             {#each tripledImages as image, i }

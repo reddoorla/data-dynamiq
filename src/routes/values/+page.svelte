@@ -10,7 +10,7 @@
   import chevronLeft from "$lib/assets/icons/chevron-left.svg"
   import chevronRight from "$lib/assets/icons/chevron-right.svg"
   import { fade } from "svelte/transition";
-  import { swipe } from "svelte-gestures";
+  import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
 
 
     let innerWidth:number = $state(0);    
@@ -36,7 +36,7 @@
         sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
     });
 
-    const handleSwipe = (e:CustomEvent<{ direction: "left" | "top" | "right" | "bottom"; target: EventTarget; }>) =>{
+    const handleSwipe = (e: SwipeCustomEvent) =>{
         let direction = e.detail.direction;
         console.log(direction)
         if(direction=='right'&&activeValue>1)
@@ -45,7 +45,8 @@
             activeValue++;
 
     }
-   
+    const swipe = createSwipeAction(handleSwipe, { minSwipeDistance: 20, touchAction: "pan-y" });
+
 </script>
 
 <svelte:head>
@@ -57,7 +58,7 @@
 <!-- values block #1 -->
 <ContentWidth>
     <h2 class="mb-16 text-center">Here is our Value Proposition</h2>
-    <div use:swipe={{minSwipeDistance:20, touchAction: 'pan-y'}} onswipe={handleSwipe} class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
+    <div use:swipe class="w-[300vw] lg:translate-x-0 lg:w-full flex flex-row justify-around lg:justify-between flex-nowrap transition-transform overflow-hidden duration-1000"
             style={innerWidth < 1024 ? sliderStyleString : ""}>
         <div class="w-[360px]">
         <ContentBox 
