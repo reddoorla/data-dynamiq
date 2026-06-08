@@ -2,8 +2,7 @@
     import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
     import Spacer from "$lib/components/Spacer.svelte";
     import DefaultButton from "$lib/components/Buttons/DefaultButton.svelte";
-    import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
-    import { faBars, faClose, faSearch} from "@fortawesome/free-solid-svg-icons";
+    import { Menu, X, Search } from "@lucide/svelte";
     import logoIcon from "$lib/assets/icons/logos/logo.svg"
     import logoFull from "$lib/assets/icons/logos/logoFull.svg"
 
@@ -56,7 +55,7 @@
 
     <button class="absolute top-5 right-5 opacity-60 hover:opacity-100 transition-all z-40" onclick={toggleOverlayOff}>
         <div in:fade={{delay: 600}} out:fade class="text-white">
-        <FontAwesomeIcon icon={faClose} size="3x" />
+        <X size={48} />
         </div>
       
     </button>
@@ -81,7 +80,7 @@
         </div> 
         <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all " onclick={toggleOverlayOn}>
            
-            <FontAwesomeIcon icon={faBars} size="2x"/>
+            <Menu size={32}/>
         
         </button>
         </div>
@@ -108,7 +107,7 @@
        
         <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
-            <FontAwesomeIcon icon={faBars} size="2x"/>
+            <Menu size={32}/>
             {/if}
         
         </button>
@@ -124,7 +123,7 @@
 
         <button class="opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
-            <FontAwesomeIcon icon={faBars} size="2x"/>
+            <Menu size={32}/>
             {/if}
         
         </button>
@@ -135,7 +134,7 @@
 
         <button class="ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
             {#if !isOverlayVisible}
-             <FontAwesomeIcon icon={faSearch} size="xl"/>
+             <Search size={24}/>
              {/if}
          
          </button>
@@ -155,7 +154,7 @@
         </a>
         <button class="opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
             {#if !isOverlayVisible}
-             <FontAwesomeIcon icon={faBars} size="2x"/>
+             <Menu size={32}/>
              {/if}
          
          </button>
@@ -177,7 +176,7 @@
        
         <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
-            <FontAwesomeIcon icon={faBars} size="2x"/>
+            <Menu size={32}/>
             {/if}
         
         </button>
@@ -210,14 +209,14 @@
        
         <button class="lg:hidden ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
            {#if !isOverlayVisible}
-            <FontAwesomeIcon icon={faBars} size="2x"/>
+            <Menu size={32}/>
             {/if}
         
         </button>
         <button class="ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
             
             {#if !isOverlayVisible}
-             <FontAwesomeIcon icon={faSearch} size="xl"/>
+             <Search size={24}/>
              {/if}
          
          </button>

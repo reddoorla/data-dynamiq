@@ -32,6 +32,7 @@
   import chevronLeft from "$lib/assets/icons/chevron-left.svg"
   import chevronRight from "$lib/assets/icons/chevron-right.svg"
   import { fade, fly } from "svelte/transition";
+  import { X } from "@lucide/svelte";
   import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
   import { onMount } from "svelte";
 
@@ -169,7 +170,7 @@ const handleSubmit = (event:any) => {
 <div class="w-screen h-screen top-0 left-0 fixed pointer-events-none z-20">
 	<button transition:fade class="w-full h-full absolute top-0 left-0 bg-black opacity-40 pointer-events-auto" onclick={()=>isFormOpen=false}></button>
 	<div transition:fly={{x:"-100%"}} class="w-full lg:w-3/5 h-full lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-0 lg:top-[20%] bg-black left-0 gap-16 lg:left-[20%] pointer-events-auto overflow-y-scroll">
-		<button class="absolute top-6 right-6" onclick={()=>isFormOpen=false}><i class="text-white hover:text-light transtition bump fa-regular fa-sharp fa-close fa-2xl"></i></button>
+		<button class="absolute top-6 right-6" onclick={()=>isFormOpen=false}><X class="text-white hover:text-light transtition bump" size={32} /></button>
 
 		<div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
 			<h5 class="text-white">Contact us</h5>

@@ -1,6 +1,7 @@
 <script lang="ts">
     import StyledSingleSelect from "./StyledSingleSelect.svelte";
     import DefaultButton from "../Buttons/DefaultButton.svelte";
+    import { Mail } from "@lucide/svelte";
 
 
     let { PRODUCTS = ["Apples", "Bananas", "Clementines"] } = $props();
@@ -19,7 +20,7 @@
 
         <div class="flex flex-col md:flex-row text-light items-center justify-center w-full">
             <div class="flex items-center justify-center w-full translate-x-[6px]">
-                <i class="fa-regular fa-envelope h-6 mt-[7px] -mr-8 z-10"></i>
+                <Mail class="h-6 mt-[7px] -mr-8 z-10" />
                 <input class="w-full border-[1px] rounded-[3px] text-dark border-light h-10 pl-10 pt-[2.5px]" name="email" placeholder="Email" type="email"/>
             </div>
         </div>
