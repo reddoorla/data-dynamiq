@@ -13,14 +13,14 @@ data-dynamiq-specific findings baked in.
 
 ## State at handoff (verified)
 
-| Item | Status |
-| --- | --- |
-| `pnpm install` | clean (`@scarf/scarf` build-script ignored — leave it, it's telemetry) |
-| `svelte-kit sync` | exit 0 |
-| `pnpm vite:dev` | boots, `GET / → 200` |
-| Tailwind | ✅ migrated to v4 (`@import "tailwindcss"` + `@theme`); `tailwind.config.js` deleted (Commit 2). Used custom utilities verified in compiled CSS (colors `bg-dark`/`bg-light`/`text-light`/`bg-primary`, eases `ease-fast-slow`/`in-expo`/`out-expo`, `.bump`). Custom heights were unused in markup so they're harmless. |
-| `@prismicio/svelte` v2 | already loads under Svelte 5 legacy mode — no revert needed |
-| `svelte-gestures` | **kept at ^4** on purpose — v5 dropped the `{ swipe }` export and crashes the homepage; the v5 `useSwipe` swap is `.svelte` work → Commit 5 |
+| Item                   | Status                                                                                                                                                                                                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm install`         | clean (`@scarf/scarf` build-script ignored — leave it, it's telemetry)                                                                                                                                                                                                                                                   |
+| `svelte-kit sync`      | exit 0                                                                                                                                                                                                                                                                                                                   |
+| `pnpm vite:dev`        | boots, `GET / → 200`                                                                                                                                                                                                                                                                                                     |
+| Tailwind               | ✅ migrated to v4 (`@import "tailwindcss"` + `@theme`); `tailwind.config.js` deleted (Commit 2). Used custom utilities verified in compiled CSS (colors `bg-dark`/`bg-light`/`text-light`/`bg-primary`, eases `ease-fast-slow`/`in-expo`/`out-expo`, `.bump`). Custom heights were unused in markup so they're harmless. |
+| `@prismicio/svelte` v2 | already loads under Svelte 5 legacy mode — no revert needed                                                                                                                                                                                                                                                              |
+| `svelte-gestures`      | **kept at ^4** on purpose — v5 dropped the `{ swipe }` export and crashes the homepage; the v5 `useSwipe` swap is `.svelte` work → Commit 5                                                                                                                                                                              |
 
 ## Migration scope (greps run on Commit-1 tree)
 
@@ -69,10 +69,11 @@ comments on the `$$props.class` files.
 ### Commit 4 — hand-clean codemod output
 
 `grep -rl '@migration-task' src/` and fix each (the `$$props.class || ''` → `interface Props`
-+ `class: klass` idiom). Also: promote `run(() => …)` from `svelte/legacy` to `$derived`/`$effect`,
-tighten `$state()` types (SSR-safe initials), `ComponentProps<typeof X>`, restore dropped slot
-fallbacks (`{#if children}{@render children()}{:else}…{/if}`). Target: `pnpm check` errors drop
-to just the deferred library-swap ones.
+
+- `class: klass` idiom). Also: promote `run(() => …)` from `svelte/legacy` to `$derived`/`$effect`,
+  tighten `$state()` types (SSR-safe initials), `ComponentProps<typeof X>`, restore dropped slot
+  fallbacks (`{#if children}{@render children()}{:else}…{/if}`). Target: `pnpm check` errors drop
+  to just the deferred library-swap ones.
 
 ### Commit 5 — library swaps
 

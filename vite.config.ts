@@ -3,11 +3,11 @@ import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-	plugins: [sveltekit(), tailwindcss()],
-	server: {
-		fs: {
-			// Allow access to files from the project root.
-			allow: [".."],
-		},
-	},
+  plugins: [sveltekit(), tailwindcss()],
+  server: {
+    fs: {
+      // Allow access to files from the project root.
+      allow: [".."],
+    },
+  },
 });

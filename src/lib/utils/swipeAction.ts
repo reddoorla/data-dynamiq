@@ -1,7 +1,7 @@
 import {
-	useSwipe,
-	type SwipeCustomEvent,
-	type SwipeParameters,
+  useSwipe,
+  type SwipeCustomEvent,
+  type SwipeParameters,
 } from "svelte-gestures";
 
 /**
@@ -18,16 +18,16 @@ import {
  * `minSwipeDistance` / `touchAction: 'pan-y'` the carousels relied on).
  */
 export const createSwipeAction = (
-	handler: (e: SwipeCustomEvent) => void,
-	parameters?: Partial<SwipeParameters>,
+  handler: (e: SwipeCustomEvent) => void,
+  parameters?: Partial<SwipeParameters>,
 ) => {
-	const gesture = useSwipe(
-		handler,
-		parameters ? () => parameters : undefined,
-		undefined,
-		true,
-	);
-	return (node: HTMLElement) => ({ destroy: gesture.swipe(node) });
+  const gesture = useSwipe(
+    handler,
+    parameters ? () => parameters : undefined,
+    undefined,
+    true,
+  );
+  return (node: HTMLElement) => ({ destroy: gesture.swipe(node) });
 };
 
 export type { SwipeCustomEvent };

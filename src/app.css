@@ -2,35 +2,35 @@
 @import "tailwindcss";
 
 @theme {
-	--breakpoint-sm: 560px;
-	--breakpoint-md: 768px;
-	--breakpoint-lg: 1024px;
-	--breakpoint-xl: 1340px;
+  --breakpoint-sm: 560px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1340px;
 
-	--color-transparent: transparent;
-	--color-current: currentColor;
-	--color-black: #000;
-	--color-white: #fff;
-	--color-light: #c2d1d9;
-	--color-dark: #424b5a;
-	--color-primary: #0d7aa3;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-black: #000;
+  --color-white: #fff;
+  --color-light: #c2d1d9;
+  --color-dark: #424b5a;
+  --color-primary: #0d7aa3;
 
-	--ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
-	--ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
-	--ease-fast-slow: cubic-bezier(0.5, 0, 0, 1);
+  --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-fast-slow: cubic-bezier(0.5, 0, 0, 1);
 
-	--height-screen-75: 75vh;
-	--height-screen-50: 50vh;
-	--height-screen-25: 25vh;
-	--height-screen-10: 10vh;
-	--height-screen-5: 5vh;
-	--height-112: 28rem;
-	--height-128: 32rem;
-	--height-144: 36rem;
-	--height-160: 40rem;
-	--height-192: 48rem;
-	--height-256: 64rem;
-	--height-384: 96rem;
+  --height-screen-75: 75vh;
+  --height-screen-50: 50vh;
+  --height-screen-25: 25vh;
+  --height-screen-10: 10vh;
+  --height-screen-5: 5vh;
+  --height-112: 28rem;
+  --height-128: 32rem;
+  --height-144: 36rem;
+  --height-160: 40rem;
+  --height-192: 48rem;
+  --height-256: 64rem;
+  --height-384: 96rem;
 }
 
 /* Dynamic classes built from CMS-driven props — kept available to the compiler
@@ -42,313 +42,313 @@
 @source inline("aspect-[16/9] aspect-[4/3]");
 
 @utility bump {
-	transition: transform 300ms ease-out;
-	&:active {
-		transform: translateY(-8px);
-	}
+  transition: transform 300ms ease-out;
+  &:active {
+    transform: translateY(-8px);
+  }
 }
 
 @utility negative-bump {
-	transition: transform 300ms ease-out;
-	&:active {
-		transform: translateY(8px);
-	}
+  transition: transform 300ms ease-out;
+  &:active {
+    transform: translateY(8px);
+  }
 }
 
 body {
-	font-family: "Nunito Sans", "nunito-sans", sans-serif;
-	transition-property: all;
-	transition-timing-function: cubic-bezier(0.5, 0, 0, 1);
-	transition-duration: 500ms;
-	max-width: 100vw;
-	overflow-x: clip;
-	scrollbar-width: none !important;
-	overflow-y: auto;
-	background-color: black;
+  font-family: "Nunito Sans", "nunito-sans", sans-serif;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.5, 0, 0, 1);
+  transition-duration: 500ms;
+  max-width: 100vw;
+  overflow-x: clip;
+  scrollbar-width: none !important;
+  overflow-y: auto;
+  background-color: black;
 }
 
 body::-webkit-scrollbar {
-	display: none !important; /* Safari and Chrome */
+  display: none !important; /* Safari and Chrome */
 }
 body::-webkit-scrollbar {
-	width: 0 !important; /* Remove scrollbar space */ /* Optional: just make scrollbar invisible */
+  width: 0 !important; /* Remove scrollbar space */ /* Optional: just make scrollbar invisible */
 }
 
 a {
-	transition: color 600ms;
-	cursor: pointer;
+  transition: color 600ms;
+  cursor: pointer;
 }
 
 a:hover {
-	color: black;
+  color: black;
 }
 
 button {
-	transition: background-color 600ms;
-	cursor: pointer;
+  transition: background-color 600ms;
+  cursor: pointer;
 }
 
 h1 {
-	color: var(--White, #fff);
-	text-align: center;
-	leading-trim: both;
-	text-edge: cap;
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  color: var(--White, #fff);
+  text-align: center;
+  leading-trim: both;
+  text-edge: cap;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* H1 */
-	font-family: "Chakra Petch";
-	font-size: 66px;
-	font-style: normal;
-	font-weight: 700;
-	line-height: 80px; /* 121.212% */
+  /* H1 */
+  font-family: "Chakra Petch";
+  font-size: 66px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 80px; /* 121.212% */
 }
 
 h2 {
-	text-align: center;
-	leading-trim: both;
-	text-edge: cap;
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  text-align: center;
+  leading-trim: both;
+  text-edge: cap;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* H2 - Bold */
-	-webkit-text-stroke-width: 1;
-	-webkit-text-stroke-color: var(--White, #fff);
-	font-family: "Chakra Petch";
-	font-size: 50px;
-	font-style: normal;
-	font-weight: 700;
-	line-height: 64px; /* 128% */
+  /* H2 - Bold */
+  -webkit-text-stroke-width: 1;
+  -webkit-text-stroke-color: var(--White, #fff);
+  font-family: "Chakra Petch";
+  font-size: 50px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 64px; /* 128% */
 }
 
 h3 {
-	font-size: 38px;
-	font-style: normal;
-	font-weight: 700;
-	line-height: 48px;
+  font-size: 38px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 48px;
 }
 
 h4 {
-	font-size: 28px;
-	font-style: normal;
-	font-weight: 700;
-	line-height: 38px; /* 135.714% */
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 38px; /* 135.714% */
 }
 
 h5 {
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* H5 - Bold */
-	font-family: "Chakra Petch";
-	font-size: 21px;
-	font-style: normal;
-	font-weight: 700;
-	line-height: 30px; /* 142.857% */
-	letter-spacing: 2px;
-	text-transform: uppercase;
+  /* H5 - Bold */
+  font-family: "Chakra Petch";
+  font-size: 21px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 30px; /* 142.857% */
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 h6 {
-	color: var(--White, #fff);
-	text-align: center;
-	leading-trim: both;
-	text-edge: cap;
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  color: var(--White, #fff);
+  text-align: center;
+  leading-trim: both;
+  text-edge: cap;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* H6 - Bold */
-	font-family: "Chakra Petch";
-	font-size: 14px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: 24px; /* 171.429% */
-	letter-spacing: 1px;
-	text-transform: uppercase;
+  /* H6 - Bold */
+  font-family: "Chakra Petch";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px; /* 171.429% */
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 p {
-	color: var(--White, #fff);
-	text-align: center;
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  color: var(--White, #fff);
+  text-align: center;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* Paragraph */
-	font-family: "Nunito Sans";
-	font-size: 16px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 24px; /* 150% */
+  /* Paragraph */
+  font-family: "Nunito Sans";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px; /* 150% */
 }
 
 .paragraph-large {
-	color: var(--White, #fff);
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  color: var(--White, #fff);
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* Paragraph Large */
-	font-family: "Nunito Sans";
-	font-size: 18px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 30px; /* 166.667% */
+  /* Paragraph Large */
+  font-family: "Nunito Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 30px; /* 166.667% */
 }
 
 .label {
-	color: var(--White, #fff);
-	text-align: center;
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  color: var(--White, #fff);
+  text-align: center;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* Label */
-	font-family: "Nunito Sans";
-	font-size: 12px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 18px; /* 150% */
+  /* Label */
+  font-family: "Nunito Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 150% */
 }
 
 button {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 a {
-	font-size: 14px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 1em;
-	color: #424b5a;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1em;
+  color: #424b5a;
 }
 
 @media only screen and (max-width: 786px) {
-	h1 {
-		font-size: 36px;
-		font-style: normal;
-		font-weight: 700;
-		line-height: 44px; /* 121.212% */
-	}
+  h1 {
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 44px; /* 121.212% */
+  }
 
-	h2 {
-		font-size: 32px;
-		font-style: normal;
-		font-weight: 700;
-		line-height: 42px;
-	}
+  h2 {
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 42px;
+  }
 
-	h3 {
-		font-size: 28px;
-		font-style: normal;
-		font-weight: 700;
-		line-height: 40px;
-	}
+  h3 {
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 40px;
+  }
 
-	h4 {
-		font-size: 2rem;
-		line-height: 1.4em;
-	}
+  h4 {
+    font-size: 2rem;
+    line-height: 1.4em;
+  }
 
-	h5 {
-		font-size: 1.5rem;
-		line-height: 1.5em;
-	}
+  h5 {
+    font-size: 1.5rem;
+    line-height: 1.5em;
+  }
 
-	p {
-		font-size: 16px;
-		font-style: normal;
-		font-weight: 400;
-		line-height: 24px; /* 150% */
-	}
+  p {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px; /* 150% */
+  }
 
-	a {
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 400;
-		line-height: normal;
-		margin: 0px 0px 8.5px 0px;
-	}
+  a {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0px 0px 8.5px 0px;
+  }
 }
 
 /* svelte-select stylings */
 .indicators {
-	display: none !important;
-	opacity: 0 !important;
+  display: none !important;
+  opacity: 0 !important;
 }
 
 .svelte-select {
-	border-radius: 3px !important;
-	border: 1px solid #c2d1d9 !important;
-	cursor: pointer !important;
+  border-radius: 3px !important;
+  border: 1px solid #c2d1d9 !important;
+  cursor: pointer !important;
 }
 
 .svelte-select-list {
-	cursor: pointer !important;
+  cursor: pointer !important;
 }
 
 .svelte-select input {
-	cursor: pointer !important;
+  cursor: pointer !important;
 }
 
 ::placeholder {
-	color: #c2d1d9 !important;
+  color: #c2d1d9 !important;
 
-	leading-trim: both;
-	text-edge: cap;
-	font-feature-settings:
-		"liga" off,
-		"clig" off;
+  leading-trim: both;
+  text-edge: cap;
+  font-feature-settings:
+    "liga" off,
+    "clig" off;
 
-	/* H6 - Bold */
-	font-family: "Chakra Petch";
-	font-size: 14px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: 24px; /* 171.429% */
-	letter-spacing: 1px;
-	text-transform: uppercase;
+  /* H6 - Bold */
+  font-family: "Chakra Petch";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px; /* 171.429% */
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 input[type="textarea"]::placeholder {
-	margin-top: 0;
+  margin-top: 0;
 }
 
 .multi-item-clear {
-	cursor: pointer !important;
-	transform: translateY(-0.5px);
-	color: #424b5a !important;
-	margin-left: 1em !important;
-	filter: invert(25%) sepia(15%) saturate(703%) hue-rotate(178deg) brightness(99%)
-		contrast(85%);
-	transition: all 300ms cubic-bezier(0.5, 0, 0, 1);
+  cursor: pointer !important;
+  transform: translateY(-0.5px);
+  color: #424b5a !important;
+  margin-left: 1em !important;
+  filter: invert(25%) sepia(15%) saturate(703%) hue-rotate(178deg)
+    brightness(99%) contrast(85%);
+  transition: all 300ms cubic-bezier(0.5, 0, 0, 1);
 }
 
 .multi-item-clear:hover {
-	opacity: 0.4;
+  opacity: 0.4;
 }
 
 .multi-item {
-	margin-right: 3em !important;
-	background-color: transparent !important;
-	outline-color: #c2d1d9 !important;
+  margin-right: 3em !important;
+  background-color: transparent !important;
+  outline-color: #c2d1d9 !important;
 }
 
 .multi-item-text,
 .svelte-select-list {
-	transform: translateY(1px);
-	color: #424b5a !important;
-	font-size: 14px !important;
-	font-style: normal;
-	font-weight: 700 !important;
-	/* 142.857% */
+  transform: translateY(1px);
+  color: #424b5a !important;
+  font-size: 14px !important;
+  font-style: normal;
+  font-weight: 700 !important;
+  /* 142.857% */
 }
 
 .filter-to-dark {
-	filter: invert(25%) sepia(15%) saturate(703%) hue-rotate(178deg) brightness(99%)
-		contrast(85%);
+  filter: invert(25%) sepia(15%) saturate(703%) hue-rotate(178deg)
+    brightness(99%) contrast(85%);
 }

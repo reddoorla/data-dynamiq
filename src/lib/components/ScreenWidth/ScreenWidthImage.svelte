@@ -1,52 +1,60 @@
-<script lang='ts'>
-	import type { Snippet } from "svelte";
-	import placeholder from "../../assets/images/background_placeholder.svg";
-	import ContentWidth from "../ContentWidth/ContentWidth.svelte";
+<script lang="ts">
+  import type { Snippet } from "svelte";
+  import placeholder from "../../assets/images/background_placeholder.svg";
+  import ContentWidth from "../ContentWidth/ContentWidth.svelte";
 
-	interface Props {
-		image?: string;
-		altText?: string;
-		placeholderSide?: string;
-		vimeoId?: string;
-		class?: string;
-		children?: Snippet;
-	}
+  interface Props {
+    image?: string;
+    altText?: string;
+    placeholderSide?: string;
+    vimeoId?: string;
+    class?: string;
+    children?: Snippet;
+  }
 
-	let {
-		image = placeholder,
-		altText = "background image",
-		placeholderSide = "right",
-		vimeoId = "",
-		class: klass = "",
-		children,
-	}: Props = $props();
+  let {
+    image = placeholder,
+    altText = "background image",
+    placeholderSide = "right",
+    vimeoId = "",
+    class: klass = "",
+    children,
+  }: Props = $props();
 
-	let viewportHeight:number = $state(0);
-	let viewportWidth:number = $state(0);
+  let viewportHeight: number = $state(0);
+  let viewportWidth: number = $state(0);
+</script>
 
-	</script>
+<svelte:window
+  bind:innerHeight={viewportHeight}
+  bind:innerWidth={viewportWidth}
+/>
 
-	<svelte:window bind:innerHeight={viewportHeight} bind:innerWidth={viewportWidth} />
+<section>
+  <div class="right-0 left-0 overflow-hidden h-screen w-screen relative">
+    {#if vimeoId}
+      <iframe
+        title="background video"
+        src={`https://player.vimeo.com/video/${vimeoId}?background=1`}
+        class="aspect-video {viewportHeight * 16 > viewportWidth * 9
+          ? 'h-screen min-w-full'
+          : 'w-screen min-h-full'} contrast-[1.15] -z-10 {klass}"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    {:else}
+      <img
+        src={image}
+        alt={altText}
+        class="absolute bottom-0 {placeholderSide}-0 h-full w-full object-cover {image ===
+        placeholder
+          ? 'lg:w-[45%] md:h-auto'
+          : ''} -z-10 {klass}"
+      />
+    {/if}
 
-	<section>
-		<div class="right-0 left-0 overflow-hidden h-screen w-screen relative ">
-			{#if vimeoId}
-
-					<iframe
-					title="background video"
-					src={`https://player.vimeo.com/video/${vimeoId}?background=1`}
-					class="aspect-video {viewportHeight * 16 > viewportWidth * 9 ? 'h-screen min-w-full' : 'w-screen min-h-full'} contrast-[1.15] -z-10 {klass}"
-					frameborder="0"
-					allowfullscreen
-
-				  ></iframe>
-
-			{:else}
-				<img src={image} alt={altText} class="absolute bottom-0 {placeholderSide}-0 h-full w-full object-cover {image===placeholder ? "lg:w-[45%] md:h-auto" : ""} -z-10 {klass}"/>
-			{/if}
-
-			<ContentWidth class='{klass} h-full'>
-				{@render children?.()}
-			</ContentWidth>
-		</div>
-	</section>
+    <ContentWidth class="{klass} h-full">
+      {@render children?.()}
+    </ContentWidth>
+  </div>
+</section>

@@ -1,5 +1,5 @@
 <script lang="ts">
-interface Props {
+  interface Props {
     icon?: string;
     iconAltText?: string;
     testimonialText?: string;
@@ -8,9 +8,9 @@ interface Props {
     backgroundColor?: string;
     float?: string;
     class?: string;
-}
+  }
 
-let {
+  let {
     icon = "",
     iconAltText = "company logo",
     testimonialText = "",
@@ -19,35 +19,41 @@ let {
     backgroundColor = "transparent",
     float = "center",
     class: klass = "",
-}: Props = $props();
+  }: Props = $props();
 
-let justify = $derived(
-    float === "left" ? "start" : float === "right" ? "end" : float
-);
-let horizontalFloatMargin = $derived(
-    float === "left" ? "ml-0 mr-auto" : float === "right" ? "ml-auto mr-0" : "mx-auto"
-);
+  let justify = $derived(
+    float === "left" ? "start" : float === "right" ? "end" : float,
+  );
+  let horizontalFloatMargin = $derived(
+    float === "left"
+      ? "ml-0 mr-auto"
+      : float === "right"
+        ? "ml-auto mr-0"
+        : "mx-auto",
+  );
 </script>
 
-<div class="{klass} w-full flex flex-col  p-2 sm:p-8 justify-{justify} text-{float}"
-     style="background-color: {backgroundColor}"
+<div
+  class="{klass} w-full flex flex-col p-2 sm:p-8 justify-{justify} text-{float}"
+  style="background-color: {backgroundColor}"
 >
-    {#if icon}
-        <img src={icon} alt={iconAltText} class="pl-3 mb-12 {horizontalFloatMargin}"/>
-    {/if}
+  {#if icon}
+    <img
+      src={icon}
+      alt={iconAltText}
+      class="pl-3 mb-12 {horizontalFloatMargin}"
+    />
+  {/if}
 
-    {#if testimonialText}
-        <p class="mb-7 max-w-full">{testimonialText}</p>
-    {/if}
+  {#if testimonialText}
+    <p class="mb-7 max-w-full">{testimonialText}</p>
+  {/if}
 
-    {#if attribution}
-        <p class="mb-3 max-w-full">{attribution}</p>
-    {/if}
+  {#if attribution}
+    <p class="mb-3 max-w-full">{attribution}</p>
+  {/if}
 
-    {#if attributionLabel}
-        <p class="mb-7 max-w-full text-xs">{attributionLabel}</p>
-    {/if}
-
-
-
+  {#if attributionLabel}
+    <p class="mb-7 max-w-full text-xs">{attributionLabel}</p>
+  {/if}
 </div>
