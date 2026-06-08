@@ -1,1 +1,17 @@
 node_modules
+.svelte-kit
+.netlify
+build
+
+# Env
+.env
+.env.*
+!.env.example
+
+# OS / editor / test output
+.DS_Store
+*.log
+coverage
+playwright-report
+test-results
+.lighthouseci
