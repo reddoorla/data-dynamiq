@@ -1,9 +1,11 @@
 # data-dynamiq onboard — handoff (Commit 1 done, Commits 2–7 + wiring remain)
 
-This repo is mid-migration on branch **`maint/onboard-svelte5`**. **Commit 1 (stack bump)**
-is done and pushed: deps + configs are on the reddoor-starter stack (Svelte 5 / Vite 8 /
-Tailwind 4 / pnpm / adapter-netlify / flat eslint), and `pnpm vite:dev` boots with `GET / → 200`.
-The `.svelte` files are **still Svelte 4 syntax**, running in Svelte 5 legacy mode.
+This repo is mid-migration on branch **`maint/onboard-svelte5`**. **Commits 1 (stack bump) and 2
+(Tailwind 4 CSS)** are done and pushed: deps + configs are on the reddoor-starter stack (Svelte 5 /
+Vite 8 / Tailwind 4 / pnpm / adapter-netlify / flat eslint), `src/app.css` is migrated and
+`tailwind.config.js` is deleted, and `pnpm vite:dev` boots with `GET / → 200`. The `.svelte` files
+are **still Svelte 4 syntax**, running in Svelte 5 legacy mode. **Next up is Commit 3 — the
+interactive codemod (run it yourself).**
 
 Follow the `svelte4-to-5-upgrade` skill (`~/.claude/skills/svelte4-to-5-upgrade/`). Canonical
 end-state shape: `~/Documents/GitHub/reddoor-starter/`. Below is what's left, with the
@@ -16,7 +18,7 @@ data-dynamiq-specific findings baked in.
 | `pnpm install` | clean (`@scarf/scarf` build-script ignored — leave it, it's telemetry) |
 | `svelte-kit sync` | exit 0 |
 | `pnpm vite:dev` | boots, `GET / → 200` |
-| Tailwind | **still v3 directives** in `src/app.css` (`@tailwind base/...`) → Commit 2 |
+| Tailwind | ✅ migrated to v4 (`@import "tailwindcss"` + `@theme`); `tailwind.config.js` deleted (Commit 2). Used custom utilities verified in compiled CSS (colors `bg-dark`/`bg-light`/`text-light`/`bg-primary`, eases `ease-fast-slow`/`in-expo`/`out-expo`, `.bump`). Custom heights were unused in markup so they're harmless. |
 | `@prismicio/svelte` v2 | already loads under Svelte 5 legacy mode — no revert needed |
 | `svelte-gestures` | **kept at ^4** on purpose — v5 dropped the `{ swipe }` export and crashes the homepage; the v5 `useSwipe` swap is `.svelte` work → Commit 5 |
 
@@ -29,7 +31,7 @@ data-dynamiq-specific findings baked in.
 
 ## Remaining commits
 
-### Commit 2 — Tailwind 4 CSS-only migration
+### Commit 2 — Tailwind 4 CSS-only migration ✅ DONE
 
 Rewrite `src/app.css`: replace the three `@tailwind` directives with `@import "tailwindcss";`,
 then add an `@theme {}` block transcribed from the **current `tailwind.config.js`**, and
