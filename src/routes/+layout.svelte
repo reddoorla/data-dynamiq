@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-  <title>{page.data.title}</title>
+  <title>{page.data.title ?? "Data Dynamiq"}</title>
   {#if page.data.meta_description}
     <meta name="description" content={page.data.meta_description} />
   {/if}
@@ -22,10 +22,7 @@
     <meta name="og:image" content={page.data.meta_image.url} />
     <meta name="twitter:card" content="summary_large_image" />
   {/if}
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0 user-scalable=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </svelte:head>
 <main>
   {@render children?.()}

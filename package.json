@@ -14,7 +14,11 @@
     "slicemachine": "start-slicemachine"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.60.0",
+    "@reddoorla/maintenance": "^0.28.0",
     "@slicemachine/adapter-sveltekit": "^0.3.96",
     "@sveltejs/adapter-netlify": "^6.0.4",
     "@sveltejs/kit": "^2.61.1",
