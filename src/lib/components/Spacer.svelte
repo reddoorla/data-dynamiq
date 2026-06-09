@@ -1,9 +1,12 @@
-<script lang='ts'>
-    export let height = "60px";
-    export let color = "transparent";
+<script lang="ts">
+  interface Props {
+    height?: string;
+    color?: string;
+  }
 
-    if(color==="dark")
-        color="#424B5A;"
+  let { height = "60px", color = $bindable("transparent") }: Props = $props();
+
+  if (color === "dark") color = "#424B5A;";
 </script>
 
 <div style="height:{height}; background-color:{color}"></div>

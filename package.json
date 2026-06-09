@@ -1,51 +1,63 @@
 {
-	"name": "sveltekit-starter-prismic-minimal",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"dev": "concurrently \"npm:vite:dev\" \"npm:slicemachine\" --prefix-colors blue,magenta",
-		"vite:dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
-		"lint": "prettier --check . --plugin prettier-plugin-svelte . && eslint .",
-		"format": "prettier --write . --plugin prettier-plugin-svelte .",
-		"slicemachine": "start-slicemachine",
-		"vite:devHost": "vite dev --host --port 8888"
-	},
-	"devDependencies": {
-		"@slicemachine/adapter-sveltekit": "^0.3.36",
-		"@sveltejs/adapter-auto": "^3.2.4",
-		"@sveltejs/kit": "^2.0.0",
-		"@sveltejs/vite-plugin-svelte": "^3.0.0",
-		"autoprefixer": "^10.4.17",
-		"concurrently": "^8.2.2",
-		"eslint": "^8.55.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-svelte": "^2.35.1",
-		"postcss": "^8.4.35",
-		"prettier": "^3.1.1",
-		"prettier-plugin-svelte": "^3.1.2",
-		"slice-machine-ui": "^1.24.1",
-		"svelte": "^4.2.8",
-		"svelte-check": "^3.6.2",
-		"svelte-turnstile": "^0.8.0",
-		"tailwindcss": "^3.4.1",
-		"typescript": "^5.3.3",
-		"typescript-svelte-plugin": "^0.3.36",
-		"vite": "^5.0.9"
-	},
-	"type": "module",
-	"dependencies": {
-		"@fortawesome/fontawesome-free": "^6.5.1",
-		"@fortawesome/free-brands-svg-icons": "^6.5.1",
-		"@fortawesome/free-regular-svg-icons": "^6.5.1",
-		"@fortawesome/free-solid-svg-icons": "^6.5.1",
-		"@fortawesome/svelte-fontawesome": "^0.2.2",
-		"@prismicio/client": "^7.3.1",
-		"@prismicio/svelte": "^1.0.3",
-		"svelte-gestures": "^4.0.0",
-		"svelte-select": "^5.8.3"
-	}
+  "name": "data-dynamiq",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm:vite:dev\" \"pnpm:slicemachine\" --prefix-colors blue,magenta",
+    "vite:dev": "vite dev --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "prettier --check . --plugin prettier-plugin-svelte . && eslint .",
+    "format": "prettier --write . --plugin prettier-plugin-svelte .",
+    "slicemachine": "start-slicemachine"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.60.0",
+    "@reddoorla/maintenance": "^0.28.0",
+    "@slicemachine/adapter-sveltekit": "^0.3.96",
+    "@sveltejs/adapter-netlify": "^6.0.4",
+    "@sveltejs/kit": "^2.61.1",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.18.0",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-svelte": "^4.0.1",
+    "slice-machine-ui": "^2.21.3",
+    "svelte": "^5.55.10",
+    "svelte-check": "^4.4.8",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0",
+    "typescript-svelte-plugin": "^0.3.52",
+    "vite": "^8.0.14"
+  },
+  "type": "module",
+  "packageManager": "pnpm@10.33.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "protobufjs",
+      "sharp"
+    ]
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@lucide/svelte": "^1.17.0",
+    "@prismicio/client": "^7.21.8",
+    "@prismicio/svelte": "^2.2.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "svelte-gestures": "^5.2.2",
+    "svelte-select": "^5.8.3",
+    "svelte-turnstile": "^0.8.0"
+  }
 }
