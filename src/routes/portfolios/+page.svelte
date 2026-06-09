@@ -52,8 +52,7 @@
   ];
 
   let filters = ["Dev", "UX", "UI"];
-  let activeFilters: { value: string; label: string }[] | undefined =
-    $state();
+  let activeFilters: { value: string; label: string }[] | undefined = $state();
   let activeFilterValues: string[] | undefined = $derived(
     activeFilters?.map((filter) => filter.value),
   );

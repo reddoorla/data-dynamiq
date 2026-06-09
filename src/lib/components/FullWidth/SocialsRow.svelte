@@ -1,12 +1,5 @@
 <script lang="ts">
-  import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
-  import {
-    faFacebook,
-    faTwitter,
-    faReddit,
-    faInstagram,
-    faLinkedin,
-  } from "@fortawesome/free-brands-svg-icons";
+  import BrandIcon from "../BrandIcon.svelte";
 
   let {
     socials = [
@@ -26,17 +19,7 @@
       href={social.href}
       class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump"
     >
-      {#if social.platform === "facebook"}
-        <FontAwesomeIcon icon={faFacebook} size="2x" />
-      {:else if social.platform == "twitter"}
-        <FontAwesomeIcon icon={faTwitter} size="2x" />
-      {:else if social.platform == "reddit"}
-        <FontAwesomeIcon icon={faReddit} size="2x" />
-      {:else if social.platform == "instagram"}
-        <FontAwesomeIcon icon={faInstagram} size="2x" />
-      {:else if social.platform == "linkedin"}
-        <FontAwesomeIcon icon={faLinkedin} size="2x" />
-      {/if}
+      <BrandIcon platform={social.platform} />
     </a>
   {/each}
 </div>

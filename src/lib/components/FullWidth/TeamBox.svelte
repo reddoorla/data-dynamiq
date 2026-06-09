@@ -1,12 +1,6 @@
 <script lang="ts">
   import profile_placeholder from "$lib/assets/images/profile_placeholder.jpeg";
-  import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
-  import {
-    faFacebook,
-    faTwitter,
-    faReddit,
-    faInstagram,
-  } from "@fortawesome/free-brands-svg-icons";
+  import BrandIcon from "../BrandIcon.svelte";
 
   interface Props {
     src?: string;
@@ -47,17 +41,9 @@
         {#each socials as social}
           <a
             href={social.href}
-            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump"
+            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump text-white"
           >
-            {#if social.platform === "facebook"}
-              <FontAwesomeIcon icon={faFacebook} inverse size="2x" />
-            {:else if social.platform == "twitter"}
-              <FontAwesomeIcon icon={faTwitter} inverse size="2x" />
-            {:else if social.platform == "reddit"}
-              <FontAwesomeIcon icon={faReddit} inverse size="2x" />
-            {:else if social.platform == "instagram"}
-              <FontAwesomeIcon icon={faInstagram} inverse size="2x" />
-            {/if}
+            <BrandIcon platform={social.platform} />
           </a>
         {/each}
       </div>
@@ -76,17 +62,9 @@
         {#each socials as social}
           <a
             href={social.href}
-            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump"
+            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump text-white"
           >
-            {#if social.platform === "facebook"}
-              <FontAwesomeIcon icon={faFacebook} inverse size="2x" />
-            {:else if social.platform == "twitter"}
-              <FontAwesomeIcon icon={faTwitter} inverse size="2x" />
-            {:else if social.platform == "reddit"}
-              <FontAwesomeIcon icon={faReddit} inverse size="2x" />
-            {:else if social.platform == "instagram"}
-              <FontAwesomeIcon icon={faInstagram} inverse size="2x" />
-            {/if}
+            <BrandIcon platform={social.platform} />
           </a>
         {/each}
       </div>
