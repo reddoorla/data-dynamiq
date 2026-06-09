@@ -4,7 +4,6 @@
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
   import placeholder from "$lib/assets/images/image_placeholder.svg";
-  import ContactBox from "$lib/components/FullWidth/SocialsRow.svelte";
 
   let innerWidth: number = $state(0);
   const LOREM =

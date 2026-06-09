@@ -6,7 +6,7 @@
   import Spacer from "$lib/components/Spacer.svelte";
   import Select from "svelte-select";
   import { flip } from "svelte/animate";
-  import { fade, scale } from "svelte/transition";
+  import { scale } from "svelte/transition";
   import bg_placeholder from "$lib/assets/images/background_placeholder.svg";
   import placeholder from "$lib/assets/images/image_placeholder.svg";
   import dropdownArrow from "$lib/assets/icons/dropdown-arrow-light.svg";
@@ -52,7 +52,8 @@
   ];
 
   let filters = ["Dev", "UX", "UI"];
-  let activeFilters: any[] | undefined = $state();
+  let activeFilters: { value: string; label: string }[] | undefined =
+    $state();
   let activeFilterValues: string[] | undefined = $derived(
     activeFilters?.map((filter) => filter.value),
   );

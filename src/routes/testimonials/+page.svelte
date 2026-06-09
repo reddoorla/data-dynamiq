@@ -10,7 +10,6 @@
   import logo6 from "$lib/assets/icons/logos/logo6.svg";
   import logo7 from "$lib/assets/icons/logos/logo7.svg";
   import logo8 from "$lib/assets/icons/logos/logo8.svg";
-  import quote from "$lib/assets/icons/quote.svg";
   import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
 
   const LOREM =
@@ -19,15 +18,7 @@
   let innerWidth: number = $state(0);
 
   let activeValue = $state(2);
-  let showValueBox = true;
   const setActiveValue = (i: number) => (activeValue = i);
-  const setActiveValueWithDelay = (i: number) => {
-    showValueBox = false;
-    activeValue = i;
-    setTimeout(() => {
-      showValueBox = true;
-    }, 300);
-  };
 
   let sliderNumber = $state((2 - activeValue) * 100);
   let sliderStyleString = $state(

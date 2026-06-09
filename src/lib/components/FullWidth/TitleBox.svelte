@@ -44,8 +44,6 @@
         ? "ml-auto mr-0"
         : "mx-auto",
   );
-
-  let isLinkArrowActive = false;
 </script>
 
 <div

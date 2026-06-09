@@ -5,7 +5,6 @@
   import Accordian from "$lib/components/FullWidth/Accordian.svelte";
   import FourByThreeImage from "$lib/components/FullWidth/FourByThreeImage.svelte";
   import DefaultButton from "$lib/components/Buttons/DefaultButton.svelte";
-  import { isFilled } from "@prismicio/client";
 
   const LOREM =
     "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat m dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor inc.";

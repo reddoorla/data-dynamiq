@@ -1,6 +1,5 @@
 <script lang="ts">
   import profile_placeholder from "$lib/assets/images/profile_placeholder.jpeg";
-  import logo_placeholder from "$lib/assets/icons/logos/logo.svg";
   import { FontAwesomeIcon } from "@fortawesome/svelte-fontawesome";
   import {
     faFacebook,
@@ -10,12 +9,12 @@
   } from "@fortawesome/free-brands-svg-icons";
 
   interface Props {
-    src?: any;
+    src?: string;
     alt?: string;
     href?: string;
     name?: string;
     title?: string;
-    socials?: any;
+    socials?: { platform: string; href: string }[];
   }
 
   let {

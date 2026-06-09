@@ -4,7 +4,6 @@
   import ArrowButton from "$lib/components/Buttons/ArrowButton.svelte";
   import nextArrow from "$lib/assets/icons/wireframe-link-arrow-right.svg";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
-  import HalfWidthImage from "$lib/components/HalfWidth/HalfWidthImage.svelte";
   import FourByThreeImage from "$lib/components/FullWidth/FourByThreeImage.svelte";
   import { fade } from "svelte/transition";
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";

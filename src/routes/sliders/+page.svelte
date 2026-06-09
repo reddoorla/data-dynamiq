@@ -16,9 +16,7 @@
   let innerWidth: number = $state(0);
 
   let imageArray = [placeholder, placeholder, placeholder, placeholder];
-  let showImage = true;
 
-  const SLIDER_TRANSITION_FUNCTION = "cubic-bezier(.5,0,0,1)";
   const SLIDER_TRANSITION_LENGTH_IN_MS = 2000;
   const SLIDER_INTERVAL_IN_MS = 5000;
 
@@ -72,16 +70,7 @@
     sliderIndex = index;
   };
 
-  const setSliderIndexWithDelay = (index: number) => {
-    showImage = false;
-    clearInterval(sliderInterval);
-    sliderIndex = index;
-    setTimeout(() => {
-      showImage = true;
-    }, 300);
-  };
-
-  let sliderInterval: NodeJS.Timeout;
+  let sliderInterval: ReturnType<typeof setInterval>;
 
   const handleSwipe = (e: SwipeCustomEvent) => {
     if (e.detail.direction === "left") slideLeft();
@@ -89,10 +78,6 @@
     if (e.detail.direction === "right") slideRight();
   };
   const swipe = createSwipeAction(handleSwipe);
-
-  let progressPosistion = 0;
-  let progressWrapForwardPosition = -100;
-  let progressWrapBackwardPosition = imageArray.length * 100;
 
   onMount(() => {
     sliderInterval = setInterval(() => slideLeft(), SLIDER_INTERVAL_IN_MS);
@@ -134,7 +119,7 @@
             ? 'transition-transform duration-[2000ms]'
             : ''}"
         >
-          {#each tripledImages as image}
+          {#each tripledImages as _image}
             <div style="width: {92 / tripledImages.length}%" class="mx-auto">
               <SquareImage />
             </div>
@@ -148,7 +133,7 @@
         <button class="h-[10px] mr-8" onclick={slideRight}>
           <img src={chevronLeft} alt="previous slide" />
         </button>
-        {#each imageArray as image, i}
+        {#each imageArray as _image, i}
           <button
             class="h-[10px] w-[10px] border-2 rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4
 								{(sliderIndex % imageArray.length >= 0 &&
@@ -184,7 +169,7 @@
             <button class="h-[10px] mr-8" onclick={slideRight}>
               <img src={chevronLeft} alt="previous slide" />
             </button>
-            {#each imageArray as image, i}
+            {#each imageArray as _image, i}
               <button
                 class="h-[10px] w-[10px] border-2 rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4
 								{(sliderIndex % imageArray.length >= 0 &&
@@ -217,7 +202,7 @@
             ? 'transition-transform duration-[2000ms]'
             : ''}"
         >
-          {#each tripledImages as image}
+          {#each tripledImages as _image}
             <div style="width: {92 / tripledImages.length}%" class="mx-auto">
               <SquareImage />
             </div>
@@ -233,7 +218,7 @@
           out:fade={{ duration: 300 }}
           in:fade={{ delay: 500, duration: 300 }}
         >
-          {#each tripledImages as image, i}
+          {#each tripledImages as _image, i}
             {#if i === sliderIndex % imageArray.length}
               <SquareImage />
             {/if}

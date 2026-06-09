@@ -3,7 +3,6 @@
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
   import profile_placeholder from "$lib/assets/images/profile_placeholder.png";
-  import ContactBox from "$lib/components/FullWidth/SocialsRow.svelte";
   import TeamBox from "$lib/components/FullWidth/TeamBox.svelte";
 
   const TEAM_LIST = [

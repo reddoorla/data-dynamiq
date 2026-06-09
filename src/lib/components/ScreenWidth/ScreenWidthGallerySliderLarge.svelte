@@ -40,7 +40,6 @@
     class: klass = "",
   }: Props = $props();
 
-  const SLIDER_TRANSITION_FUNCTION = "cubic-bezier(.5,0,0,1)";
   const SLIDER_TRANSITION_LENGTH_IN_MS = 2000;
   const SLIDER_INTERVAL_IN_MS = 5000;
 
@@ -99,7 +98,7 @@
     sliderInterval = setInterval(() => slideRight(), SLIDER_INTERVAL_IN_MS);
   };
 
-  let sliderInterval: NodeJS.Timeout;
+  let sliderInterval: ReturnType<typeof setInterval>;
 
   const handleSwipe = (e: SwipeCustomEvent) => {
     if (e.detail.direction === "left") slideRight();
@@ -108,20 +107,6 @@
   };
 
   const swipe = createSwipeAction(handleSwipe);
-
-  let progressPosistion = $state(0);
-  let progressWrapForwardPosition = $state(-100);
-  let progressWrapBackwardPosition = $state(itemArray.length * 100);
-
-  $effect(() => {
-    progressPosistion = sliderIndex * 100;
-    if (sliderIndex == itemArray.length) progressWrapForwardPosition = 0;
-    else progressWrapForwardPosition = 100;
-
-    if (sliderIndex == -1)
-      progressWrapBackwardPosition = itemArray.length * 100 - 100;
-    else progressWrapBackwardPosition = itemArray.length * 100;
-  });
 
   onMount(() => {
     sliderInterval = setInterval(() => slideRight(), SLIDER_INTERVAL_IN_MS);
@@ -178,7 +163,7 @@
     <div class="absolute flex justify-center w-full bottom-0">
       <ContentWidth class="h-full relative w-full">
         <div class="h-10 flex align-middle justify-center bottom-10">
-          {#each itemArray as item, i}
+          {#each itemArray as _item, i}
             <button
               class="h-[10px] w-[10px] border-2 rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mx-2 translate-x-2
                                     {(sliderIndex % itemArray.length >= 0 &&

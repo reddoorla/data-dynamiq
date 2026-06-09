@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
   import placeholder from "../../assets/images/background_placeholder.svg";
   import ContentWidth from "../ContentWidth/ContentWidth.svelte";
@@ -19,57 +18,18 @@
     class: klass = "",
   }: Props = $props();
 
-  const SLIDER_TRANSITION_FUNCTION = "cubic-bezier(.5,0,0,1)";
-  const SLIDER_TRANSITION_LENGTH_IN_MS = 2000;
-  const SLIDER_INTERVAL_IN_MS = 5000;
-
   let viewportWidth: number = $state(0);
 
   let sliderIndex = $state(0);
 
   let isSlideAnimated = $state(true);
 
-  const resetSliderToStart = () => {
-    setTimeout(() => (isSlideAnimated = false), SLIDER_TRANSITION_LENGTH_IN_MS);
-    setTimeout(() => (sliderIndex = 0), SLIDER_TRANSITION_LENGTH_IN_MS + 20);
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
-  };
-
-  const resetSliderToEnd = () => {
-    setTimeout(() => (isSlideAnimated = false), SLIDER_TRANSITION_LENGTH_IN_MS);
-    setTimeout(
-      () => (sliderIndex = imageArray.length - 1),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 20,
-    );
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
-  };
-
   const slideRight = () => {
     sliderIndex++;
-    //clearInterval(sliderInterval);
-    //sliderInterval = setInterval(()=>slideRight(), SLIDER_INTERVAL_IN_MS);
-    //if(sliderIndex==imageArray.length)
-    //resetSliderToStart();
   };
   const slideLeft = () => {
     sliderIndex--;
-    //clearInterval(sliderInterval);
-    //sliderInterval = setInterval(()=>slideLeft(), SLIDER_INTERVAL_IN_MS);
   };
-
-  const setSliderIndex = (index: number) => {
-    sliderIndex = index;
-    //clearInterval(sliderInterval);
-    //sliderInterval = setInterval(()=>slideLeft(), SLIDER_INTERVAL_IN_MS);
-  };
-
-  let sliderInterval: NodeJS.Timeout;
 
   const handleSwipe = (e: SwipeCustomEvent) => {
     if (e.detail.direction === "left") slideRight();
@@ -105,7 +65,7 @@
           sliderIndex + imageArray.length
         ) * 352}px); "
       >
-        {#each tripledImages as image}
+        {#each tripledImages as _image}
           <div class="w-[360px] h-full mx-4">
             <FourByThreeImage alt={altText} class="h-full object-cover -z-10" />
           </div>

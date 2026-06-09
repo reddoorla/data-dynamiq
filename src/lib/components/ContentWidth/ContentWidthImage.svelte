@@ -2,7 +2,7 @@
   import placeholder from "../../assets/images/background_placeholder.svg";
 
   interface Props {
-    image?: any;
+    image?: string;
     altText?: string;
     children?: import("svelte").Snippet;
   }

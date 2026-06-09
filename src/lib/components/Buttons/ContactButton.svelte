@@ -1,6 +1,4 @@
 <script lang="ts">
-  import chevron from "$lib/assets/icons/hollowChevronRight.svg";
-
   interface Props {
     text?: string;
     click?: () => void;

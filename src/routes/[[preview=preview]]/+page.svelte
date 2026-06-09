@@ -24,11 +24,7 @@
   import ScreenWidthImage from "$lib/components/ScreenWidth/ScreenWidthImage.svelte";
   import { Turnstile } from "svelte-turnstile";
 
-  import Spacer from "$lib/components/Spacer.svelte";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
-  import placeholder from "$lib/assets/images/image_placeholder.svg";
-  import HalfWidthImage from "$lib/components/HalfWidth/HalfWidthImage.svelte";
-  import DefaultButton from "$lib/components/Buttons/DefaultButton.svelte";
   import chevronLeft from "$lib/assets/icons/chevron-left.svg";
   import chevronRight from "$lib/assets/icons/chevron-right.svg";
   import { fade, fly } from "svelte/transition";
@@ -39,19 +35,9 @@
   let isEvolveHollow = $state(true);
 
   let innerWidth: number = $state(0);
-  const loremParagraph =
-    "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.";
 
   let activeValue = $state(1);
-  let showValueBox = true;
   const setActiveValue = (i: number) => (activeValue = i);
-  const setActiveValueWithDelay = (i: number) => {
-    showValueBox = false;
-    activeValue = i;
-    setTimeout(() => {
-      showValueBox = true;
-    }, 300);
-  };
 
   run(() => {
     if (activeValue < 1) activeValue = 1;
@@ -98,10 +84,10 @@
 
   let submitted = $state(false);
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
 
-    const myForm = event.target;
+    const myForm = event.target as HTMLFormElement;
     const formData = new FormData(myForm);
 
     const formDataObject: Record<string, string> = {};
