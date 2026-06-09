@@ -66,6 +66,7 @@
 
   let isFormOpen = $state(false);
   let form: HTMLFormElement | undefined = $state();
+  let submitted = $state(false);
 
   run(() => {
     if (typeof window !== "undefined") {
@@ -81,8 +82,6 @@
       }
     }
   });
-
-  let submitted = $state(false);
 
   const handleSubmit = (event: SubmitEvent) => {
     event.preventDefault();
