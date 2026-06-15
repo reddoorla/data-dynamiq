@@ -3,7 +3,6 @@
   import { MapPin } from "@lucide/svelte";
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContactBox from "$lib/components/FullWidth/ContactBox.svelte";
-  import ContactForm from "$lib/components/FullWidth/ContactForm.svelte";
   import mapPlaceholder from "$lib/assets/images/map_placeholder.svg";
 
   const LOREM =
@@ -22,9 +21,6 @@
       <h6 class="mb-7">We'd love to hear from you</h6>
       <p class="mb-7 w-5/6">{LOREM}</p>
       <ContactBox />
-    </div>
-    <div class="w-full mt-8 md:mt-0 md:w-1/2">
-      <ContactForm />
     </div>
   </div>
 </ContentWidth>

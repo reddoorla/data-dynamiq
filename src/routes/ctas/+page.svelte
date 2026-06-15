@@ -2,7 +2,6 @@
   import Spacer from "$lib/components/Spacer.svelte";
   import ScreenWidthImage from "$lib/components/ScreenWidth/ScreenWidthImage.svelte";
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
-  import EmailSubmit from "$lib/components/FullWidth/EmailSubmit.svelte";
 
   const LOREM =
     "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.";
@@ -43,7 +42,6 @@
         icon=""
         float="center"
       />
-      <EmailSubmit />
     </div>
   </div>
 </ScreenWidthImage>
