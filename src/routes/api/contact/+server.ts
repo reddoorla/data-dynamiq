@@ -6,7 +6,8 @@ import type { RequestHandler } from "./$types";
 // POST-only ingest endpoint; never prerendered.
 export const prerender = false;
 
-const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
+const str = (v: unknown): string | undefined =>
+  typeof v === "string" ? v : undefined;
 
 export const POST: RequestHandler = async ({ request, fetch }) => {
   let body: Record<string, unknown>;
@@ -42,9 +43,14 @@ export const POST: RequestHandler = async ({ request, fetch }) => {
     },
   });
   if (!result.ok) {
-    console.error(`[contact] ingest failed (${result.status}): ${result.error}`);
+    console.error(
+      `[contact] ingest failed (${result.status}): ${result.error}`,
+    );
     return json(
-      { ok: false, error: "Something went wrong sending your message. Please try again." },
+      {
+        ok: false,
+        error: "Something went wrong sending your message. Please try again.",
+      },
       { status: 502 },
     );
   }
