@@ -18,7 +18,6 @@
     "@eslint/js": "^10.0.1",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.60.0",
-    "@reddoorla/maintenance": "^0.28.0",
     "@slicemachine/adapter-sveltekit": "^0.3.96",
     "@sveltejs/adapter-netlify": "^6.0.4",
     "@sveltejs/kit": "^2.61.1",
@@ -55,9 +54,9 @@
     "@lucide/svelte": "^1.17.0",
     "@prismicio/client": "^7.21.8",
     "@prismicio/svelte": "^2.2.1",
+    "@reddoorla/maintenance": "^0.36.0",
     "@tailwindcss/vite": "^4.3.0",
     "svelte-gestures": "^5.2.2",
-    "svelte-select": "^5.8.3",
-    "svelte-turnstile": "^0.8.0"
+    "svelte-select": "^5.8.3"
   }
 }

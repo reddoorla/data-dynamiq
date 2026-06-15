@@ -5,6 +5,7 @@
     isSmall?: boolean;
     isVertical?: boolean;
     class?: string;
+    disabled?: boolean;
   }
 
   let {
@@ -13,6 +14,7 @@
     isSmall = false,
     isVertical = false,
     class: klass = "",
+    disabled = false,
   }: Props = $props();
 
   let isHovered = $state(false);
@@ -20,9 +22,10 @@
 
 <button
   onclick={click}
+  {disabled}
   class="flex {isVertical
     ? 'flex-col negative-bump'
-    : 'flex-row bump '} items-center gap-2 text-white {klass}"
+    : 'flex-row bump '} items-center gap-2 text-white disabled:opacity-50 disabled:cursor-not-allowed {klass}"
   onmouseover={() => (isHovered = true)}
   onfocus={() => (isHovered = true)}
   onmouseout={() => (isHovered = false)}
