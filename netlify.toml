@@ -4,7 +4,7 @@
     functions = "functions/"
 
 [build.environment]
-    NODE_VERSION = "22"
+    NODE_VERSION = "24"
     COREPACK_INTEGRITY_KEYS = "0"
 
 # Baseline security headers for all responses. CSP is emitted per-response by
