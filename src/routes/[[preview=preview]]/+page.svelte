@@ -22,7 +22,6 @@
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContactButton from "$lib/components/Buttons/ContactButton.svelte";
   import ScreenWidthImage from "$lib/components/ScreenWidth/ScreenWidthImage.svelte";
-  import { Turnstile } from "svelte-turnstile";
 
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
   import chevronLeft from "$lib/assets/icons/chevron-left.svg";
@@ -67,6 +66,7 @@
   let isFormOpen = $state(false);
   let form: HTMLFormElement | undefined = $state();
   let submitted = $state(false);
+  let errorMsg = $state("");
 
   run(() => {
     if (typeof window !== "undefined") {
@@ -83,25 +83,30 @@
     }
   });
 
-  const handleSubmit = (event: SubmitEvent) => {
+  const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
-
+    errorMsg = "";
     const myForm = event.target as HTMLFormElement;
-    const formData = new FormData(myForm);
-
-    const formDataObject: Record<string, string> = {};
-    formData.forEach((value, key) => {
-      formDataObject[key] = value.toString();
+    const payload: Record<string, string> = { sourceUrl: window.location.href };
+    new FormData(myForm).forEach((value, key) => {
+      payload[key] = value.toString();
     });
-
-    fetch("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(formDataObject).toString(),
-    }).catch((error) => alert(error));
-
-    submitted = true;
-    myForm.reset();
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (res.ok && data.ok) {
+        submitted = true;
+        myForm.reset();
+      } else {
+        errorMsg = data.error ?? "Something went wrong. Please try again.";
+      }
+    } catch {
+      errorMsg = "Network error. Please try again.";
+    }
   };
 
   let evolve: HTMLSpanElement | undefined = $state();
@@ -172,14 +177,9 @@
           <form
             bind:this={form}
             class="h-full w-full mt-8 md:mt-0 flex flex-col gap-2 text-white items-start"
-            name="contact"
             method="POST"
             onsubmit={handleSubmit}
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
           >
-            <input type="hidden" name="form-name" value="contact" />
-
             <label for="name" class="hidden">Name</label>
             <input
               id="name"
@@ -215,9 +215,11 @@
               class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"
             ></textarea>
 
-            <Turnstile siteKey="0x4AAAAAAAjylnwnKtVp2F7G" />
+            {#if errorMsg}
+              <p role="alert" class="text-primary text-sm">{errorMsg}</p>
+            {/if}
 
-            <ContactButton text="request info" click={() => form?.submit()} />
+            <ContactButton text="request info" />
           </form>
         {/if}
       </div>
