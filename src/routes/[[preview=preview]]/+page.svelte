@@ -64,8 +64,8 @@
   });
 
   let isFormOpen = $state(false);
-  let form: HTMLFormElement | undefined = $state();
   let submitted = $state(false);
+  let submitting = $state(false);
   let errorMsg = $state("");
 
   run(() => {
@@ -79,12 +79,15 @@
         document.body.style.top = "";
         window.scrollTo(0, parseInt(scrollY || "0") * -1);
         submitted = false;
+        errorMsg = "";
       }
     }
   });
 
   const handleSubmit = async (event: SubmitEvent) => {
     event.preventDefault();
+    if (submitting) return;
+    submitting = true;
     errorMsg = "";
     const myForm = event.target as HTMLFormElement;
     const payload: Record<string, string> = { sourceUrl: window.location.href };
@@ -106,6 +109,8 @@
       }
     } catch {
       errorMsg = "Network error. Please try again.";
+    } finally {
+      submitting = false;
     }
   };
 
@@ -175,7 +180,6 @@
           </h5>
         {:else}
           <form
-            bind:this={form}
             class="h-full w-full mt-8 md:mt-0 flex flex-col gap-2 text-white items-start"
             method="POST"
             onsubmit={handleSubmit}
@@ -219,7 +223,7 @@
               <p role="alert" class="text-primary text-sm">{errorMsg}</p>
             {/if}
 
-            <ContactButton text="request info" />
+            <ContactButton text="request info" disabled={submitting} />
           </form>
         {/if}
       </div>
