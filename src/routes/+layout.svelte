@@ -5,9 +5,10 @@
   import "../app.css";
   interface Props {
     children?: import("svelte").Snippet;
+    data: { isPreviewSession?: boolean };
   }
 
-  let { children }: Props = $props();
+  let { children, data }: Props = $props();
 </script>
 
 <svelte:head>
@@ -27,4 +28,6 @@
 <main>
   {@render children?.()}
 </main>
-<PrismicPreview {repositoryName} />
+{#if data.isPreviewSession}
+  <PrismicPreview {repositoryName} />
+{/if}
