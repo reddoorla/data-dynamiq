@@ -167,7 +167,7 @@
         class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7"
       >
         <h5 class="text-white">Contact us</h5>
-        <p class="text-white text-left">
+        <p class="text-white">
           We’re here to help you step into the future of data management. Reach
           out if you have questions or would like a demo.
         </p>
@@ -220,7 +220,7 @@
             ></textarea>
 
             {#if errorMsg}
-              <p role="alert" class="text-primary text-sm">{errorMsg}</p>
+              <p role="alert">{errorMsg}</p>
             {/if}
 
             <ContactButton text="request info" disabled={submitting} />
@@ -374,7 +374,7 @@
     class="md:w-1/2 md:max-w-[540px] h-full flex flex-col justify-center items-start gap-10"
   >
     <h5 class="text-primary">Finally, the complete evidence workflow.</h5>
-    <p class="text-left paragraph-large">
+    <p class="paragraph-large">
       Evidence360 offers a comprehensive and integrative approach to
       investigators by providing an exhaustive and thorough platform for
       evidence handling, case tracking, analysis, and communication.

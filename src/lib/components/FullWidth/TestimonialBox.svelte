@@ -54,6 +54,6 @@
   {/if}
 
   {#if attributionLabel}
-    <p class="mb-7 max-w-full text-xs">{attributionLabel}</p>
+    <p class="mb-7 max-w-full">{attributionLabel}</p>
   {/if}
 </div>

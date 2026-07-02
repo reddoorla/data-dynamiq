@@ -90,7 +90,7 @@
   <div class="w-full flex flex-row justify-evenly items-start flex-wrap">
     <div class="w-full md:w-[30%] my-12 flex flex-col items-start">
       <FourByThreeImage />
-      <h6 class="text-light text-left -mt-7">22 OCT 2018</h6>
+      <h6 class="-mt-7">22 OCT 2018</h6>
       <p class="my-4">
         Mastering the Art of Wireframing: A Comprehensive Guide for Digital
         Design Success
@@ -99,7 +99,7 @@
     </div>
     <div class="w-full md:w-[30%] my-12 flex flex-col items-start">
       <FourByThreeImage />
-      <h6 class="text-light text-left -mt-7">22 OCT 2018</h6>
+      <h6 class="-mt-7">22 OCT 2018</h6>
       <p class="my-4">
         Mastering the Art of Wireframing: A Comprehensive Guide for Digital
         Design Success
@@ -108,7 +108,7 @@
     </div>
     <div class="w-full md:w-[30%] my-12 flex flex-col items-start">
       <FourByThreeImage />
-      <h6 class="text-light text-left -mt-7">22 OCT 2018</h6>
+      <h6 class="-mt-7">22 OCT 2018</h6>
       <p class="my-4">
         Mastering the Art of Wireframing: A Comprehensive Guide for Digital
         Design Success
