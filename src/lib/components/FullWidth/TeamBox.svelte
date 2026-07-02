@@ -34,14 +34,14 @@
     >
       <div class="h-2"></div>
       <h5 class="text-white my-3">{name}</h5>
-      <p class="text-light my-3">{title}</p>
+      <p class="my-3">{title}</p>
       <div
         class="h-6 my-3 flex flex-row items center justify-center transition-opacity"
       >
         {#each socials as social}
           <a
             href={social.href}
-            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump text-white"
+            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump"
           >
             <BrandIcon platform={social.platform} />
           </a>
@@ -57,12 +57,12 @@
     >
       <div class="h-2"></div>
       <h5 class="text-white my-3">{name}</h5>
-      <p class="text-light my-3">{title}</p>
+      <p class="my-3">{title}</p>
       <div class="h-6 my-3 flex flex-row items center justify-center">
         {#each socials as social}
           <a
             href={social.href}
-            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump text-white"
+            class="mx-6 w-6 h-6 hover:opacity-75 transition-all bump"
           >
             <BrandIcon platform={social.platform} />
           </a>

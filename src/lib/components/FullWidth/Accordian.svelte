@@ -22,7 +22,7 @@
       onclick={() => (activeAccordians[i] = !activeAccordians[i])}
     >
       <div class="h-20 p-8 w-full flex flex-row justify-between items-center">
-        <p class="text-left">{label}</p>
+        <p>{label}</p>
         <img
           src={chevronRight}
           alt="chevron right"
@@ -35,7 +35,7 @@
       </div>
       {#if activeAccordians[i]}
         <div transition:slide={{ duration: 500 }}>
-          <p class="text-left p-8 pt-0">{contents[i]}</p>
+          <p class="p-8 pt-0">{contents[i]}</p>
         </div>
       {/if}
     </button>

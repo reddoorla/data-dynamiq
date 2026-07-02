@@ -48,7 +48,7 @@
     transition:fly={{ y: "-100%" }}
   >
     {#each NAV_LINKS as item}
-      <a href={item.href} class="text-white text-2xl">{item.label}</a>
+      <a href={item.href}>{item.label}</a>
     {/each}
 
     <button
