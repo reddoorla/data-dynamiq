@@ -21,6 +21,7 @@
   import finalBg from "$lib/assets/images/finalBg.jpg";
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContactButton from "$lib/components/Buttons/ContactButton.svelte";
+  import TurnstileWidget from "$lib/components/TurnstileWidget.svelte";
   import ScreenWidthImage from "$lib/components/ScreenWidth/ScreenWidthImage.svelte";
 
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
@@ -67,6 +68,7 @@
   let submitted = $state(false);
   let submitting = $state(false);
   let errorMsg = $state("");
+  let turnstileToken = $state("");
 
   run(() => {
     if (typeof window !== "undefined") {
@@ -94,6 +96,10 @@
     new FormData(myForm).forEach((value, key) => {
       payload[key] = value.toString();
     });
+    // Forward the Turnstile token for central verification (fail-open: a missing
+    // token never drops the lead). Kept out of the persisted lead fields — the
+    // ingest endpoint reads it transiently into `_meta` only.
+    if (turnstileToken) payload["cf-turnstile-response"] = turnstileToken;
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -222,6 +228,8 @@
             {#if errorMsg}
               <p role="alert">{errorMsg}</p>
             {/if}
+
+            <TurnstileWidget onToken={(t) => (turnstileToken = t)} />
 
             <ContactButton text="request info" disabled={submitting} />
           </form>
