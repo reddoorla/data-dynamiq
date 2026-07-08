@@ -18,7 +18,9 @@ type PrismicModule = {
 // Server-side Prismic reachability probe. Hits the PUBLIC repository-metadata
 // endpoint (getRepository — no token), time-boxed, returning ONLY a status
 // string; the repository body is never included (/health is public).
-async function probePrismic(fetch: typeof globalThis.fetch): Promise<PrismicHealth> {
+async function probePrismic(
+  fetch: typeof globalThis.fetch,
+): Promise<PrismicHealth> {
   const mod = prismicio as PrismicModule;
   const isPlaceholder = mod.isPlaceholderRepo ?? false;
   if (isPlaceholder || typeof mod.createClient !== "function") return "skipped";
@@ -26,7 +28,10 @@ async function probePrismic(fetch: typeof globalThis.fetch): Promise<PrismicHeal
   try {
     const client = mod.createClient({ fetch });
     const timeout = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(new Error("prismic health probe timed out")), 5000);
+      timer = setTimeout(
+        () => reject(new Error("prismic health probe timed out")),
+        5000,
+      );
     });
     await Promise.race([client.getRepository(), timeout]);
     return "ok";
