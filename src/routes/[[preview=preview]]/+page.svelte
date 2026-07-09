@@ -473,9 +473,9 @@
       Reduce Backlog, Boost Productivity, and Unify Your Team
     </h2>
     <ContactButton click={() => (isFormOpen = true)} text="Contact Us" />
-    <div class="label text-white mb-4">
+    <footer class="label text-white mb-4">
       ©2024 Data Dynamiq | All Rights Reserved
-    </div>
+    </footer>
   </div>
 </ScreenWidthImage>
 
