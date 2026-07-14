@@ -47,7 +47,7 @@
     "@lucide/svelte": "^1.17.0",
     "@prismicio/client": "^7.21.8",
     "@prismicio/svelte": "^2.2.1",
-    "@reddoorla/maintenance": "^0.67.0",
+    "@reddoorla/maintenance": "^0.69.0",
     "@tailwindcss/vite": "^4.3.0",
     "svelte-gestures": "^5.2.2",
     "svelte-select": "^5.8.3"
