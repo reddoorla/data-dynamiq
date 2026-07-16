@@ -12,6 +12,7 @@
     "lint": "prettier --check . --plugin prettier-plugin-svelte . && eslint .",
     "format": "prettier --write . --plugin prettier-plugin-svelte .",
     "slicemachine": "start-slicemachine",
+    "test": "pnpm test:smoke",
     "test:smoke": "playwright install chromium && playwright test"
   },
   "devDependencies": {
