@@ -38,7 +38,7 @@ for (const route of smokeRoutes) {
   test(`${route.path} (${route.name}) loads with no console errors`, async ({
     page,
   }) => {
-    const errors = attachConsoleWatcher(page);
+    const errors = attachConsoleWatcher(page, route.allowedConsolePatterns);
     const response = await page.goto(route.path, {
       waitUntil: "domcontentloaded",
     });
