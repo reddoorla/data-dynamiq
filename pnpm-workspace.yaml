@@ -1,4 +1,3 @@
-# pnpm 11 reads settings from here (the package.json "pnpm" field is no longer read).
 allowBuilds:
   # migrate each package from the old onlyBuiltDependencies here as `name: true`
   "@scarf/scarf": false
@@ -11,4 +10,4 @@ overrides:
   # cookie <0.7.0: out-of-bounds chars in name/path/domain (GHSA-pxg6-pf52-xh8x, low).
   # @sveltejs/kit pins cookie ^0.6.0 even at latest, so this can't clear in-range;
   # scoped to the vulnerable range so express's 0.7.2 and slicemachine's 1.x stay untouched.
-  "cookie@<0.7.0": "^0.7.2"
+  "cookie@<0.7.0": "^2.0.0"
