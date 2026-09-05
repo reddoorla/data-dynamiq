@@ -6,3 +6,9 @@ allowBuilds:
   protobufjs: true
   sharp: true
 minimumReleaseAge: 0
+# Transitive-dependency security pins (fleet convention: range-scoped, capped — never "latest").
+overrides:
+  # cookie <0.7.0: out-of-bounds chars in name/path/domain (GHSA-pxg6-pf52-xh8x, low).
+  # @sveltejs/kit pins cookie ^0.6.0 even at latest, so this can't clear in-range;
+  # scoped to the vulnerable range so express's 0.7.2 and slicemachine's 1.x stay untouched.
+  "cookie@<0.7.0": "^0.7.2"
