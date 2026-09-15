@@ -28,9 +28,7 @@
   };
 
   let sliderNumber = $state((2 - activeValue) * 100);
-  let sliderStyleString = $state(
-    "transform:translateX(" + sliderNumber + "vw);",
-  );
+  let sliderStyleString = $state("transform:translateX(" + sliderNumber + "vw);");
   run(() => {
     sliderNumber = (2 - activeValue) * 100;
     sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
@@ -158,10 +156,7 @@
         />
       </div>
       {#key activeValue}
-        <div
-          out:fade={{ duration: 300 }}
-          in:fade={{ delay: 500, duration: 300 }}
-        >
+        <div out:fade={{ duration: 300 }} in:fade={{ delay: 500, duration: 300 }}>
           {#if (activeValue == 1 && showValueBox) || innerWidth < 560}
             <ContentBox
               icon=""
@@ -219,8 +214,8 @@
             <h6>{"Value " + (i + 1)}</h6>
           </div>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-            eiusmod tempor incididuntut lab.
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
+            incididuntut lab.
           </p>
         </div>
       {/each}
@@ -235,8 +230,8 @@
 <ContentWidth class="my-16">
   <h2 class="mb-16 text-center">Here is our Value Proposition</h2>
   <p class="text-center mb-16">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-    tempor incididunt ut labore et dolore magna aliqua.
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+    labore et dolore magna aliqua.
   </p>
   <div class="flex flex-row justify-between flex-wrap">
     {#each { length: 4 } as _, i (i)}

@@ -26,13 +26,7 @@
 </script>
 
 {#if d}
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    class={klass}
-    role="img"
-    aria-hidden="true"
-  >
+  <svg viewBox="0 0 24 24" fill="currentColor" class={klass} role="img" aria-hidden="true">
     <path {d} />
   </svg>
 {/if}

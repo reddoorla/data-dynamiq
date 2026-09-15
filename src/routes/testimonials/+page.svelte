@@ -21,9 +21,7 @@
   const setActiveValue = (i: number) => (activeValue = i);
 
   let sliderNumber = $state((2 - activeValue) * 100);
-  let sliderStyleString = $state(
-    "transform:translateX(" + sliderNumber + "vw);",
-  );
+  let sliderStyleString = $state("transform:translateX(" + sliderNumber + "vw);");
   run(() => {
     sliderNumber = (2 - activeValue) * 100;
     sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
@@ -157,12 +155,7 @@
 <!-- testimonial #2 -->
 
 <ScreenWidthImage>
-  <ContentBox
-    titleTag="h2"
-    titleText="Why People Love Wireframes"
-    icon=""
-    class="mt-12"
-  />
+  <ContentBox titleTag="h2" titleText="Why People Love Wireframes" icon="" class="mt-12" />
 
   <div class="w-full md:w-1/2 relative">
     <SliderOfTestimonialBoxes />

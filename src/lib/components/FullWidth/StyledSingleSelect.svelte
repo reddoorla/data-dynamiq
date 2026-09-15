@@ -9,12 +9,7 @@
     class?: string;
   }
 
-  let {
-    items,
-    value = $bindable(""),
-    placeholder = "",
-    class: klass = "",
-  }: Props = $props();
+  let { items, value = $bindable(""), placeholder = "", class: klass = "" }: Props = $props();
 
   let selectHover = $state(false);
 </script>
@@ -27,13 +22,7 @@
   onmouseout={() => (selectHover = false)}
   onblur={() => (selectHover = false)}
 >
-  <Select
-    {items}
-    bind:value
-    {placeholder}
-    searchable={false}
-    class="svelte-select"
-  />
+  <Select {items} bind:value {placeholder} searchable={false} class="svelte-select" />
   <div
     class="absolute h-full aspect-square right-0 top-0 flex items-center justify-center pointer-events-none"
   >

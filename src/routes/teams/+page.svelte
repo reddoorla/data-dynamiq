@@ -80,9 +80,7 @@
 
   <div class="w-full flex flex-row justify-evenly flex-wrap">
     {#each TEAM_LIST as person}
-      <div
-        class="w-full md:w-[46%] xl:w-[22%] my-12 flex flex-col items-center justify-center"
-      >
+      <div class="w-full md:w-[46%] xl:w-[22%] my-12 flex flex-col items-center justify-center">
         <img
           class="w-full aspect-[5/4] object-cover mb-6 {person.profilePicture ===
           profile_placeholder

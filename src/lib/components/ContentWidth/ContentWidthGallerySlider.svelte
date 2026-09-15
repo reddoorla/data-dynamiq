@@ -39,9 +39,7 @@
 
   const swipe = createSwipeAction(handleSwipe);
 
-  const tripledImages = $derived(
-    imageArray.concat(imageArray).concat(imageArray),
-  );
+  const tripledImages = $derived(imageArray.concat(imageArray).concat(imageArray));
 </script>
 
 <svelte:window bind:innerWidth={viewportWidth} />
@@ -50,20 +48,16 @@
   <div use:swipe class="h-[320px] py-2 relative">
     <div
       class="overflow-hidden w-screen mt-20 lg:mt-0"
-      style="margin-left:{viewportWidth > 1340
-        ? viewportWidth - 1220 / 2
-        : viewportWidth * 0.04};"
+      style="margin-left:{viewportWidth > 1340 ? viewportWidth - 1220 / 2 : viewportWidth * 0.04};"
     >
       <div
         class="h-full flex flex-row flex-nowrap {isSlideAnimated
           ? 'transition-transform duration-[2000ms]'
           : ''}"
-        style="width:{352 *
-          tripledImages.length}px; margin-left:{viewportWidth > 1340
+        style="width:{352 * tripledImages.length}px; margin-left:{viewportWidth > 1340
           ? viewportWidth - 1220 / 2
-          : viewportWidth * 0.04}; transform:translateX({-(
-          sliderIndex + imageArray.length
-        ) * 352}px); "
+          : viewportWidth * 0.04}; transform:translateX({-(sliderIndex + imageArray.length) *
+          352}px); "
       >
         {#each tripledImages as _image}
           <div class="w-[360px] h-full mx-4">
@@ -83,11 +77,7 @@
             ? 'opacity-20 pointer-events-none'
             : ''}"
         >
-          <img
-            alt="chevron-left"
-            src={chevronLeft}
-            class="-translate-x-[1px]"
-          />
+          <img alt="chevron-left" src={chevronLeft} class="-translate-x-[1px]" />
         </button>
         <button
           onclick={slideRight}
@@ -96,11 +86,7 @@
             ? 'opacity-20 pointer-events-none'
             : ''}"
         >
-          <img
-            alt="chevron-right"
-            src={chevronRight}
-            class="translate-x-[1px]"
-          />
+          <img alt="chevron-right" src={chevronRight} class="translate-x-[1px]" />
         </button>
       </ContentWidth>
     </div>

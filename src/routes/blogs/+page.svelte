@@ -42,9 +42,7 @@
     />
   </div>
   <div class="w-full flex flex-row justify-evenly items-start flex-wrap">
-    <div
-      class="w-full md:w-[46%] xl:w-[30%] my-12 flex flex-col items-center justify-center"
-    >
+    <div class="w-full md:w-[46%] xl:w-[30%] my-12 flex flex-col items-center justify-center">
       <div class="w-full flex flex-row justify-between items-baseline -mb-4">
         <h6>Grids</h6>
         <a href="/">See all</a>
@@ -52,9 +50,7 @@
       <FourByThreeImage />
       <Accordian contents={CONTENTS} labels={LABELS} />
     </div>
-    <div
-      class="w-full md:w-[46%] xl:w-[30%] my-12 flex flex-col items-center justify-center"
-    >
+    <div class="w-full md:w-[46%] xl:w-[30%] my-12 flex flex-col items-center justify-center">
       <div class="w-full flex flex-row justify-between items-baseline -mb-4">
         <h6>Guides</h6>
         <a href="/">See all</a>
@@ -62,9 +58,7 @@
       <FourByThreeImage />
       <Accordian contents={CONTENTS} labels={LABELS} />
     </div>
-    <div
-      class="w-full md:w-[46%] xl:w-[30%] my-12 flex flex-col items-center justify-center"
-    >
+    <div class="w-full md:w-[46%] xl:w-[30%] my-12 flex flex-col items-center justify-center">
       <div class="w-full flex flex-row justify-between items-baseline -mb-4">
         <h6>Concept</h6>
         <a href="/">See all</a>
@@ -92,8 +86,7 @@
       <FourByThreeImage />
       <h6 class="-mt-7">22 OCT 2018</h6>
       <p class="my-4">
-        Mastering the Art of Wireframing: A Comprehensive Guide for Digital
-        Design Success
+        Mastering the Art of Wireframing: A Comprehensive Guide for Digital Design Success
       </p>
       <DefaultButton filled={false} text="READ BUTTON" />
     </div>
@@ -101,8 +94,7 @@
       <FourByThreeImage />
       <h6 class="-mt-7">22 OCT 2018</h6>
       <p class="my-4">
-        Mastering the Art of Wireframing: A Comprehensive Guide for Digital
-        Design Success
+        Mastering the Art of Wireframing: A Comprehensive Guide for Digital Design Success
       </p>
       <DefaultButton filled={false} text="READ BUTTON" />
     </div>
@@ -110,8 +102,7 @@
       <FourByThreeImage />
       <h6 class="-mt-7">22 OCT 2018</h6>
       <p class="my-4">
-        Mastering the Art of Wireframing: A Comprehensive Guide for Digital
-        Design Success
+        Mastering the Art of Wireframing: A Comprehensive Guide for Digital Design Success
       </p>
       <DefaultButton filled={false} text="READ BUTTON" />
     </div>

@@ -25,10 +25,7 @@
   let viewportWidth: number = $state(0);
 </script>
 
-<svelte:window
-  bind:innerHeight={viewportHeight}
-  bind:innerWidth={viewportWidth}
-/>
+<svelte:window bind:innerHeight={viewportHeight} bind:innerWidth={viewportWidth} />
 
 <section>
   <div class="right-0 left-0 overflow-hidden h-screen w-screen relative">

@@ -12,20 +12,14 @@
 
 <!--Masthead #1-->
 <ScreenWidthImage>
-  <div
-    class="w-full max-w-80 sm:w-[620px] sm:max-w-full mx-auto mt-20 sm:mt-[125px]"
-  >
+  <div class="w-full max-w-80 sm:w-[620px] sm:max-w-full mx-auto mt-20 sm:mt-[125px]">
     <TitleBox
       labelText="Designing Tomorrow's Success Today"
       titleText="Craft Seamless Experiences with Wireframes"
     />
   </div>
 
-  <img
-    src={playIcon}
-    alt="play"
-    class="w-[52.5px] h-[52.5px] mt-0 md:mt-16 mx-auto"
-  />
+  <img src={playIcon} alt="play" class="w-[52.5px] h-[52.5px] mt-0 md:mt-16 mx-auto" />
 </ScreenWidthImage>
 
 <Spacer color="#424B5A" />

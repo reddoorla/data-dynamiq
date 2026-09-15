@@ -33,16 +33,10 @@
     class: klass = "",
   }: Props = $props();
 
-  const justify = $derived(
-    float === "left" ? "start" : float === "right" ? "end" : float,
-  );
+  const justify = $derived(float === "left" ? "start" : float === "right" ? "end" : float);
 
   const horizontalFloatMargin = $derived(
-    float === "left"
-      ? "ml-0 mr-auto"
-      : float === "right"
-        ? "ml-auto mr-0"
-        : "mx-auto",
+    float === "left" ? "ml-0 mr-auto" : float === "right" ? "ml-auto mr-0" : "mx-auto",
   );
 </script>
 
@@ -51,11 +45,7 @@
   style="background-color: {backgroundColor}"
 >
   {#if icon}
-    <img
-      src={icon}
-      alt={iconAltText}
-      class="w-[70px] h-[70px] mb-7 {horizontalFloatMargin}"
-    />
+    <img src={icon} alt={iconAltText} class="w-[70px] h-[70px] mb-7 {horizontalFloatMargin}" />
   {/if}
   {#if labelText}
     <h6 class="mb-7">{labelText}</h6>
@@ -69,18 +59,12 @@
   {#if paragraphText}
     <p class="mb-7 max-w-full">{paragraphText}</p>
   {/if}
-  <div
-    class="w-full flex flex-col sm:flex-row align-middle justify-center sm:justify-{justify}"
-  >
+  <div class="w-full flex flex-col sm:flex-row align-middle justify-center sm:justify-{justify}">
     {#if buttonText}
       <DefaultButton text={buttonText} class="mr-12" />
     {/if}
     {#if linkText}
-      <ArrowButton
-        text={linkText}
-        href={linkHref}
-        class="sm:translate-x-0 ml-4 -translate-x-4"
-      />
+      <ArrowButton text={linkText} href={linkHref} class="sm:translate-x-0 ml-4 -translate-x-4" />
     {/if}
   </div>
 </div>

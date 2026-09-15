@@ -1,15 +1,11 @@
 import { env } from "$env/dynamic/private";
-import {
-  createIngestEndpoint,
-  type SubmissionPayload,
-} from "@reddoorla/maintenance/forms";
+import { createIngestEndpoint, type SubmissionPayload } from "@reddoorla/maintenance/forms";
 import type { RequestHandler } from "./$types";
 
 // POST-only ingest endpoint; never prerendered.
 export const prerender = false;
 
-const str = (v: unknown): string | undefined =>
-  typeof v === "string" ? v : undefined;
+const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 
 export const POST: RequestHandler = createIngestEndpoint({
   formType: "contact",
