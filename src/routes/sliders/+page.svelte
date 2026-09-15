@@ -27,22 +27,13 @@
   const resetSliderToStart = () => {
     setTimeout(() => (isSlideAnimated = false), SLIDER_TRANSITION_LENGTH_IN_MS);
     setTimeout(() => (sliderIndex = 0), SLIDER_TRANSITION_LENGTH_IN_MS + 20);
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
+    setTimeout(() => (isSlideAnimated = true), SLIDER_TRANSITION_LENGTH_IN_MS + 40);
   };
 
   const resetSliderToEnd = () => {
     setTimeout(() => (isSlideAnimated = false), SLIDER_TRANSITION_LENGTH_IN_MS);
-    setTimeout(
-      () => (sliderIndex = imageArray.length - 1),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 20,
-    );
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
+    setTimeout(() => (sliderIndex = imageArray.length - 1), SLIDER_TRANSITION_LENGTH_IN_MS + 20);
+    setTimeout(() => (isSlideAnimated = true), SLIDER_TRANSITION_LENGTH_IN_MS + 40);
   };
 
   const slideRight = () => {
@@ -112,8 +103,7 @@
       <div use:swipe class="w-full">
         <div
           style="width: {tripledImages.length *
-            108}%; margin-left:-112%; transform:translateX({(-sliderIndex /
-            tripledImages.length) *
+            108}%; margin-left:-112%; transform:translateX({(-sliderIndex / tripledImages.length) *
             100}%);"
           class="flex flex-row justify-between flex-nowrap overflow-hidden {isSlideAnimated
             ? 'transition-transform duration-[2000ms]'
@@ -127,17 +117,14 @@
         </div>
       </div>
 
-      <div
-        class="h-10 w-5/6 flex align-middle justify-center mt-6 mx-auto pr-4"
-      >
+      <div class="h-10 w-5/6 flex align-middle justify-center mt-6 mx-auto pr-4">
         <button class="h-[10px] mr-8" onclick={slideRight}>
           <img src={chevronLeft} alt="previous slide" />
         </button>
         {#each imageArray as _image, i}
           <button
             class="h-[10px] w-[10px] border-2 rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4
-								{(sliderIndex % imageArray.length >= 0 &&
-              sliderIndex % imageArray.length === i) ||
+								{(sliderIndex % imageArray.length >= 0 && sliderIndex % imageArray.length === i) ||
             (sliderIndex % imageArray.length <= 0 &&
               imageArray.length + (sliderIndex % imageArray.length) === i)
               ? 'bg-dark border-dark'
@@ -152,9 +139,7 @@
         </button>
       </div>
     {/if}
-    <div
-      class="w-full lg:w-1/2 lg:h-[50vw] my-8 lg:left-0 flex justify-center items-center"
-    >
+    <div class="w-full lg:w-1/2 lg:h-[50vw] my-8 lg:left-0 flex justify-center items-center">
       <div class="w-full flex flex-col justify-center items-center">
         <ContentBox
           titleTag="h2"
@@ -172,8 +157,7 @@
             {#each imageArray as _image, i}
               <button
                 class="h-[10px] w-[10px] border-2 rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4
-								{(sliderIndex % imageArray.length >= 0 &&
-                  sliderIndex % imageArray.length === i) ||
+								{(sliderIndex % imageArray.length >= 0 && sliderIndex % imageArray.length === i) ||
                 (sliderIndex % imageArray.length <= 0 &&
                   imageArray.length + (sliderIndex % imageArray.length) === i)
                   ? 'bg-dark border-dark'
@@ -195,8 +179,7 @@
       <div use:swipe class="w-full">
         <div
           style="width: {tripledImages.length *
-            108}%; margin-left:-112%; transform:translateX({(-sliderIndex /
-            tripledImages.length) *
+            108}%; margin-left:-112%; transform:translateX({(-sliderIndex / tripledImages.length) *
             100}%);"
           class="flex flex-row justify-between flex-nowrap overflow-hidden {isSlideAnimated
             ? 'transition-transform duration-[2000ms]'
@@ -214,10 +197,7 @@
   {#if innerWidth > 1024}
     <div use:swipe class="w-1/2 absolute top-0 right-0">
       {#key sliderIndex}
-        <div
-          out:fade={{ duration: 300 }}
-          in:fade={{ delay: 500, duration: 300 }}
-        >
+        <div out:fade={{ duration: 300 }} in:fade={{ delay: 500, duration: 300 }}>
           {#each tripledImages as _image, i}
             {#if i === sliderIndex % imageArray.length}
               <SquareImage />

@@ -12,8 +12,8 @@
   <header class="space-y-2">
     <h1 class="text-3xl font-bold text-left">Accessibility fixtures</h1>
     <p class="text-left">
-      Used by the Playwright + axe-core CI gate. Every primitive on this page is
-      expected to pass WCAG 2.2 AA.
+      Used by the Playwright + axe-core CI gate. Every primitive on this page is expected to pass
+      WCAG 2.2 AA.
     </p>
   </header>
 
@@ -49,15 +49,9 @@
         <textarea
           id="fx-message"
           name="message"
-          class="text-black px-2 py-1 rounded border border-white w-full max-w-sm"
-        ></textarea>
+          class="text-black px-2 py-1 rounded border border-white w-full max-w-sm"></textarea>
       </div>
-      <button
-        type="submit"
-        class="px-4 py-2 border-2 border-white rounded bump"
-      >
-        Submit
-      </button>
+      <button type="submit" class="px-4 py-2 border-2 border-white rounded bump"> Submit </button>
       {#if submitted}
         <p role="status" class="text-left">Submitted.</p>
       {/if}
@@ -70,9 +64,7 @@
       <ul class="space-y-1">
         <li><a href="/" class="text-white! underline">Home</a></li>
         <li>
-          <a href="/dev/animate-in" class="text-white! underline"
-            >Animate-in demo</a
-          >
+          <a href="/dev/animate-in" class="text-white! underline">Animate-in demo</a>
         </li>
       </ul>
     </nav>

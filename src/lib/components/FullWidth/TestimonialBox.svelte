@@ -21,15 +21,9 @@
     class: klass = "",
   }: Props = $props();
 
-  let justify = $derived(
-    float === "left" ? "start" : float === "right" ? "end" : float,
-  );
+  let justify = $derived(float === "left" ? "start" : float === "right" ? "end" : float);
   let horizontalFloatMargin = $derived(
-    float === "left"
-      ? "ml-0 mr-auto"
-      : float === "right"
-        ? "ml-auto mr-0"
-        : "mx-auto",
+    float === "left" ? "ml-0 mr-auto" : float === "right" ? "ml-auto mr-0" : "mx-auto",
   );
 </script>
 
@@ -38,11 +32,7 @@
   style="background-color: {backgroundColor}"
 >
   {#if icon}
-    <img
-      src={icon}
-      alt={iconAltText}
-      class="pl-3 mb-12 {horizontalFloatMargin}"
-    />
+    <img src={icon} alt={iconAltText} class="pl-3 mb-12 {horizontalFloatMargin}" />
   {/if}
 
   {#if testimonialText}

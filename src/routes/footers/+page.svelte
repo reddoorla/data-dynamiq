@@ -32,9 +32,7 @@
 </svelte:head>
 
 <!-- footers #1 -->
-<ContentWidth
-  class="flex flex-col md:flex-row items-center justify-between flex-wrap my-8"
->
+<ContentWidth class="flex flex-col md:flex-row items-center justify-between flex-wrap my-8">
   <a href="/" class="w-11 hover:opacity-80 transition-all duration-500 bump">
     <SquareImage src={logoIcon} class="my-0" />
   </a>
@@ -47,9 +45,7 @@
     <a href="/">BLOG</a>
     <a href="/">ABOUT</a>
   </div>
-  <p class="w-full lg:w-auto text-center md:mt-16 lg:mt-0">
-    ©2018 - Form | All right reserved
-  </p>
+  <p class="w-full lg:w-auto text-center md:mt-16 lg:mt-0">©2018 - Form | All right reserved</p>
 </ContentWidth>
 <Spacer color="#424B5A" />
 

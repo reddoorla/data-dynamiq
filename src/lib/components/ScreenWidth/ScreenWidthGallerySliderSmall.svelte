@@ -29,22 +29,13 @@
   const resetSliderToStart = () => {
     setTimeout(() => (isSlideAnimated = false), SLIDER_TRANSITION_LENGTH_IN_MS);
     setTimeout(() => (sliderIndex = 0), SLIDER_TRANSITION_LENGTH_IN_MS + 20);
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
+    setTimeout(() => (isSlideAnimated = true), SLIDER_TRANSITION_LENGTH_IN_MS + 40);
   };
 
   const resetSliderToEnd = () => {
     setTimeout(() => (isSlideAnimated = false), SLIDER_TRANSITION_LENGTH_IN_MS);
-    setTimeout(
-      () => (sliderIndex = imageArray.length - 1),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 20,
-    );
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
+    setTimeout(() => (sliderIndex = imageArray.length - 1), SLIDER_TRANSITION_LENGTH_IN_MS + 20);
+    setTimeout(() => (isSlideAnimated = true), SLIDER_TRANSITION_LENGTH_IN_MS + 40);
   };
 
   const slideRight = () => {
@@ -81,8 +72,7 @@
     if (sliderIndex == imageArray.length) progressWrapForwardPosition = 0;
     else progressWrapForwardPosition = 100;
 
-    if (sliderIndex == -1)
-      progressWrapBackwardPosition = imageArray.length * 100 - 100;
+    if (sliderIndex == -1) progressWrapBackwardPosition = imageArray.length * 100 - 100;
     else progressWrapBackwardPosition = imageArray.length * 100;
 
     console.log(sliderIndex);
@@ -92,9 +82,7 @@
     sliderInterval = setInterval(() => slideLeft(), SLIDER_INTERVAL_IN_MS);
   });
 
-  const tripledImages = $derived(
-    imageArray.concat(imageArray).concat(imageArray),
-  );
+  const tripledImages = $derived(imageArray.concat(imageArray).concat(imageArray));
 </script>
 
 <section class="pb-32 {klass}">
@@ -146,21 +134,13 @@
           onclick={slideLeft}
           class="absolute -left-2 h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle justify-center cursor-pointer transition-all duration-500 hover:bg-[#424B5A] hover:border-[#424B5A] active:bg-black bump"
         >
-          <img
-            alt="chevron-left"
-            src={chevronLeft}
-            class="-translate-x-[1px]"
-          />
+          <img alt="chevron-left" src={chevronLeft} class="-translate-x-[1px]" />
         </button>
         <button
           onclick={slideRight}
           class="absolute -right-2 -translate-y-[0.7px] h-6 w-6 rounded-full border-[#C2D1D9] border-2 p-1 flex align-middle cursor-pointer transition-all duration-500 justify-center hover:bg-[#424B5A] hover:border-[#424B5A] active:bg-black bump"
         >
-          <img
-            alt="chevron-right"
-            src={chevronRight}
-            class="translate-x-[1px]"
-          />
+          <img alt="chevron-right" src={chevronRight} class="translate-x-[1px]" />
         </button>
       </ContentWidth>
     </div>

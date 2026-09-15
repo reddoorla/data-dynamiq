@@ -120,10 +120,7 @@
 <!-- nav #3 -->
 <div class="h-16 w-screen">
   <ContentWidth class="flex flex-row justify-between items-center h-full">
-    <button
-      class="opacity-60 hover:opacity-100 transition-all"
-      onclick={toggleOverlayOn}
-    >
+    <button class="opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
       {#if !isOverlayVisible}
         <Menu size={32} />
       {/if}
@@ -133,10 +130,7 @@
       <img src={logoFull} alt="logo" />
     </a>
 
-    <button
-      class="ml-6 opacity-60 hover:opacity-100 transition-all"
-      onclick={toggleOverlayOn}
-    >
+    <button class="ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
       {#if !isOverlayVisible}
         <Search size={24} />
       {/if}
@@ -153,10 +147,7 @@
     <a href="/" class="hover:opacity-80 transition-all duration-500 bump">
       <img src={logoFull} alt="logo" />
     </a>
-    <button
-      class="opacity-60 hover:opacity-100 transition-all"
-      onclick={toggleOverlayOn}
-    >
+    <button class="opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
       {#if !isOverlayVisible}
         <Menu size={32} />
       {/if}
@@ -216,10 +207,7 @@
           <Menu size={32} />
         {/if}
       </button>
-      <button
-        class="ml-6 opacity-60 hover:opacity-100 transition-all"
-        onclick={toggleOverlayOn}
-      >
+      <button class="ml-6 opacity-60 hover:opacity-100 transition-all" onclick={toggleOverlayOn}>
         {#if !isOverlayVisible}
           <Search size={24} />
         {/if}

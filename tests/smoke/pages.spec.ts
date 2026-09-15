@@ -35,16 +35,12 @@ function attachConsoleWatcher(page: Page, extraAllowed: RegExp[] = []) {
 }
 
 for (const route of smokeRoutes) {
-  test(`${route.path} (${route.name}) loads with no console errors`, async ({
-    page,
-  }) => {
+  test(`${route.path} (${route.name}) loads with no console errors`, async ({ page }) => {
     const errors = attachConsoleWatcher(page, route.allowedConsolePatterns);
     const response = await page.goto(route.path, {
       waitUntil: "domcontentloaded",
     });
-    expect(response?.status(), `HTTP status for ${route.path}`).toBe(
-      route.expectStatus ?? 200,
-    );
+    expect(response?.status(), `HTTP status for ${route.path}`).toBe(route.expectStatus ?? 200);
     if (route.hydrationMarker) {
       await expect(
         page.locator(route.hydrationMarker),

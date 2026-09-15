@@ -55,26 +55,20 @@
 
 <!-- plan #1 -->
 
-<div
-  class="max-w-screen-xl xl:mx-auto flex flex-col justify-center items-center my-32 mx-[4%]"
->
+<div class="max-w-screen-xl xl:mx-auto flex flex-col justify-center items-center my-32 mx-[4%]">
   <h2 class="mb-20">The Plan</h2>
-  <div
-    class="flex w-full justify-between items-center flex-col lg:flex-row mb-20"
-  >
+  <div class="flex w-full justify-between items-center flex-col lg:flex-row mb-20">
     <div
       class="w-full sm:w-96 lg:w-1/3 flex flex-col justify-center items-center py-5 px-4 mx-auto relative mb-10"
     >
-      <div
-        class="w-9 h-9 bg-black rounded-full text-white flex justify-center items-center mb-5"
-      >
+      <div class="w-9 h-9 bg-black rounded-full text-white flex justify-center items-center mb-5">
         <p class="translate-y-[1px]">1</p>
       </div>
       <img src={placeholder} alt="placeholder" class="w-32 mb-5" />
       <h6 class="mb-6">Blueprint Your Vision</h6>
       <p class="text-center">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
+        ut labore et dolore magna.
       </p>
       <img
         src={nextArrow}
@@ -85,16 +79,14 @@
     <div
       class="w-full sm:w-96 lg:w-1/3 flex flex-col justify-center items-center py-5 px-4 mx-auto relative mb-10"
     >
-      <div
-        class="w-9 h-9 bg-black rounded-full text-white flex justify-center items-center mb-5"
-      >
+      <div class="w-9 h-9 bg-black rounded-full text-white flex justify-center items-center mb-5">
         <p class="translate-y-[1px]">2</p>
       </div>
       <img src={placeholder} alt="placeholder" class="w-32 mb-5" />
       <h6 class="mb-6">Refine with Precision</h6>
       <p class="text-center">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
+        ut labore et dolore magna.
       </p>
       <img
         src={nextArrow}
@@ -105,16 +97,14 @@
     <div
       class="w-full sm:w-96 lg:w-1/3 flex flex-col justify-center items-center py-5 px-4 mx-auto relative mb-10"
     >
-      <div
-        class="w-9 h-9 bg-black rounded-full text-white flex justify-center items-center mb-5"
-      >
+      <div class="w-9 h-9 bg-black rounded-full text-white flex justify-center items-center mb-5">
         <p class="translate-y-[1px]">3</p>
       </div>
       <img src={placeholder} alt="placeholder" class="w-32 mb-5" />
       <h6 class="mb-6">Test and Iterate</h6>
       <p class="text-center">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna.
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt
+        ut labore et dolore magna.
       </p>
       <img
         src={nextArrow}
@@ -130,14 +120,10 @@
 
 <!-- plan #2 -->
 
-<div
-  class="max-w-screen-xl xl:mx-auto flex flex-col justify-center items-center my-32 mx-[4%]"
->
+<div class="max-w-screen-xl xl:mx-auto flex flex-col justify-center items-center my-32 mx-[4%]">
   <h2 class="mb-20">The Plan</h2>
   <div class="w-11/12 h-24 relative flex flex-row justify-between">
-    <div
-      class="plan-line absolute top-6 translate-y-[1.5px] left-[50px] -z-10"
-    ></div>
+    <div class="plan-line absolute top-6 translate-y-[1.5px] left-[50px] -z-10"></div>
     <button
       class="flex flex-col justify-center items-center hover:opacity-95"
       onclick={() => setStepWithDelay(1)}
@@ -181,10 +167,7 @@
   <div class="w-full flex flex-col lg:flex-row justify-center items-top mt-16">
     <div class="w-full lg:w-1/2 pr-6">
       {#key step}
-        <div
-          out:fade={{ duration: 300 }}
-          in:fade={{ delay: 500, duration: 300 }}
-        >
+        <div out:fade={{ duration: 300 }} in:fade={{ delay: 500, duration: 300 }}>
           {#if step == 1 && showStepBox}
             <ContentBox
               titleTag="h3"
@@ -225,10 +208,7 @@
 
     <div class="w-full lg:w-1/2 h-full">
       {#key step}
-        <div
-          out:fade={{ duration: 300 }}
-          in:fade={{ delay: 500, duration: 300 }}
-        >
+        <div out:fade={{ duration: 300 }} in:fade={{ delay: 500, duration: 300 }}>
           {#if step == 1 && showStepBox}
             <FourByThreeImage />
           {:else if step == 2 && showStepBox}
@@ -251,12 +231,8 @@
     <div
       class="w-full h-full lg:w-1/3 flex flex-col sm:flex-row lg:flex-col justify-evenly relative mt-16 gap-16"
     >
-      <div
-        class="w-full sm:w-1/3 lg:w-full flex flex-row justify-between gap-4"
-      >
-        <div
-          class="w-12 h-12 rounded-full p-2 bg-[#F2F5F7] flex justify-center items-center"
-        >
+      <div class="w-full sm:w-1/3 lg:w-full flex flex-row justify-between gap-4">
+        <div class="w-12 h-12 rounded-full p-2 bg-[#F2F5F7] flex justify-center items-center">
           <img class="w-10 h-10" src={placeholder} alt="placeholder" />
         </div>
         <div class="flex flex-col h-full">
@@ -264,12 +240,8 @@
           <p>Lorem ipsum dolor sit amet consectetur.</p>
         </div>
       </div>
-      <div
-        class="w-full sm:w-1/3 lg:w-full flex flex-row justify-between gap-4"
-      >
-        <div
-          class="w-12 h-12 rounded-full p-2 bg-[#F2F5F7] flex justify-center items-center"
-        >
+      <div class="w-full sm:w-1/3 lg:w-full flex flex-row justify-between gap-4">
+        <div class="w-12 h-12 rounded-full p-2 bg-[#F2F5F7] flex justify-center items-center">
           <img class="w-10 h-10" src={placeholder} alt="placeholder" />
         </div>
         <div class="flex flex-col h-full">
@@ -277,12 +249,8 @@
           <p>Lorem ipsum dolor sit amet consectetur.</p>
         </div>
       </div>
-      <div
-        class="w-full sm:w-1/3 lg:w-full flex flex-row justify-between gap-4"
-      >
-        <div
-          class="w-12 h-12 rounded-full p-2 bg-[#F2F5F7] flex justify-center items-center"
-        >
+      <div class="w-full sm:w-1/3 lg:w-full flex flex-row justify-between gap-4">
+        <div class="w-12 h-12 rounded-full p-2 bg-[#F2F5F7] flex justify-center items-center">
           <img class="w-10 h-10" src={placeholder} alt="placeholder" />
         </div>
         <div class="flex flex-col h-full">
@@ -304,10 +272,7 @@
       paragraphText="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
       float="left"
     />
-    <SliderOfContentBoxes
-      contentBoxPropsArray={planContentBoxPropsArray}
-      isNumbered
-    />
+    <SliderOfContentBoxes contentBoxPropsArray={planContentBoxPropsArray} isNumbered />
   </div>
   <FourByThreeImage class="w-full lg:w-2/3" />
 </ContentWidth>
@@ -315,8 +280,7 @@
 <style>
   .plan-arrow {
     filter: invert(1);
-    filter: invert(88%) sepia(19%) saturate(154%) hue-rotate(156deg)
-      brightness(96%) contrast(82%);
+    filter: invert(88%) sepia(19%) saturate(154%) hue-rotate(156deg) brightness(96%) contrast(82%);
   }
   .plan-line {
     height: 1px;

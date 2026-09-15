@@ -45,9 +45,7 @@
   });
 
   let sliderNumber = $state((2 - activeValue) * 100);
-  let sliderStyleString = $state(
-    "transform:translateX(" + sliderNumber + "vw);",
-  );
+  let sliderStyleString = $state("transform:translateX(" + sliderNumber + "vw);");
   run(() => {
     sliderNumber = (2 - activeValue) * 100;
     sliderStyleString = "transform:translateX(" + sliderNumber + "vw);";
@@ -160,29 +158,21 @@
       transition:fly={{ x: "-100%" }}
       class="w-full lg:w-3/5 h-full lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-0 lg:top-[20%] bg-black left-0 gap-16 lg:left-[20%] pointer-events-auto overflow-y-scroll"
     >
-      <button
-        class="absolute top-6 right-6"
-        onclick={() => (isFormOpen = false)}
-        ><X
-          class="text-white hover:text-light transtition bump"
-          size={32}
-        /></button
+      <button class="absolute top-6 right-6" onclick={() => (isFormOpen = false)}
+        ><X class="text-white hover:text-light transtition bump" size={32} /></button
       >
 
-      <div
-        class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7"
-      >
+      <div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
         <h5 class="text-white">Contact us</h5>
         <p class="text-white">
-          We’re here to help you step into the future of data management. Reach
-          out if you have questions or would like a demo.
+          We’re here to help you step into the future of data management. Reach out if you have
+          questions or would like a demo.
         </p>
       </div>
       <div class="w-full xl:w-1/2 xl:h-4/5">
         {#if submitted}
           <h5 class="text-primary">
-            Thanks for reaching out! <br /> <br />We'll get back to you as soon
-            as we can.
+            Thanks for reaching out! <br /> <br />We'll get back to you as soon as we can.
           </h5>
         {:else}
           <form
@@ -240,12 +230,8 @@
 {/if}
 
 <div class="h-16 w-screen fixed top-0 left-0 z-10">
-  <ContentWidth
-    class="h-16 flex flex-row justify-between lg:justify-center items-center relative"
-  >
-    <button
-      class="h-6"
-      onclick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
+  <ContentWidth class="h-16 flex flex-row justify-between lg:justify-center items-center relative">
+    <button class="h-6" onclick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
       ><img src={logo} alt="evidence 360" /></button
     >
 
@@ -259,9 +245,7 @@
 </div>
 
 <ScreenWidthImage image={bg1}>
-  <div
-    class="w-full h-full flex flex-col justify-between items-center py-12 md:py-32"
-  >
+  <div class="w-full h-full flex flex-col justify-between items-center py-12 md:py-32">
     <div></div>
     <h1 class=" max-w-screen-xl">
       The software system that unifies the Digital Evidence workflow.
@@ -285,8 +269,7 @@
         bind:this={evolve}
         class="{isEvolveHollow
           ? 'text-black'
-          : 'text-white'} transition duration-[3200ms] ease-fast-slow"
-        >Evolving</span
+          : 'text-white'} transition duration-[3200ms] ease-fast-slow">Evolving</span
       > Digital Age
     </h2>
     <ContentWidth>
@@ -354,11 +337,7 @@
           ? 'opacity-0 pointer-events-none'
           : ''} absolute left-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle justify-center cursor-pointer transition duration-500 hover:bg-primary hover:border-primary"
       >
-        <img
-          alt="chevron-left"
-          src={chevronLeft}
-          class="-translate-x-[1px] brightness-200"
-        />
+        <img alt="chevron-left" src={chevronLeft} class="-translate-x-[1px] brightness-200" />
       </button>
       <button
         onclick={() => activeValue++}
@@ -366,11 +345,7 @@
           ? 'opacity-0 pointer-events-none'
           : ''} absolute right-0 top-[20%] h-6 w-6 rounded-full border-primary border-2 p-1 flex align-middle cursor-pointer transition duration-500 justify-center hover:bg-primary hover:border-primary"
       >
-        <img
-          alt="chevron-right"
-          src={chevronRight}
-          class="translate-x-[1px] brightness-200"
-        />
+        <img alt="chevron-right" src={chevronRight} class="translate-x-[1px] brightness-200" />
       </button>
     </ContentWidth>
     <div></div>
@@ -378,14 +353,12 @@
 </div>
 
 <ScreenWidthImage image={mac}>
-  <div
-    class="md:w-1/2 md:max-w-[540px] h-full flex flex-col justify-center items-start gap-10"
-  >
+  <div class="md:w-1/2 md:max-w-[540px] h-full flex flex-col justify-center items-start gap-10">
     <h5 class="text-primary">Finally, the complete evidence workflow.</h5>
     <p class="paragraph-large">
-      Evidence360 offers a comprehensive and integrative approach to
-      investigators by providing an exhaustive and thorough platform for
-      evidence handling, case tracking, analysis, and communication.
+      Evidence360 offers a comprehensive and integrative approach to investigators by providing an
+      exhaustive and thorough platform for evidence handling, case tracking, analysis, and
+      communication.
     </p>
     <ContactButton click={() => (isFormOpen = true)} text="Contact Us" />
   </div>
@@ -393,9 +366,7 @@
 <ContentWidth class="flex flex-col items-center justify-evenly gap-24 py-24">
   <img src={logo} class="h-10 my-10" alt="evidence 360" />
 
-  <div
-    class="flex flex-col lg:flex-row justify-around items-center w-full mt-12 mb-24"
-  >
+  <div class="flex flex-col lg:flex-row justify-around items-center w-full mt-12 mb-24">
     <div class="w-full md:w-[380px]">
       <ContentBox
         icon={hex1}
@@ -423,9 +394,7 @@
   </div>
 
   <h5 class="text-primary">The Complete Experience</h5>
-  <div
-    class="w-full max-w-screen-md flex flex-row flex-wrap justify-around items-center gap-16"
-  >
+  <div class="w-full max-w-screen-md flex flex-row flex-wrap justify-around items-center gap-16">
     <div class="w-40 h-32 flex flex-col items-center justify-center gap-5">
       <img src={folder} class="w-12 h-12" alt="folder" />
       <h6>automated case management</h6>
@@ -473,9 +442,7 @@
       Reduce Backlog, Boost Productivity, and Unify Your Team
     </h2>
     <ContactButton click={() => (isFormOpen = true)} text="Contact Us" />
-    <footer class="label text-white mb-4">
-      ©2024 Data Dynamiq | All Rights Reserved
-    </footer>
+    <footer class="label text-white mb-4">©2024 Data Dynamiq | All Rights Reserved</footer>
   </div>
 </ScreenWidthImage>
 

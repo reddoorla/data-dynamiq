@@ -10,9 +10,7 @@
 <div class="max-w-3xl mx-auto px-8 py-16 space-y-10 text-white text-left">
   <header class="space-y-2">
     <h1 class="text-3xl font-bold text-left">Animate-in demo</h1>
-    <p class="text-left">
-      Reveal-on-scroll demo route used by the accessibility CI gate.
-    </p>
+    <p class="text-left">Reveal-on-scroll demo route used by the accessibility CI gate.</p>
   </header>
 
   <section aria-labelledby="reveal-heading" class="space-y-3">

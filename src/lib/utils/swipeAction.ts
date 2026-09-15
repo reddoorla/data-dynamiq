@@ -1,8 +1,4 @@
-import {
-  useSwipe,
-  type SwipeCustomEvent,
-  type SwipeParameters,
-} from "svelte-gestures";
+import { useSwipe, type SwipeCustomEvent, type SwipeParameters } from "svelte-gestures";
 
 /**
  * Svelte 5 action wrapper for svelte-gestures v5's `useSwipe` hook.
@@ -21,12 +17,7 @@ export const createSwipeAction = (
   handler: (e: SwipeCustomEvent) => void,
   parameters?: Partial<SwipeParameters>,
 ) => {
-  const gesture = useSwipe(
-    handler,
-    parameters ? () => parameters : undefined,
-    undefined,
-    true,
-  );
+  const gesture = useSwipe(handler, parameters ? () => parameters : undefined, undefined, true);
   return (node: HTMLElement) => ({ destroy: gesture.swipe(node) });
 };
 

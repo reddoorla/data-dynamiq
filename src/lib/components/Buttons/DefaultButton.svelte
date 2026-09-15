@@ -6,12 +6,7 @@
     class?: string;
   }
 
-  let {
-    text = "BUTTON",
-    click = () => {},
-    filled = true,
-    class: klass = "",
-  }: Props = $props();
+  let { text = "BUTTON", click = () => {}, filled = true, class: klass = "" }: Props = $props();
 </script>
 
 <button

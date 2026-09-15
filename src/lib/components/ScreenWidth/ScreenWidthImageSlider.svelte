@@ -35,23 +35,18 @@
       () => (sliderIndex = sliderIndex % imageArray.length),
       SLIDER_TRANSITION_LENGTH_IN_MS + 20,
     );
-    setTimeout(
-      () => (isSlideAnimated = true),
-      SLIDER_TRANSITION_LENGTH_IN_MS + 40,
-    );
+    setTimeout(() => (isSlideAnimated = true), SLIDER_TRANSITION_LENGTH_IN_MS + 40);
   };
 
   const slideLeft = () => {
     sliderIndex++;
-    if (sliderIndex % imageArray.length == 0 && sliderIndex !== 0)
-      resetSlider();
+    if (sliderIndex % imageArray.length == 0 && sliderIndex !== 0) resetSlider();
 
     console.log(sliderIndex);
   };
   const slideRight = () => {
     sliderIndex--;
-    if (sliderIndex % imageArray.length == 0 && sliderIndex !== 0)
-      resetSlider();
+    if (sliderIndex % imageArray.length == 0 && sliderIndex !== 0) resetSlider();
 
     console.log(sliderIndex);
   };
@@ -80,10 +75,7 @@
 </script>
 
 <section>
-  <div
-    use:swipe
-    class="h-[160vw] sm:h-[90vw] xl:h-[60vw] lg:max-h-screen relative overflow-hidden"
-  >
+  <div use:swipe class="h-[160vw] sm:h-[90vw] xl:h-[60vw] lg:max-h-screen relative overflow-hidden">
     <div
       class="h-full flex flex-row flex-nowrap {isSlideAnimated
         ? 'transition-transform duration-[2000ms]'
@@ -94,11 +86,7 @@
     >
       {#each tripledImages as image}
         <div class="w-screen">
-          <img
-            src={image}
-            alt={altText}
-            class=" h-full w-full object-cover -z-10"
-          />
+          <img src={image} alt={altText} class=" h-full w-full object-cover -z-10" />
         </div>
       {/each}
     </div>
@@ -106,22 +94,18 @@
       <ContentWidth class="h-full relative w-full">
         {@render children?.()}
         <div
-          class="absolute h-10 flex align-middle justify-start {dotFloat ===
-          'left'
+          class="absolute h-10 flex align-middle justify-start {dotFloat === 'left'
             ? 'left-[4%]  xl:left-8'
             : ''} {dotFloat === 'left'
             ? 'left-[4%]  xl:left-8 translate-x-[2px]'
             : ''} {dotFloat === 'right'
             ? 'right-[4%]  xl:right-8 -translate-x-[2px]'
-            : ''} {dotFloat === 'center'
-            ? 'left-1/2 -translate-x-1/2'
-            : ''}  bottom-10"
+            : ''} {dotFloat === 'center' ? 'left-1/2 -translate-x-1/2' : ''}  bottom-10"
         >
           {#each imageArray as _image, i}
             <button
               class="h-[10px] w-[10px] border-2 rounded-full transition-colors duration-1000 cursor-pointer active:-translate-y-[0.5px] hover:opacity-60 mr-4
-								{(sliderIndex % imageArray.length >= 0 &&
-                sliderIndex % imageArray.length === i) ||
+								{(sliderIndex % imageArray.length >= 0 && sliderIndex % imageArray.length === i) ||
               (sliderIndex % imageArray.length <= 0 &&
                 imageArray.length + (sliderIndex % imageArray.length) === i)
                 ? 'bg-dark border-dark'
@@ -134,14 +118,10 @@
         </div>
       </ContentWidth>
       {#if hasArrows}
-        <button
-          onclick={slideRight}
-          class="absolute top-1/2 -translate-y-1/2 left-6"
+        <button onclick={slideRight} class="absolute top-1/2 -translate-y-1/2 left-6"
           ><img src={chevronLeft} class="w-3 md:w-4" /></button
         >
-        <button
-          onclick={slideLeft}
-          class="absolute top-1/2 -translate-y-1/2 right-6"
+        <button onclick={slideLeft} class="absolute top-1/2 -translate-y-1/2 right-6"
           ><img src={chevronRight} class="w-3 md:w-4" /></button
         >
       {/if}

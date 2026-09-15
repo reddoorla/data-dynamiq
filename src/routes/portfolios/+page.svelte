@@ -130,9 +130,7 @@
     </div>
   </div>
 
-  <div
-    class="w-full flex flex-row flex-wrap gap-y-0 gap-x-8 items-center justify-center mt-8"
-  >
+  <div class="w-full flex flex-row flex-wrap gap-y-0 gap-x-8 items-center justify-center mt-8">
     {#each filteredPortfolioItems as item (item.name)}
       <div animate:flip={{ duration: 500 }} class="w-80" transition:scale>
         {#if item.href}

@@ -47,8 +47,7 @@
     sliderIndex++;
     clearInterval(sliderInterval);
     sliderInterval = setInterval(() => slideLeft(), SLIDER_INTERVAL_IN_MS);
-    if (sliderIndex % contentBoxPropsArray.length == 0 && sliderIndex !== 0)
-      resetSlider();
+    if (sliderIndex % contentBoxPropsArray.length == 0 && sliderIndex !== 0) resetSlider();
   };
 
   const slideRight = () => {
@@ -56,11 +55,7 @@
     clearInterval(sliderInterval);
 
     sliderInterval = setInterval(() => slideRight(), SLIDER_INTERVAL_IN_MS);
-    if (
-      sliderIndex % contentBoxPropsArray.length == 0 &&
-      sliderIndex !== 0 &&
-      sliderIndex < 0
-    )
+    if (sliderIndex % contentBoxPropsArray.length == 0 && sliderIndex !== 0 && sliderIndex < 0)
       resetSlider();
 
     console.log(sliderIndex);
@@ -92,8 +87,7 @@
     class="flex flex-row flex-nowrap {isSlideAnimated
       ? 'transition-transform duration-500 ease-in-out'
       : ''}"
-    style="width: {quintupledPropsArray.length *
-      100}%; transform: translateX(-{(sliderIndex +
+    style="width: {quintupledPropsArray.length * 100}%; transform: translateX(-{(sliderIndex +
       contentBoxPropsArray.length) *
       sliderWidth}%);"
   >

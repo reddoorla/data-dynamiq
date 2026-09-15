@@ -30,9 +30,7 @@
 
 <ContentWidth>
   <h2 class="mb-20">Contact us</h2>
-  <div
-    class="w-full flex flex-row justify-between flex-wrap h-auto md:h-72 overflow-hidden"
-  >
+  <div class="w-full flex flex-row justify-between flex-wrap h-auto md:h-72 overflow-hidden">
     <div class="w-full md:w-1/2 h-full pr-0 md:pr-16 relative">
       <img src={mapPlaceholder} alt="map" class="w-full h-full object-cover" />
       <MapPin class="absolute top-1/2 left-1/3" size={32} />
