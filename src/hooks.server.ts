@@ -9,7 +9,7 @@ import { isCmsFramedRoute, widenFrameAncestors } from "$lib/security/cms-framing
 // framers explicitly rather than leaving the route frameable by anyone.
 export const handle: Handle = async ({ event, resolve }) => {
   const response = await resolve(event);
-  if (isCmsFramedRoute(event.url.pathname)) {
+  if (isCmsFramedRoute(event.route.id)) {
     response.headers.delete("X-Frame-Options");
     const policy = response.headers.get("Content-Security-Policy") ?? "";
     response.headers.set("Content-Security-Policy", widenFrameAncestors(policy));
