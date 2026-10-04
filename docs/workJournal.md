@@ -55,3 +55,53 @@ clean, but stale: that branch's upstream is gone (squash-merged as #26 on
 2026-09-02), which is Renovate bumps and CI wiring. Nothing is in flight
 locally. This entry's branch is cut from `ci/wire-smoke-tests`, so its PR
 carries those three already-merged files alongside the two new ones.
+
+## 2026-10-04 — Off Slice Machine, onto the Prismic CLI (reddoor-maintenance#1090, `claude/prismic-cli`)
+
+Phase 4 of the fleet migration (reddoor-maintenance
+`docs/prismic-migration-plan-2026-10.md` §9), following espada's and
+caltex-landing's ports of reddoor-starter#166. Slice Machine is deprecated by
+Prismic since 2026-09-18; the generated files now come from `pnpm prismic:gen`.
+This site is **code only**: its Prismic repository, `reddoor-wireframer`, is
+Reddoor's shared wireframe repository, used by other projects, so there is no
+Prismic-side switch to the Type Builder for it and no operator step after
+merge.
+
+**The simulator could not be framed in production, for caltex's reason.** No
+CSP is configured (svelte.config.js does not set `kit.csp`, whatever
+netlify.toml's comment says) and there was no hook, but the root layout's
+`prerender = "auto"` crawled `/slice-simulator` into a static file, and
+netlify.toml's `/*` block sends `X-Frame-Options: SAMEORIGIN` on static files.
+Measured on www.datadynamiq.com before the change: `/` and `/slice-simulator`
+carried `SAMEORIGIN` from the edge cache; `/health` (a function) carried none.
+From `vite preview` on `origin/main`, `/slice-simulator`, `/`, `/navs` and
+`/health` sent neither header, which is why a local check would never have
+shown it. `/slice-simulator` is now `prerender = false` and a hook touching only
+that route drops X-Frame-Options and sends
+`frame-ancestors 'self' http://localhost:* https://*.prismic.io https://prismic.io`.
+Prerendered pages went from 19 to 18; `/`, `/navs`, `/health` and a 404 uid
+send neither header after. Putting `prerender` back to `"auto"` returns
+`slice-simulator.html` to the build; disabling the hook's branch removes the
+CSP from the route.
+
+**Types moved to the project root, and svelte-check stopped seeing them:** 0
+errors on `origin/main`, 2 without the `src/app.d.ts` import (`Content` gone
+from RichText, `[uid]`'s `entries()` uid widened to `string | null`), 0 with it.
+
+**A stale model, found by regenerating.** The new types add
+`FormRepliesDocument` and `FormRepliesDocumentDataRepliesItem`:
+`customtypes/form_replies` arrived with the fleet form work and the committed
+Slice Machine types were never regenerated after it. The slice index maps the
+same one component. `src/lib/server/reply-copy.ts` still says `form_replies` is
+absent from the generated union; that is no longer true of the types, and the
+`as never` casts it describes still compile, so it was left alone.
+
+**Sync with Prismic is unproven, not proven.** The nightly drift sweep skips
+this repo by design: `reddoor-wireframer` is in the maintenance package's
+placeholder list, so the sweep reports it as "not a Prismic site (no
+repositoryName)". The Prismic connector refuses the repository ("Prismic MCP is
+not activated"), so no model-level comparison was possible. The public Content
+API lists one custom type, `page`, and two published `page` documents (one with
+`rich_text`/`default`/`content`), consistent with the local `page` and
+`RichText` models; it does not list `form_replies`. Nothing here writes to
+Prismic, so none of that blocks a code-only change.
