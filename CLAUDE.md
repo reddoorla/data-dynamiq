@@ -7,17 +7,33 @@ migration is written up in [docs/UPGRADE_NOTES.md](docs/UPGRADE_NOTES.md).
 
 What an agent working here needs to know:
 
-- **Commands.** `pnpm dev` (Vite + Slice Machine together), `pnpm build`,
+- **Commands.** `pnpm dev` (Vite), `pnpm build`,
   `pnpm lint` (prettier + eslint), `pnpm check` (svelte-check), `pnpm test` →
   `pnpm test:smoke` (Playwright). There is no `verify` script; CI is the
   fleet's shared reusable workflow, `.github/workflows/ci.yml`.
+- **`src/lib/slices/index.ts` and `prismicio-types.d.ts` are generated** by
+  the Prismic CLI (`pnpm prismic:gen`; Slice Machine is gone, deprecated by
+  Prismic 2026-09-18). Edit a model's JSON, regenerate, commit both; the
+  `prismic-codegen` job fails a PR whose generated files are stale. Both are in
+  `.prettierignore`. The types file sits at the project root, outside SvelteKit's
+  `src/**` include, so `src/app.d.ts` imports it. Run by an agent, the CLI
+  refuses without `--task-id` and `--user-intent`, so an agent runs
+  `pnpm exec prismic task-id` once, then
+  `pnpm exec prismic gen types --task-id <id> --user-intent "<the ask>"` and the
+  same for `gen slice-index`. Never `prismic push` or `prismic pull`: both
+  delete to match, and this site's repository is shared (next point).
 - **Where things live.** Most of the UI is plain components under
   `src/lib/components/`, not slices — `src/lib/slices/` holds exactly one,
   `RichText`. The homepage is hand-built at
   `src/routes/[[preview=preview]]/+page.svelte`; Prismic drives `[uid]`.
 - **The fork still shows.** `README.md` is the wireframer's, not this site's,
-  and `slicemachine.config.json` still names the `reddoor-wireframer`
-  repository. The gallery routes (`/navs`, `/footers`, `/sliders`, `/teams`,
+  and `prismic.config.json` still names the `reddoor-wireframer`
+  repository, Reddoor's SHARED wireframe repository: other projects use it too,
+  so it can hold models this repo does not have. The fleet's Prismic drift sweep
+  treats that name as a placeholder and skips this site by design.
+  `/slice-simulator` is server-rendered (`prerender = false`) so
+  `src/hooks.server.ts` can drop netlify.toml's `X-Frame-Options` there and let
+  Prismic frame it. The gallery routes (`/navs`, `/footers`, `/sliders`, `/teams`,
   `/faqs` and a dozen more) are that scaffold's component demos, not pages of
   the site. Read them as inherited, not as design intent.
 - **`docs/UPGRADE_NOTES.md` is a snapshot, not current state.** Its "remaining

@@ -1,0 +1,5 @@
+{
+  "repositoryName": "reddoor-wireframer",
+  "libraries": ["./src/lib/slices"],
+  "routes": []
+}
