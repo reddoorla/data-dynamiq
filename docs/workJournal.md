@@ -105,3 +105,13 @@ API lists one custom type, `page`, and two published `page` documents (one with
 `rich_text`/`default`/`content`), consistent with the local `page` and
 `RichText` models; it does not list `form_replies`. Nothing here writes to
 Prismic, so none of that blocks a code-only change.
+
+## 2026-10-04 — The simulator leaves the `[uid]` bundle; an encoded path gets the simulator's framing (`fix/simulator-chunk-and-encoded-framing`)
+
+Ported from reddoor-starter#168, following caltex-landing#70; the starter's entry records the bundle fixes that failed before this one. `/slice-simulator` imports `SliceSimulator` from the `@prismicio/svelte` barrel, which re-exports it statically, so Rolldown put the simulator into the barrel's shared chunk, and `[uid]`, which renders a `SliceZone`, loaded it. `scripts/prismic-barrel.ts`, identical to the starter's, declares that re-export-only module side-effect-free, and `SliceZone` is then bound directly.
+
+Measured from the build manifest as each client node's static-import closure, gzipped, `main` → branch: `[uid]` went 33,053 → 28,661 and no longer reaches the simulator chunk. `/slice-simulator` went 33,122 → 33,284 and now carries the code in its own node. Unlike caltex, the root layout (38,534 → 38,536) and the hand-built home (48,039 → 48,038) never reached it, so the win here is every Prismic-driven page and nothing else.
+
+The hook asked `isCmsFramedRoute(event.url.pathname)`, the raw path, while SvelteKit routes on the decoded one. From `vite preview` of `main`, `/slice%2Dsimulator` and `/slice%2dsimulator` rendered the simulator with a 200 and no CSP at all. The hook now asks `event.route.id`, and both encoded paths answer with the same widened `frame-ancestors` as `/slice-simulator`.
+
+`vite.config.ts` imports the plugin without an extension: this tsconfig does not set `allowImportingTsExtensions`, which the starter's `.ts` import relies on. There are no unit tests here, so the proof is `tests/smoke/slice-simulator.spec.ts`, copied from caltex. On `main` it failed 3 of 7 (the bundle check on node 4 and both encoded paths); on the branch it passes 7 of 7; with the plugin removed and the site rebuilt, the bundle check fails on node 4 again. A previous run of this port was cut off by a container restart with the plugin imported but never registered in `plugins`, a state in which every check here except the bundle test would have passed. This is a code-only change; nothing was written to the shared `reddoor-wireframer` repository.
