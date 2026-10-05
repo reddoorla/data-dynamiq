@@ -22,6 +22,8 @@
   import ContentWidth from "$lib/components/ContentWidth/ContentWidth.svelte";
   import ContactButton from "$lib/components/Buttons/ContactButton.svelte";
   import TurnstileWidget from "$lib/components/TurnstileWidget.svelte";
+  import PrivacyNotice from "$lib/components/PrivacyNotice.svelte";
+  import { PRIVACY_PATH } from "$lib/privacy/policy";
   import ScreenWidthImage from "$lib/components/ScreenWidth/ScreenWidthImage.svelte";
 
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
@@ -168,6 +170,7 @@
           We’re here to help you step into the future of data management. Reach out if you have
           questions or would like a demo.
         </p>
+        <PrivacyNotice />
       </div>
       <div class="w-full xl:w-1/2 xl:h-4/5">
         {#if submitted}
@@ -442,7 +445,12 @@
       Reduce Backlog, Boost Productivity, and Unify Your Team
     </h2>
     <ContactButton click={() => (isFormOpen = true)} text="Contact Us" />
-    <footer class="label text-white mb-4">©2024 Data Dynamiq | All Rights Reserved</footer>
+    <footer class="label text-white mb-4">
+      ©2024 Data Dynamiq | All Rights Reserved |
+      <a href={PRIVACY_PATH} class="text-inherit [font-size:inherit] underline hover:text-light"
+        >Privacy Policy</a
+      >
+    </footer>
   </div>
 </ScreenWidthImage>
 
