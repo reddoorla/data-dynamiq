@@ -8,7 +8,7 @@ test.describe("/privacy", () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
     await expect(page.getByTestId("privacy-draft")).toBeVisible();
     await expect(page.getByRole("heading", { level: 1, name: "Privacy Policy" })).toBeVisible();
-    for (const id of ["forms", "vimeo", "googleFonts", "netlify"]) {
+    for (const id of ["forms", "ga4", "vimeo", "googleFonts", "netlify"]) {
       await expect(page.getByTestId(`service-${id}`)).toBeVisible();
     }
     for (const id of ["newsletter", "youtube", "adobeFonts"]) {

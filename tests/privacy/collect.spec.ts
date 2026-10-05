@@ -75,12 +75,12 @@ export default { kit: { csp: { directives: { ...base } } } };`,
 });
 
 test.describe("this site", () => {
-  test("lists the contact form, Turnstile's host, Vimeo, Google Fonts and Netlify, and no GA4 until a hook starts it", async () => {
+  test("lists the contact form, Vimeo, Google Fonts, Netlify and the GA4 its client hook starts", async () => {
     const site = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
     expect(await collectBuildServices(site)).toEqual({
       forms: true,
       newsletter: false,
-      ga4: false,
+      ga4: true,
       netlify: true,
       vimeo: true,
       youtube: false,
