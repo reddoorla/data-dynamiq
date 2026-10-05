@@ -31,6 +31,19 @@ test.describe("/privacy", () => {
   });
 });
 
+test.describe("third parties a page contacts", () => {
+  test("no page loads Vimeo's player script unless a video is on it", async ({ page }) => {
+    const vimeo: string[] = [];
+    page.on("request", (r) => {
+      if (r.url().includes("vimeo.com")) vimeo.push(r.url());
+    });
+    for (const path of ["/", "/privacy"]) {
+      await page.goto(path, { waitUntil: "networkidle" });
+    }
+    expect(vimeo).toEqual([]);
+  });
+});
+
 test.describe("links to /privacy", () => {
   test("the home footer links to the policy", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
