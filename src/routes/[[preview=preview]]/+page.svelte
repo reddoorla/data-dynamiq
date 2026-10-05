@@ -447,7 +447,7 @@
     <ContactButton click={() => (isFormOpen = true)} text="Contact Us" />
     <footer class="label text-white mb-4">
       ©2024 Data Dynamiq | All Rights Reserved |
-      <a href={PRIVACY_PATH} class="text-inherit [font-size:inherit] underline hover:text-white"
+      <a href={PRIVACY_PATH} class="text-inherit [font-size:inherit] underline hover:text-light"
         >Privacy Policy</a
       >
     </footer>

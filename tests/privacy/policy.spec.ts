@@ -6,7 +6,8 @@ test.beforeAll(() => {
   process.env.TZ = "America/Los_Angeles";
 });
 test.afterAll(() => {
-  process.env.TZ = savedTz;
+  if (savedTz === undefined) delete process.env.TZ;
+  else process.env.TZ = savedTz;
 });
 
 test.describe("formatEffectiveDate", () => {
