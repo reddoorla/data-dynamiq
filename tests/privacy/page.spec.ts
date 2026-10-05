@@ -32,7 +32,7 @@ test.describe("/privacy", () => {
 });
 
 test.describe("third parties a page contacts", () => {
-  test("no page loads Vimeo's player script unless a video is on it", async ({ page }) => {
+  test("/ and /privacy make no request to vimeo.com", async ({ page }) => {
     const vimeo: string[] = [];
     page.on("request", (r) => {
       if (r.url().includes("vimeo.com")) vimeo.push(r.url());
