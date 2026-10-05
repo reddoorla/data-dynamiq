@@ -13,6 +13,9 @@
 
 <svelte:head>
   <title>{page.data.title ?? "Data Dynamiq"}</title>
+  {#if page.data.noindex}
+    <meta name="robots" content="noindex" />
+  {/if}
   {#if page.data.meta_description}
     <meta name="description" content={page.data.meta_description} />
   {/if}

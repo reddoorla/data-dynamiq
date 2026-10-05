@@ -37,6 +37,7 @@ export type SmokeRoute = {
 export const smokeRoutes: SmokeRoute[] = [
   { path: "/", name: "home", hydrationMarker: "footer" },
   { path: "/health", name: "health endpoint" },
+  { path: "/privacy", name: "privacy policy", hydrationMarker: "main" },
   { path: "/blogs", name: "blog sections", hydrationMarker: "main" },
   { path: "/contacts", name: "contact sections", hydrationMarker: "main" },
   { path: "/content", name: "content sections", hydrationMarker: "main" },
