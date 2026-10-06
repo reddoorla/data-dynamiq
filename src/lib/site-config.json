@@ -1,3 +1,7 @@
 {
-  "privacy": { "legalName": "", "contactEmail": "", "effectiveDate": "" }
+  "privacy": {
+    "legalName": "Data Dynamiq",
+    "contactEmail": "",
+    "effectiveDate": "2026-10-06"
+  }
 }
