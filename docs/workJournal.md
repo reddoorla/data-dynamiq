@@ -137,3 +137,19 @@ The operator asked for the legal business name, privacy contact email and effect
 ## 2026-10-06 — The privacy contact is the report recipient
 
 The operator ruled that the policy's contact email is whoever receives this site's maintenance report. The stored row resolves that the same way the report sender does (`report_recipients_to`, falling back to `point_of_contact`, `src/reports/send/orchestrate.ts:216` in reddoor-maintenance), and for this site it gives `robbie.greenquist@gmail.com`. That replaces the value or placeholder from this morning's entry. The privacy test now asserts the `mailto:` link. It fails against the previous config and passes against this one.
+
+## 2026-10-07 — Search Console verification tag in the document head (fix/search-console-verification)
+
+The operator created a Search Console property for www.datadynamiq.com and
+gave an HTML-tag verification. Until now the site had no property at all: the
+maintenance repo's Turso row carried no `search_console_property` and the
+nightly lookup reported `no-property`. The tag goes in `src/app.html`, directly
+after the charset, outside `%sveltekit.head%`, so every prerendered page carries
+it whatever its route and whether or not Prismic preview is on. No route or SEO
+component writes a verification tag, so nothing else could drop or duplicate
+it. A local `pnpm build` put exactly one copy in
+`.svelte-kit/output/prerendered/pages/index.html`; production, built from the
+previous `main`, served none (`curl -sL https://www.datadynamiq.com/ | grep -c
+google-site-verification` → `0`, 2026-10-07 15:27Z). The token is public by
+design. Pressing Verify and granting `reports@reddoorla.com` read access are
+the operator's steps in Search Console.
