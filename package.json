@@ -50,7 +50,7 @@
     "@reddoorla/maintenance": "^0.104.0",
     "@tailwindcss/vite": "^4.3.0",
     "svelte-gestures": "^5.2.2",
-    "svelte-select": "^5.8.3"
+    "svelte-select": "^6.0.0"
   },
   "reddoor": {
     "a11yRoutes": [
