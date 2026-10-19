@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-The Data Dynamiq site: SvelteKit 2 / Svelte 5 / Tailwind 4 / Prismic, pnpm,
+The Data Dynamiq site: SvelteKit 3 / Svelte 5 / Tailwind 4 / Prismic, pnpm,
 deployed on Netlify. It was forked in 2024 from Reddoor's pre-starter
 wireframer scaffold and brought onto the fleet stack in June–July 2026 — the
 migration is written up in [docs/UPGRADE_NOTES.md](docs/UPGRADE_NOTES.md).
