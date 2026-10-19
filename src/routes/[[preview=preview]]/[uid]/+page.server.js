@@ -17,7 +17,7 @@ export async function load({ params, fetch, cookies }) {
       meta_image: page.data.meta_image.url,
     };
   } catch {
-    error(404, { message: "Page not found" });
+    error(404, "Page not found");
   }
 }
 

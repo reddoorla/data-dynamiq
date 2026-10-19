@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit/hooks";
 import { isCmsFramedRoute, widenFrameAncestors } from "$lib/security/cms-framing";
 
 // Only the CMS-framed route is touched. Every other response keeps the headers
