@@ -1,4 +1,4 @@
-import { env } from "$env/dynamic/private";
+import * as env from "$app/env/private";
 import { createIngestEndpoint, type SubmissionPayload } from "@reddoorla/maintenance/forms";
 import { replyCopyFor } from "$lib/server/reply-copy";
 import type { RequestHandler } from "./$types";
