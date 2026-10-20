@@ -126,7 +126,11 @@
   // and on an in-page hash change.
   onMount(() => {
     const openOnHash = () => {
-      if (window.location.hash === "#contact") isFormOpen = true;
+      if (window.location.hash !== "#contact") return;
+      isFormOpen = true;
+      // Drop the hash once it has opened the modal, so a reload does not reopen it
+      // and a later #contact link fires hashchange again.
+      history.replaceState(history.state, "", window.location.pathname + window.location.search);
     };
     openOnHash();
     window.addEventListener("hashchange", openOnHash);
@@ -191,11 +195,17 @@
       <PrivacyNotice />
     </div>
     <div class="w-full xl:w-1/2 xl:h-4/5">
-      {#if submitted}
-        <h5 class="text-primary" role="status">
-          Thanks for reaching out! <br /> <br />We'll get back to you as soon as we can.
-        </h5>
-      {:else}
+      <!-- An always-present live region, empty until the thanks renders inside it, so
+           a screen reader announces it. It is also the success signal the fleet's
+           form-e2e probe waits for. -->
+      <div role="status">
+        {#if submitted}
+          <h5 class="text-primary">
+            Thanks for reaching out! <br /> <br />We'll get back to you as soon as we can.
+          </h5>
+        {/if}
+      </div>
+      {#if !submitted}
         <form
           class="h-full w-full mt-8 md:mt-0 flex flex-col gap-2 text-white items-start"
           method="POST"
@@ -240,7 +250,11 @@
             <p role="alert">{errorMsg}</p>
           {/if}
 
-          <TurnstileWidget onToken={(t) => (turnstileToken = t)} />
+          <!-- Mounted only while the modal is open, as before the modal stayed in the
+               DOM: otherwise every homepage visit would load Cloudflare's script. -->
+          {#if isFormOpen}
+            <TurnstileWidget onToken={(t) => (turnstileToken = t)} />
+          {/if}
 
           <ContactButton type="submit" text="request info" disabled={submitting} />
         </form>

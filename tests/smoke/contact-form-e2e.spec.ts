@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { capturedWith } from "./ingest-capture";
+import { attemptMarker, capturedWith } from "./ingest-capture";
 
 // The fleet's nightly form-e2e probe enters at /contact, needs a <form> in the
 // DOM at domcontentloaded, waits for html[data-hydrated], injects a hidden
@@ -44,14 +44,15 @@ test("/contact 301s to /#contact, which opens the contact modal", async ({ page,
   expect(res.status()).toBe(301);
   expect(res.headers().location).toBe("/?utm_source=x#contact");
   await page.goto("/contact");
-  expect(new URL(page.url()).hash).toBe("#contact");
   await expect(page.locator("form").first()).toBeVisible();
+  // The opener drops the hash once it has done its job, so a reload stays closed.
+  await expect.poll(() => new URL(page.url()).hash).toBe("");
 });
 
 test("a probe submission reaches ingest marked testMode, and shows role=status", async ({
   page,
 }, info) => {
-  const marker = `smoke probe ${info.testId}`;
+  const marker = attemptMarker("probe", info);
   await page.goto("/contact");
   await fillAndSubmit(page, marker, { probe: true });
   await expect(page.locator('[role="status"]').first()).toBeVisible();
@@ -61,13 +62,19 @@ test("a probe submission reaches ingest marked testMode, and shows role=status",
 });
 
 test("a visitor submission reaches ingest without testMode", async ({ page }, info) => {
-  const marker = `smoke visitor ${info.testId}`;
+  const marker = attemptMarker("visitor", info);
   await page.goto("/");
   await page.locator("html[data-hydrated]").waitFor({ state: "attached" });
-  await page.getByRole("button", { name: "Contact Us" }).first().click();
+  await page.getByRole("button", { name: "Contact Us", exact: true }).first().click();
   await fillAndSubmit(page, marker, { probe: false });
   await expect(page.locator('[role="status"]').first()).toBeVisible();
   const bodies = await capturedWith(marker);
   expect(bodies).toHaveLength(1);
   expect(bodies[0]).not.toHaveProperty("testMode");
+});
+
+test("/health declares forms.testMode, which lets the fleet probe submit", async ({ request }) => {
+  const res = await request.get("/health");
+  expect(res.ok()).toBe(true);
+  expect((await res.json()).forms.testMode).toBe(true);
 });
