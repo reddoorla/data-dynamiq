@@ -3,12 +3,17 @@
   import { page } from "$app/state";
   import { repositoryName } from "$lib/prismicio";
   import "../app.css";
+  import { onMount } from "svelte";
   interface Props {
     children?: import("svelte").Snippet;
     data: { isPreviewSession?: boolean };
   }
 
   let { children, data }: Props = $props();
+
+  // The fleet form-e2e probe waits for this before it fills the contact form, so
+  // its input is not wiped by hydration.
+  onMount(() => document.documentElement.setAttribute("data-hydrated", ""));
 </script>
 
 <svelte:head>
