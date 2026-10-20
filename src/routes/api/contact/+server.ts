@@ -25,5 +25,9 @@ export const POST: RequestHandler = createIngestEndpoint({
     // the shared package then sends its own per-form-type default, so the
     // site keeps replying exactly as it does today until copy exists.
     _reply: await replyCopyFor(event, "contact"),
+    // The fleet form-e2e probe's marker (the client forwards every form field).
+    // Central ingest drops a payload with top-level `testMode: true`: no row, no
+    // email. /health declares it.
+    ...(body.testMode === "true" ? { testMode: true } : {}),
   }),
 });

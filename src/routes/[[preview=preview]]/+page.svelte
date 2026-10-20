@@ -29,7 +29,7 @@
   import ContentBox from "$lib/components/FullWidth/ContentBox.svelte";
   import chevronLeft from "$lib/assets/icons/chevron-left.svg";
   import chevronRight from "$lib/assets/icons/chevron-right.svg";
-  import { fade, fly } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import { X } from "@lucide/svelte";
   import { createSwipeAction, type SwipeCustomEvent } from "$utils/swipeAction";
   import { onMount } from "svelte";
@@ -122,6 +122,17 @@
 
   let evolve: HTMLSpanElement | undefined = $state();
 
+  // /contact 301s to /#contact (src/routes/contact): open the modal for it, on load
+  // and on an in-page hash change.
+  onMount(() => {
+    const openOnHash = () => {
+      if (window.location.hash === "#contact") isFormOpen = true;
+    };
+    openOnHash();
+    window.addEventListener("hashchange", openOnHash);
+    return () => window.removeEventListener("hashchange", openOnHash);
+  });
+
   onMount(() => {
     const handleScroll = () => {
       if (evolve) {
@@ -149,88 +160,94 @@
 <svelte:window bind:innerWidth />
 <svelte:head><title>Evidence360</title></svelte:head>
 
-{#if isFormOpen}
-  <div class="w-screen h-screen top-0 left-0 fixed pointer-events-none z-20">
+<!-- The contact modal stays in the DOM while closed (invisible and inert), so the
+     fleet's form-e2e probe finds the form at domcontentloaded. /contact 301s to
+     /#contact, which opens it on load. The CSS transition stands in for the old
+     `fly` from the left, which only ran on an {#if} mount. -->
+<div class="w-screen h-screen top-0 left-0 fixed pointer-events-none z-20">
+  {#if isFormOpen}
     <button
       transition:fade
       class="w-full h-full absolute top-0 left-0 bg-black opacity-40 pointer-events-auto"
       onclick={() => (isFormOpen = false)}
     ></button>
-    <div
-      transition:fly={{ x: "-100%" }}
-      class="w-full lg:w-3/5 h-full lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-0 lg:top-[20%] bg-black left-0 gap-16 lg:left-[20%] pointer-events-auto overflow-y-scroll"
+  {/if}
+  <div
+    inert={!isFormOpen}
+    class="w-full lg:w-3/5 h-full lg:h-3/5 p-8 lg:p-24 z-20 flex flex-col xl:flex-row items-start fixed top-0 lg:top-[20%] bg-black left-0 gap-16 lg:left-[20%] pointer-events-auto overflow-y-scroll transition-[translate,opacity,visibility] duration-400 ease-out {isFormOpen
+      ? 'visible translate-x-0 opacity-100'
+      : 'invisible -translate-x-full opacity-0'}"
+  >
+    <button class="absolute top-6 right-6" onclick={() => (isFormOpen = false)}
+      ><X class="text-white hover:text-light transtition bump" size={32} /></button
     >
-      <button class="absolute top-6 right-6" onclick={() => (isFormOpen = false)}
-        ><X class="text-white hover:text-light transtition bump" size={32} /></button
-      >
 
-      <div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
-        <h5 class="text-white">Contact us</h5>
-        <p class="text-white">
-          We’re here to help you step into the future of data management. Reach out if you have
-          questions or would like a demo.
-        </p>
-        <PrivacyNotice />
-      </div>
-      <div class="w-full xl:w-1/2 xl:h-4/5">
-        {#if submitted}
-          <h5 class="text-primary">
-            Thanks for reaching out! <br /> <br />We'll get back to you as soon as we can.
-          </h5>
-        {:else}
-          <form
-            class="h-full w-full mt-8 md:mt-0 flex flex-col gap-2 text-white items-start"
-            method="POST"
-            onsubmit={handleSubmit}
-          >
-            <label for="name" class="hidden">Name</label>
-            <input
-              id="name"
-              type="text"
-              name="name"
-              required
-              placeholder="NAME"
-              class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black"
-            />
+    <div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
+      <h5 class="text-white">Contact us</h5>
+      <p class="text-white">
+        We’re here to help you step into the future of data management. Reach out if you have
+        questions or would like a demo.
+      </p>
+      <PrivacyNotice />
+    </div>
+    <div class="w-full xl:w-1/2 xl:h-4/5">
+      {#if submitted}
+        <h5 class="text-primary" role="status">
+          Thanks for reaching out! <br /> <br />We'll get back to you as soon as we can.
+        </h5>
+      {:else}
+        <form
+          class="h-full w-full mt-8 md:mt-0 flex flex-col gap-2 text-white items-start"
+          method="POST"
+          onsubmit={handleSubmit}
+        >
+          <label for="name" class="hidden">Name</label>
+          <input
+            id="name"
+            type="text"
+            name="name"
+            required
+            placeholder="NAME"
+            class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black"
+          />
 
-            <label for="email" class="hidden">Email</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              required
-              placeholder="EMAIL"
-              class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black"
-            />
+          <label for="email" class="hidden">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            required
+            placeholder="EMAIL"
+            class="w-full border-[1px] border-white p-2 rounded-sm mb-4 bg-black"
+          />
 
-            <p class="hidden">
-              <label>
-                Don’t fill this out if you’re human: <input name="bot-field" />
-              </label>
-            </p>
+          <p class="hidden">
+            <label>
+              Don’t fill this out if you’re human: <input name="bot-field" />
+            </label>
+          </p>
 
-            <label for="message" class="hidden">Message</label>
-            <textarea
-              id="message"
-              name="message"
-              required
-              placeholder="YOUR MESSAGE"
-              class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"
-            ></textarea>
+          <label for="message" class="hidden">Message</label>
+          <textarea
+            id="message"
+            name="message"
+            required
+            placeholder="YOUR MESSAGE"
+            class="min-h-24 w-full bg-black border-[1px] rounded-sm border-white p-1 mb-4"
+          ></textarea>
 
-            {#if errorMsg}
-              <p role="alert">{errorMsg}</p>
-            {/if}
+          {#if errorMsg}
+            <p role="alert">{errorMsg}</p>
+          {/if}
 
-            <TurnstileWidget onToken={(t) => (turnstileToken = t)} />
+          <TurnstileWidget onToken={(t) => (turnstileToken = t)} />
 
-            <ContactButton text="request info" disabled={submitting} />
-          </form>
-        {/if}
-      </div>
+          <ContactButton type="submit" text="request info" disabled={submitting} />
+        </form>
+      {/if}
     </div>
   </div>
-{/if}
+</div>
 
 <div class="h-16 w-screen fixed top-0 left-0 z-10">
   <ContentWidth class="h-16 flex flex-row justify-between lg:justify-center items-center relative">

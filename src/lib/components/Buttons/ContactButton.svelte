@@ -6,6 +6,9 @@
     isVertical?: boolean;
     class?: string;
     disabled?: boolean;
+    /** Omitted by default, as before; the contact form's button passes "submit",
+     *  which the fleet's form-e2e probe clicks by `button[type="submit"]`. */
+    type?: "submit" | "button";
   }
 
   let {
@@ -15,6 +18,7 @@
     isVertical = false,
     class: klass = "",
     disabled = false,
+    type,
   }: Props = $props();
 
   let isHovered = $state(false);
@@ -22,6 +26,7 @@
 
 <button
   onclick={click}
+  {type}
   {disabled}
   class="flex {isVertical
     ? 'flex-col negative-bump'
