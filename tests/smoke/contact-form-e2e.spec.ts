@@ -1,29 +1,20 @@
 import { test, expect, type Page } from "@playwright/test";
+import { capturedWith } from "./ingest-capture";
 
 // The fleet's nightly form-e2e probe enters at /contact, needs a <form> in the
 // DOM at domcontentloaded, waits for html[data-hydrated], injects a hidden
 // `testMode=true` input into the first <form>, fills it, clicks the first
 // button[type="submit"], and waits for [role="status"]. Central ingest drops a
 // payload carrying `testMode` instead of emailing the client. The form here
-// lives in a modal on `/`, so /contact → /#contact must open it. /api/contact is
-// intercepted: no submission leaves the browser.
+// lives in a modal on `/`, so /contact → /#contact must open it. The ingest body
+// lands on the local capture server (playwright.config.ts), so nothing leaves
+// the machine.
 
 // The first navigation can meet a cold dev server that compiles for well over
 // the default 30 s before it hydrates.
 test.describe.configure({ timeout: 90_000 });
 
-type Posted = Record<string, unknown>;
-
-async function interceptContact(page: Page): Promise<Posted[]> {
-  const posted: Posted[] = [];
-  await page.route("**/api/contact", async (route) => {
-    posted.push(route.request().postDataJSON() as Posted);
-    await route.fulfill({ json: { ok: true } });
-  });
-  return posted;
-}
-
-async function fillAndSubmit(page: Page, { probe }: { probe: boolean }) {
+async function fillAndSubmit(page: Page, marker: string, { probe }: { probe: boolean }) {
   await page.locator("html[data-hydrated]").waitFor({ state: "attached" });
   const form = page.locator("form").first();
   if (probe) {
@@ -37,7 +28,7 @@ async function fillAndSubmit(page: Page, { probe }: { probe: boolean }) {
   }
   await form.locator('[name="name"]').fill("Reddoor Monitor");
   await form.locator('[name="email"]').fill("monitor+e2e@reddoorla.com");
-  await form.locator('[name="message"]').fill("Smoke test, please ignore.");
+  await form.locator('[name="message"]').fill(marker);
   await page.locator('button[type="submit"], input[type="submit"]').first().click();
 }
 
@@ -48,28 +39,35 @@ test("the contact form is in the server-rendered DOM, closed", async ({ page }) 
   await expect(page.locator("form").first()).toBeHidden();
 });
 
-test("/contact opens the contact modal", async ({ page }) => {
+test("/contact 301s to /#contact, which opens the contact modal", async ({ page, request }) => {
+  const res = await request.get("/contact?utm_source=x", { maxRedirects: 0 });
+  expect(res.status()).toBe(301);
+  expect(res.headers().location).toBe("/?utm_source=x#contact");
   await page.goto("/contact");
   expect(new URL(page.url()).hash).toBe("#contact");
   await expect(page.locator("form").first()).toBeVisible();
 });
 
-test("a probe submission forwards testMode and shows role=status", async ({ page }) => {
-  const posted = await interceptContact(page);
+test("a probe submission reaches ingest marked testMode, and shows role=status", async ({
+  page,
+}, info) => {
+  const marker = `smoke probe ${info.testId}`;
   await page.goto("/contact");
-  await fillAndSubmit(page, { probe: true });
+  await fillAndSubmit(page, marker, { probe: true });
   await expect(page.locator('[role="status"]').first()).toBeVisible();
-  expect(posted).toHaveLength(1);
-  expect(posted[0].testMode).toBe("true");
+  const bodies = await capturedWith(marker);
+  expect(bodies).toHaveLength(1);
+  expect(bodies[0].testMode).toBe(true);
 });
 
-test("a visitor submission carries no testMode", async ({ page }) => {
-  const posted = await interceptContact(page);
+test("a visitor submission reaches ingest without testMode", async ({ page }, info) => {
+  const marker = `smoke visitor ${info.testId}`;
   await page.goto("/");
   await page.locator("html[data-hydrated]").waitFor({ state: "attached" });
   await page.getByRole("button", { name: "Contact Us" }).first().click();
-  await fillAndSubmit(page, { probe: false });
+  await fillAndSubmit(page, marker, { probe: false });
   await expect(page.locator('[role="status"]').first()).toBeVisible();
-  expect(posted).toHaveLength(1);
-  expect(posted[0]).not.toHaveProperty("testMode");
+  const bodies = await capturedWith(marker);
+  expect(bodies).toHaveLength(1);
+  expect(bodies[0]).not.toHaveProperty("testMode");
 });
