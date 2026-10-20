@@ -128,8 +128,10 @@
     const openOnHash = () => {
       if (window.location.hash !== "#contact") return;
       isFormOpen = true;
-      // Drop the hash once it has opened the modal, so a reload does not reopen it
-      // and a later #contact link fires hashchange again.
+      // Drop the hash once it has opened the modal, so a reload does not reopen it.
+      // SvelteKit's router still holds #contact as the current hash, so an in-page
+      // #contact link would not fire hashchange again: open the modal from an
+      // onclick instead if one is ever added.
       history.replaceState(history.state, "", window.location.pathname + window.location.search);
     };
     openOnHash();

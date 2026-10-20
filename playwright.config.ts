@@ -33,7 +33,9 @@ export default defineConfig({
         webServer: {
           command: `npm run vite:dev -- --port ${smokePort} --strictPort`,
           url: `http://localhost:${smokePort}/dev/a11y-fixtures`,
-          reuseExistingServer: !process.env.CI,
+          // Never reuse (the shared base's rule, #524): a reused dev server has its
+          // own FORMS_INGEST_URL, and the contact spec submits a visitor form.
+          reuseExistingServer: false,
           timeout: 120_000,
         },
       }
