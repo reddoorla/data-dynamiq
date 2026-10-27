@@ -2,49 +2,127 @@ import { test, expect, type Locator } from "@playwright/test";
 
 /**
  * WCAG contrast of an element's text against the ground it is actually drawn on.
- * The footer sits on a photo, which no computed background-color can see, so
- * this screenshots the element's box twice, once as rendered and once with its
- * own text hidden. The hidden shot is the ground, scored at its lighter tenth
- * (the 90th-percentile luminance): a bright patch behind the words counts, a
- * stray highlight does not. The text colour is read from the pixels the text
- * changed, the median of the strongest quarter of them, so alpha, opacity and
- * any colour syntax (Tailwind v4's oklch included) are measured as they render
- * rather than parsed. A box whose text changes no pixel throws, with its name.
+ *
+ * The text colour is resolved, not estimated from glyphs: the computed `color`
+ * (or, when the fill is fully transparent, the `-webkit-text-stroke` colour) is
+ * parsed by a canvas, so any syntax the browser accepts (rgba, Tailwind v4's
+ * oklch) works, and its alpha is multiplied by the `opacity` of the element and
+ * every ancestor. Antialiasing, font weight and devicePixelRatio stay out of it.
+ *
+ * The ground is measured, because the footer sits on a photo no computed
+ * background-color can see: the element's box is screenshotted with its text
+ * hidden (fill, stroke, shadow and decoration transparent). The text is
+ * composited over each ground pixel and scored against it, and the verdict is
+ * the worst tenth of those pixels, so a patch of ground in the text's own
+ * polarity counts whichever way the text leans, and a stray pixel does not.
+ *
+ * It throws, naming the element and its colours, when the text paints nothing,
+ * when no colour can be resolved, or when the ground moves between shots; it
+ * never returns NaN.
  */
 async function contrastAgainstGround(el: Locator, name: string): Promise<number> {
   // The ground is only there once its image has loaded.
   await el.page().waitForLoadState("load");
   await el.scrollIntoViewIfNeeded();
-  const shown = await el.screenshot({ animations: "disabled" });
-  const color = await el.evaluate((node) => {
-    const color = getComputedStyle(node).color;
-    (node as HTMLElement).style.setProperty("color", "transparent", "important");
-    (node as HTMLElement).style.setProperty("text-decoration-color", "transparent", "important");
-    return color;
-  });
-  const hidden = await el.screenshot({ animations: "disabled" });
-  await el.evaluate((node) => {
-    (node as HTMLElement).style.removeProperty("color");
-    (node as HTMLElement).style.removeProperty("text-decoration-color");
-  });
+  const shot = () => el.screenshot({ animations: "disabled" });
+  const hide: Record<string, string> = {
+    color: "transparent",
+    "-webkit-text-stroke-color": "transparent",
+    "text-decoration-color": "transparent",
+    "text-shadow": "none",
+  };
+  const shown = await shot();
+  const paint = await el.evaluate((node, hide) => {
+    const style = getComputedStyle(node);
+    let opacity = 1;
+    for (let n: Element | null = node; n; n = n.parentElement) {
+      opacity *= Number(getComputedStyle(n).opacity);
+    }
+    const paint = {
+      fill: style.color,
+      stroke: style.getPropertyValue("-webkit-text-stroke-color"),
+      strokeWidth: parseFloat(style.getPropertyValue("-webkit-text-stroke-width")) || 0,
+      opacity,
+    };
+    for (const [prop, value] of Object.entries(hide)) {
+      (node as HTMLElement).style.setProperty(prop, value, "important");
+    }
+    return paint;
+  }, hide);
+  const hidden = await shot();
+  await el.evaluate((node, props) => {
+    for (const prop of props) (node as HTMLElement).style.removeProperty(prop);
+  }, Object.keys(hide));
+  const again = await shot();
+  const what = `${name} (color ${paint.fill}, stroke ${paint.strokeWidth}px ${paint.stroke}, opacity ${paint.opacity})`;
   // Decode on a blank page, out of reach of the site's CSP.
   const blank = await el.page().context().newPage();
-  let measured: { ratio: number; glyphs: number; text: number[] };
+  let measured: { ok: true; ratio: number } | { ok: false; why: string };
   try {
     measured = await blank.evaluate(
-      async ([withText, withoutText]) => {
+      async ({ shots, paint }) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
         const pixelsOf = async (b64: string) => {
           const img = new Image();
           img.src = `data:image/png;base64,${b64}`;
           await img.decode();
-          const canvas = document.createElement("canvas");
           canvas.width = img.width;
           canvas.height = img.height;
-          const ctx = canvas.getContext("2d")!;
           ctx.drawImage(img, 0, 0);
           return ctx.getImageData(0, 0, img.width, img.height).data;
         };
-        const [text, plain] = await Promise.all([pixelsOf(withText), pixelsOf(withoutText)]);
+        const [text, plain, text2] = [
+          await pixelsOf(shots[0]),
+          await pixelsOf(shots[1]),
+          await pixelsOf(shots[2]),
+        ];
+        if (text.length !== plain.length || text.length !== text2.length) {
+          return { ok: false as const, why: "its box changed size between the screenshots" };
+        }
+        let changed = 0;
+        for (let i = 0; i < text.length; i += 4) {
+          if (
+            text[i] !== text2[i] ||
+            text[i + 1] !== text2[i + 1] ||
+            text[i + 2] !== text2[i + 2]
+          ) {
+            return { ok: false as const, why: "its ground moved between the screenshots" };
+          }
+          if (
+            text[i] !== plain[i] ||
+            text[i + 1] !== plain[i + 1] ||
+            text[i + 2] !== plain[i + 2]
+          ) {
+            changed++;
+          }
+        }
+        if (changed === 0) return { ok: false as const, why: "its text changes no pixel" };
+        // A colour string to straight RGBA, through the canvas parser.
+        const rgba = (css: string) => {
+          canvas.width = canvas.height = 1;
+          const probe = (sentinel: string) => {
+            ctx.clearRect(0, 0, 1, 1);
+            ctx.fillStyle = sentinel;
+            ctx.fillStyle = css;
+            return ctx.fillStyle;
+          };
+          // An unparseable string leaves fillStyle at whichever sentinel was set.
+          if (probe("#010203") === "#010203" && probe("#040506") === "#040506") return null;
+          ctx.fillRect(0, 0, 1, 1);
+          const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+          return { r, g, b, a: a / 255 };
+        };
+        const fill = rgba(paint.fill);
+        const stroke = paint.strokeWidth > 0 ? rgba(paint.stroke) : null;
+        const ink = fill && fill.a > 0 ? fill : stroke && stroke.a > 0 ? stroke : null;
+        if (!ink)
+          return {
+            ok: false as const,
+            why: "neither its fill nor its stroke resolves to a visible colour",
+          };
+        const alpha = ink.a * paint.opacity;
+        if (!(alpha > 0)) return { ok: false as const, why: "its opacity is zero" };
         const lum = (r: number, g: number, b: number) => {
           const ch = (v: number) => {
             const s = v / 255;
@@ -52,37 +130,27 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           };
           return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
         };
-        const ground: number[] = [];
-        const glyphs: { diff: number; rgb: number[] }[] = [];
+        const ratios: number[] = [];
         for (let i = 0; i < plain.length; i += 4) {
-          ground.push(lum(plain[i], plain[i + 1], plain[i + 2]));
-          const rgb = [text[i], text[i + 1], text[i + 2]];
-          const diff = rgb.reduce((sum, v, c) => sum + Math.abs(v - plain[i + c]), 0);
-          if (diff > 0) glyphs.push({ diff, rgb });
+          const [r, g, b] = [plain[i], plain[i + 1], plain[i + 2]];
+          const over = (t: number, u: number) => alpha * t + (1 - alpha) * u;
+          const fg = lum(over(ink.r, r), over(ink.g, g), over(ink.b, b));
+          const bg = lum(r, g, b);
+          ratios.push((Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05));
         }
-        if (glyphs.length === 0 || text.length !== plain.length) {
-          return { ratio: Number.NaN, glyphs: glyphs.length, text: [] };
-        }
-        ground.sort((a, b) => a - b);
-        const bg = ground[Math.floor(ground.length * 0.9)];
-        glyphs.sort((a, b) => b.diff - a.diff);
-        const solid = glyphs.slice(0, Math.max(1, Math.floor(glyphs.length / 4)));
-        const median = (v: number[]) => v.sort((a, b) => a - b)[v.length >> 1];
-        const rgb = [0, 1, 2].map((c) => median(solid.map((g) => g.rgb[c])));
-        const fg = lum(rgb[0], rgb[1], rgb[2]);
-        const [hi, lo] = [fg, bg].sort((a, b) => b - a);
-        return { ratio: (hi + 0.05) / (lo + 0.05), glyphs: glyphs.length, text: rgb };
+        ratios.sort((a, b) => a - b);
+        return { ok: true as const, ratio: ratios[Math.floor(ratios.length * 0.1)] };
       },
-      [shown.toString("base64"), hidden.toString("base64")] as const,
+      {
+        shots: [shown, hidden, again].map((b) => b.toString("base64")),
+        paint,
+      },
     );
   } finally {
     await blank.close();
   }
-  if (!Number.isFinite(measured.ratio)) {
-    throw new Error(
-      `${name}: its text (computed ${color}) changed ${measured.glyphs} pixels, so it has no measurable colour`,
-    );
-  }
+  if (!measured.ok) throw new Error(`${what}: ${measured.why}`);
+  if (!Number.isFinite(measured.ratio)) throw new Error(`${what}: contrast is ${measured.ratio}`);
   return measured.ratio;
 }
 
