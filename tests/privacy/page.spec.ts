@@ -1,4 +1,63 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
+
+/**
+ * WCAG contrast of an element's text against the ground it is actually drawn on.
+ * The footer sits on a photo, which no computed background-color can see, so
+ * this hides the element's own text, screenshots its box and scores the text
+ * colour against the lighter tenth of those pixels (the 90th-percentile
+ * luminance): a bright patch behind the words counts, a stray highlight does not.
+ */
+async function contrastAgainstGround(el: Locator): Promise<number> {
+  // The ground is only there once its image has loaded.
+  await el.page().waitForLoadState("load");
+  await el.scrollIntoViewIfNeeded();
+  const color = await el.evaluate((node) => {
+    const color = getComputedStyle(node).color;
+    (node as HTMLElement).style.setProperty("color", "transparent", "important");
+    (node as HTMLElement).style.setProperty("text-decoration-color", "transparent", "important");
+    return color;
+  });
+  const shot = await el.screenshot({ animations: "disabled" });
+  await el.evaluate((node) => {
+    (node as HTMLElement).style.removeProperty("color");
+    (node as HTMLElement).style.removeProperty("text-decoration-color");
+  });
+  // Decode on a blank page, out of reach of the site's CSP.
+  const blank = await el.page().context().newPage();
+  try {
+    return await blank.evaluate(
+      async ([b64, color]) => {
+        const lum = (r: number, g: number, b: number) => {
+          const ch = (v: number) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          };
+          return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
+        };
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0);
+        const px = ctx.getImageData(0, 0, img.width, img.height).data;
+        const ground: number[] = [];
+        for (let i = 0; i < px.length; i += 4) ground.push(lum(px[i], px[i + 1], px[i + 2]));
+        ground.sort((a, b) => a - b);
+        const bg = ground[Math.floor(ground.length * 0.9)];
+        const [r, g, b] = (color.match(/[\d.]+/g) ?? []).map(Number);
+        const fg = lum(r, g, b);
+        const [hi, lo] = [fg, bg].sort((a, b) => b - a);
+        return (hi + 0.05) / (lo + 0.05);
+      },
+      [shot.toString("base64"), color] as const,
+    );
+  } finally {
+    await blank.close();
+  }
+}
 
 test.describe("/privacy", () => {
   test("renders the DRAFT policy, noindex, with this site's services", async ({ page }) => {
@@ -53,11 +112,7 @@ test.describe("links to /privacy", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page.locator('footer a[href="/privacy"]')).toBeVisible();
     const link = page.locator('footer a[href="/privacy"]');
-    const [linkColor, footerColor] = await link.evaluate((a) => [
-      getComputedStyle(a).color,
-      getComputedStyle(a.closest("footer")!).color,
-    ]);
-    expect(linkColor).toBe(footerColor);
+    expect(await contrastAgainstGround(link)).toBeGreaterThanOrEqual(4.5);
   });
 
   test("the contact dialog shows the notice as soon as it opens, without scrolling", async ({
@@ -75,10 +130,8 @@ test.describe("links to /privacy", () => {
     await expect(notice).toHaveCount(1);
     await expect(notice).toBeInViewport({ ratio: 1 });
     await expect(notice.locator('a[href="/privacy"]')).toBeVisible();
-    const [linkColor, noticeColor] = await notice.evaluate((p) => [
-      getComputedStyle(p.querySelector("a")!).color,
-      getComputedStyle(p).color,
-    ]);
-    expect(linkColor).toBe(noticeColor);
+    expect(
+      await contrastAgainstGround(notice.locator('a[href="/privacy"]')),
+    ).toBeGreaterThanOrEqual(4.5);
   });
 });
