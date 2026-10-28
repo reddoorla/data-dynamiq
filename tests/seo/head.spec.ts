@@ -8,8 +8,13 @@ import { test, expect } from "@playwright/test";
 // are not listed here; a real page added to the site belongs in this list.
 const sitePages = ["/", "/privacy"];
 
+// The audit reads the head as the server sends it, so JavaScript is off: a tag
+// only the client adds does not count.
+test.use({ javaScriptEnabled: false });
+
 async function readHead(page: import("@playwright/test").Page, path: string) {
-  await page.goto(path);
+  const response = await page.goto(path);
+  expect(response?.ok(), `${path}: HTTP ${response?.status()}`).toBe(true);
   return page.evaluate(() => ({
     title: document.title.trim(),
     description: (
