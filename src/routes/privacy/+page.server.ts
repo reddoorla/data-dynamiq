@@ -11,6 +11,7 @@ export const load: PageServerLoad = () => {
   const values = loadSiteConfig().privacy ?? {};
   return {
     title: "Privacy Policy",
+    meta_description: `How ${values.legalName ?? "Data Dynamiq"} collects, uses and protects the information you share through this site.`,
     noindex: PRIVACY_POLICY_DRAFT,
     privacy: {
       legalName: values.legalName,
