@@ -1,85 +1,43 @@
 import { test, expect, type Locator } from "@playwright/test";
 
 /**
- * WCAG contrast of an element's text against the ground it is actually drawn on.
+ * WCAG contrast of an element's own text against the ground it is painted on.
  *
- * It is an allowlist: it scores only paint it can model exactly, and throws,
- * naming the element and the property, on anything else. Each element that
- * paints a text node of its own inside `el` (a child span with its own colour,
- * as well as the link) is scored separately, and the verdict is the worst.
+ * What is measured: the element's computed text colour (`-webkit-text-fill-color`,
+ * which is `color` unless set), parsed by a canvas so rgba, oklch and color-mix
+ * all work, with its alpha multiplied by the `opacity` of the element and of each
+ * ancestor up to `<html>`. The ground is the nearest painted ancestor's computed
+ * `background-color`: each translucent background from the element up is
+ * composited back to front until one is opaque, and the ground is white if none
+ * is. The text is composited over that ground and scored with the WCAG ratio.
  *
- * What it models, for each such element:
- * - The text colour, resolved rather than read from glyphs: the computed
- *   `-webkit-text-fill-color` (which is `color` unless set), or the
- *   `-webkit-text-stroke` colour when the fill is transparent, parsed by a
- *   canvas, so rgba, oklch and color-mix all work. A stroke the same colour
- *   as the fill is heavier text.
- * - Opacity, once: O is the product of `opacity` from the element itself up to
- *   the root. With H the ground as rendered and U the same ground with each of
- *   those opacities lifted to 1, the rendered text is H + O·alpha·(text − U).
- *   That is exact whether or not a faded ancestor paints a background of its
- *   own under the text, which is where multiplying O over H counted it twice.
- * - The ground, measured, because the footer sits on a photo no computed
- *   background-color can see: the box is screenshotted with every text fill,
- *   stroke and decoration in `el` transparent, and with the decoration of every
- *   ancestor that sets one transparent too, since it is drawn into `el`'s text
- *   in the ancestor's colour. `color` itself is left alone, so a currentColor
- *   border or icon stays in the ground, and is kept out of the score by the
- *   clip below. `backdrop-filter` acts on the ground, so that screenshot
- *   already carries it. A decoration can also be the ground under the glyphs
- *   (a thick, raised underline is a highlighter band), and the ground shot has
- *   none of them, so one shot shows every decoration with the text hidden, and
- *   the helper throws if one paints under a glyph.
+ * What is refused, by name, with a throw: on the element or any ancestor up to
+ * `<html>`, `filter`, `backdrop-filter`, `mix-blend-mode`, `mask-image`,
+ * `background-clip: text`, `box-shadow` and a visible outline; on the element,
+ * `text-shadow` and a `-webkit-text-stroke-width` other than 0; on the element
+ * and each ancestor up to the ground, `background-image`; on the element or an
+ * ancestor, a `::before` or `::after` with content that paints a background, a
+ * background image or a box shadow; and a text decoration on the element or an
+ * ancestor. The one decoration allowed is the form the page itself uses on the
+ * privacy links: an `underline` on the element only, in the text colour, with
+ * thickness `auto` or `from-font` and offset `auto` or at least 0. The underline
+ * is ink, so it cannot lower the contrast; any other decoration, or the same one
+ * on an ancestor, is refused.
  *
- * What it refuses, on the element or any ancestor up to the root: `filter`,
- * `mix-blend-mode` and `mask-image`, which change the colour after it is
- * painted; `background-clip: text`, which paints glyphs with a background;
- * `backdrop-filter` under a faded ancestor; and a block's `::first-line` (or
- * the nearest block's `::first-letter`) of another colour, which no computed
- * style of the text shows. On the element itself it refuses `text-shadow` (by
- * WCAG a halo is the text's ground and a drop shadow is not, and the pixels
- * cannot tell them apart) and a stroke of another colour round a visible fill.
- * In `el` it refuses `::before` or `::after` content that is text, `attr()`,
- * `counter()` or alternative text; an empty one (`content: ""`) is a box, and
- * is refused only where hiding it changes a pixel its glyphs paint (a hit test
- * cannot see it, because it answers with the element it belongs to). Anything
- * else drawn over the text is refused too, because it would sit in the ground
- * and never touch the ink: at points inside each text's own boxes, hit-tested
- * with every element made hit-testable, nothing stacked above the element that
- * paints the text may paint anything of its own.
- * Each needs a person, so the test names which rather than pass or fail for a
- * reason that is not the cause.
+ * What is not measured: an `<img>`, video or other element painted behind the
+ * text. The footer's link sits on `finalBg.jpg`, so it is scored against the
+ * first background colour above the photo (the body's black), not the photo.
+ * Anything drawn over the text from another element is not measured either, and
+ * neither is a descendant of the element that sets its own colour.
  *
- * Which ground pixels count: those each element's glyphs change, grown by
- * 2 CSS px, and only inside the union of that element's text-range client
- * rects. So the counters and the gaps between letters count, while padding,
- * and a border or outline beside the text, do not. The verdict for an element
- * is the 1st percentile of the per-pixel ratios over that ring: a lone speck
- * of photo noise does not decide it, while a bad patch as large as one glyph
- * stroke and its ring always does.
- *
- * It also throws when the text paints nothing, when the box resizes, or when
- * the ground moves: any ground shot that differs from the first, or the first
- * and last as-rendered shots differing. A ground that moves is shot again
- * before it is believed. The retake counts only if its first shots repeat
- * ones the first attempt took, and then only if every one of its own ground
- * shots agrees. The page's own style attributes are saved and set back
- * exactly, before the last shot and in the end, so no style the helper set
- * remains on the page; it never returns NaN.
- *
- * Box-shadows and outlines are not hit-testable: one shot removes them from
- * everything outside el and its ancestors, and the helper throws when that
- * changes a glyph pixel, since they paint over the ink.
+ * This is the narrower check the operator chose (decisions/2026-11-01-2047-p1-84-data-dynamiq-86-round-seven-dirty.md
+ * in reddoorla/reddoor-workspace) after seven review rounds of a pixel-based
+ * helper, each of rounds 4 to 7 finding new forms it did not model. The old pins,
+ * which required a link's colour to equal its parent's, measured none of these
+ * either. The helper reads the page and sets no style on it.
  */
 async function contrastAgainstGround(el: Locator, name: string): Promise<number> {
-  const page = el.page();
-  // The ground is only there once its image has loaded.
-  await page.waitForLoadState("load");
-  await el.scrollIntoViewIfNeeded();
-  const shot = () => el.screenshot({ animations: "disabled" });
-  let first = await shot();
-  type Ground = { nodes: HTMLElement[]; orig: (string | null)[]; sheets: CSSStyleSheet[] };
-  const plan = await el.evaluate((root) => {
+  const measured = await el.evaluate((root) => {
     const desc = (n: Element) =>
       n.tagName.toLowerCase() +
       (n.id ? `#${n.id}` : "") +
@@ -88,611 +46,124 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         .map((c) => `.${c}`)
         .join("");
     const refuse = (n: Element, why: string) => ({ ok: false as const, why: `${desc(n)} ${why}` });
-    const subtree = [root, ...root.querySelectorAll("*")] as HTMLElement[];
-    const nodes = [...subtree];
-    const indexOf = (n: Element) => {
-      const i = nodes.indexOf(n as HTMLElement);
-      return i >= 0 ? i : nodes.push(n as HTMLElement) - 1;
+    const chain: Element[] = [];
+    for (let n: Element | null = root; n; n = n.parentElement) chain.push(n);
+
+    // Colours are read through a canvas, which parses any CSS colour.
+    const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!;
+    const rgba = (c: string): [number, number, number, number] => {
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = c;
+      ctx.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+      return [r / 255, g / 255, b / 255, a / 255];
     };
-    // What a `content` value generates: nothing, a box with no text, or a
-    // reason it is refused. Strings are read unquoted, so `""` is empty.
-    const generated = (content: string) => {
-      if (content === "none" || content === "normal") return null;
-      if (/\battr\(/.test(content)) return "attr(), text from an attribute";
-      if (/\bcounters?\(/.test(content)) return "counter(), generated numbering";
-      const strings: string[] = [];
-      const rest = content
-        .replace(/url\((?:"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^)]*)\)/g, " ")
-        .replace(/(["'])((?:\\.|(?!\1).)*)\1/g, (_, q, text: string) => {
-          strings.push(text);
-          return " ";
-        });
-      if (rest.includes("/")) return "alternative text after a slash";
-      if (strings.some((t) => t.trim())) return "text";
-      if (rest.trim()) return rest.trim();
-      return "box" as const;
-    };
-    // A selector for one element, so its pseudo-elements can be hidden.
-    const path = (n: Element): string =>
-      n === document.documentElement
-        ? ":root"
-        : `${path(n.parentElement!)} > :nth-child(${[...n.parentElement!.children].indexOf(n) + 1})`;
-    const boxes: string[] = [];
-    const units = [];
-    const owned: { n: HTMLElement; rects: DOMRect[]; points: [number, number][] }[] = [];
-    const box = root.getBoundingClientRect();
-    for (const n of subtree) {
-      for (const pseudo of ["::before", "::after"]) {
-        const content = getComputedStyle(n, pseudo).content;
-        const made = generated(content);
-        if (made === "box") boxes.push(`${path(n)}${pseudo}`);
-        else if (made) {
-          return refuse(n, `has ${pseudo} content: ${content} (${made}), which is not measured`);
-        }
+
+    // The ground: translucent backgrounds from the element up, composited back to
+    // front until one is opaque. `groundIndex` is the element that is opaque.
+    const layers: [number, number, number, number][] = [];
+    let groundIndex = chain.length - 1;
+    for (let i = 0; i < chain.length; i++) {
+      const bg = rgba(getComputedStyle(chain[i]).backgroundColor);
+      if (bg[3] > 0) layers.push(bg);
+      if (bg[3] === 1) {
+        groundIndex = i;
+        break;
       }
-      const rects = [...n.childNodes].flatMap((t) => {
-        if (t.nodeType !== Node.TEXT_NODE || !t.textContent?.trim()) return [];
-        const range = document.createRange();
-        range.selectNodeContents(t);
-        return [...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0);
-      });
-      if (rects.length === 0) continue;
-      // Where the glyphs are, for the hit test: each character's own boxes, at a
-      // quarter, half and three quarters of each side. Blank characters paint nothing.
-      const points: [number, number][] = [];
-      for (const t of n.childNodes) {
-        if (t.nodeType !== Node.TEXT_NODE) continue;
-        const text = t.textContent ?? "";
-        for (let i = 0; i < text.length; i++) {
-          if (!text.charAt(i).trim()) continue;
-          const range = document.createRange();
-          range.setStart(t, i);
-          range.setEnd(t, i + 1);
-          for (const r of range.getClientRects()) {
-            if (!(r.width > 0 && r.height > 0)) continue;
-            for (const fx of [0.25, 0.5, 0.75]) {
-              for (const fy of [0.25, 0.5, 0.75]) {
-                points.push([r.left + fx * r.width, r.top + fy * r.height]);
-              }
-            }
-          }
-        }
-      }
-      owned.push({ n, rects, points });
-      const style = getComputedStyle(n);
-      if (style.textShadow !== "none") {
-        return refuse(n, `has text-shadow: ${style.textShadow}; a halo needs judging by hand`);
-      }
-      const strokeWidth = parseFloat(style.webkitTextStrokeWidth) || 0;
-      let opacity = 1;
-      const faded: number[] = [];
-      let backdrop: Element | null = null;
-      let firstLetter = true;
-      for (let a: Element | null = n; a; a = a.parentElement) {
-        const s = getComputedStyle(a);
-        if (s.filter !== "none") return refuse(a, `has filter: ${s.filter}`);
-        if (s.mixBlendMode !== "normal") return refuse(a, `has mix-blend-mode: ${s.mixBlendMode}`);
-        const mask = s.maskImage || s.webkitMaskImage || "none";
-        if (mask !== "none") return refuse(a, `has mask-image: ${mask}`);
-        if (/text/.test(`${s.backgroundClip} ${s.webkitBackgroundClip}`)) {
-          return refuse(a, "has background-clip: text, so a background paints its glyphs");
-        }
-        // A block's ::first-line (and ::first-letter on the nearest block)
-        // recolours text inside it, and no computed style of the text says so.
-        if (s.display !== "inline" && s.display !== "contents") {
-          for (const pseudo of firstLetter
-            ? ["::first-line", "::first-letter"]
-            : ["::first-line"]) {
-            const ps = getComputedStyle(a, pseudo);
-            for (const prop of ["color", "-webkit-text-fill-color"]) {
-              const value = ps.getPropertyValue(prop);
-              if (value !== s.getPropertyValue(prop)) {
-                return refuse(a, `has ${pseudo} { ${prop}: ${value} }, which is not measured`);
-              }
-            }
-          }
-          firstLetter = false;
-        }
-        if (s.backdropFilter && s.backdropFilter !== "none") backdrop = a;
-        const o = Number(s.opacity);
-        if (o < 1) {
-          opacity *= o;
-          faded.push(indexOf(a));
-        }
-      }
-      if (backdrop && opacity < 1) {
-        return refuse(backdrop, "has backdrop-filter under an opacity below 1");
-      }
-      units.push({
-        what: `${desc(n)} (fill ${style.webkitTextFillColor}, stroke ${strokeWidth}px ${style.webkitTextStrokeColor}, opacity ${opacity})`,
-        index: subtree.indexOf(n),
-        // What this element paints with, set back explicitly when it is shown:
-        // an ancestor's hidden fill would otherwise be inherited.
-        paint: {
-          "-webkit-text-fill-color": style.webkitTextFillColor,
-          "-webkit-text-stroke-color": style.webkitTextStrokeColor,
-          "text-decoration-color": style.textDecorationColor,
-          "text-emphasis-color": style.getPropertyValue("text-emphasis-color"),
-        } as Record<string, string>,
-        fill: style.webkitTextFillColor,
-        stroke: strokeWidth > 0 ? style.webkitTextStrokeColor : "",
-        opacity,
-        faded,
-        // The text's own boxes, relative to the element's box, in CSS px: the
-        // ring is clipped to them, so a border beside the text is not ground.
-        clip: rects.map((r) => [r.left - box.left, r.top - box.top, r.width, r.height]),
-      });
     }
-    // Whatever is drawn over the text is in both shots and never applied to
-    // the ink, so it is refused: at points on each character's own boxes, every
-    // element stacked above the one that paints that text must paint nothing
-    // of its own. Every element is made hit-testable for the moment it takes,
-    // so a `pointer-events: none` scrim is found too.
-    const clear = (c: string) => c === "transparent" || /(,|\/)\s*0\)$/.test(c);
-    const paintsNothing = (h: Element) => {
-      if (/^(img|video|canvas|svg|iframe|embed|object|input|textarea|select)$/i.test(h.tagName)) {
-        return false;
-      }
-      const s = getComputedStyle(h);
-      const sides = ["top", "right", "bottom", "left"].some(
-        (side) =>
-          parseFloat(s.getPropertyValue(`border-${side}-width`)) > 0 &&
-          !/none|hidden/.test(s.getPropertyValue(`border-${side}-style`)) &&
-          !clear(s.getPropertyValue(`border-${side}-color`)),
-      );
-      return (
-        clear(s.backgroundColor) &&
-        s.backgroundImage === "none" &&
-        !sides &&
-        s.boxShadow === "none" &&
-        (s.outlineStyle === "none" || !(parseFloat(s.outlineWidth) > 0)) &&
-        (!s.backdropFilter || s.backdropFilter === "none") &&
-        ![...h.childNodes].some((t) => t.nodeType === Node.TEXT_NODE && t.textContent?.trim()) &&
-        ["::before", "::after"].every((p) => generated(getComputedStyle(h, p).content) === null)
-      );
-    };
-    const hitTestable = new CSSStyleSheet();
-    hitTestable.replaceSync("*, *::before, *::after { pointer-events: auto !important; }");
-    // A copy: adoptedStyleSheets is live, so the restore below would keep the sheet.
-    const sheets = [...document.adoptedStyleSheets];
-    document.adoptedStyleSheets = [...sheets, hitTestable];
-    try {
-      for (const { n, points } of owned) {
-        for (const [x, y] of points) {
-          const stack = document.elementsFromPoint(x, y);
-          if (!stack.includes(n)) continue;
-          const over = stack.slice(0, stack.indexOf(n)).find((h) => !paintsNothing(h));
-          if (!over) continue;
+    let ground: [number, number, number] = [1, 1, 1];
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const [r, g, b, a] = layers[i];
+      ground = [
+        r * a + ground[0] * (1 - a),
+        g * a + ground[1] * (1 - a),
+        b * a + ground[2] * (1 - a),
+      ];
+    }
+
+    let opacity = 1;
+    for (const n of chain) opacity *= parseFloat(getComputedStyle(n).opacity);
+
+    const rootStyle = getComputedStyle(root);
+    const fill = rgba(rootStyle.getPropertyValue("-webkit-text-fill-color"));
+    const sameColour = (a: number[], b: number[]) => a.every((v, i) => v === b[i]);
+
+    for (const n of chain) {
+      const cs = getComputedStyle(n);
+      const v = (p: string) => cs.getPropertyValue(p).trim();
+      if (v("filter") !== "none")
+        return refuse(n, `has filter: ${v("filter")}, which is not measured`);
+      if (v("backdrop-filter") !== "none")
+        return refuse(n, `has backdrop-filter: ${v("backdrop-filter")}, which is not measured`);
+      if (v("mix-blend-mode") !== "normal")
+        return refuse(n, `has mix-blend-mode: ${v("mix-blend-mode")}, which is not measured`);
+      if (v("mask-image") !== "none")
+        return refuse(n, `has mask-image: ${v("mask-image")}, which is not measured`);
+      if (v("background-clip") === "text" || v("-webkit-background-clip") === "text")
+        return refuse(n, "has background-clip: text, which is not measured");
+      if (v("box-shadow") !== "none")
+        return refuse(n, `has box-shadow: ${v("box-shadow")}, which is not measured`);
+      if (v("outline-style") !== "none" && parseFloat(v("outline-width")) > 0)
+        return refuse(
+          n,
+          `has an outline: ${v("outline-style")} ${v("outline-width")}, which is not measured`,
+        );
+      if (n === root) {
+        if (v("text-shadow") !== "none")
+          return refuse(n, `has text-shadow: ${v("text-shadow")}, which is not measured`);
+        if (parseFloat(v("-webkit-text-stroke-width")) !== 0)
           return refuse(
-            over,
-            root.contains(over)
-              ? `is drawn over ${desc(n)}'s text and paints no text of its own there, which is not measured`
-              : `is drawn over ${desc(n)}'s text from outside it, which is not measured`,
+            n,
+            `has -webkit-text-stroke-width: ${v("-webkit-text-stroke-width")}, which is not measured`,
           );
-        }
       }
-    } finally {
-      document.adoptedStyleSheets = sheets;
+      const decoration = v("text-decoration-line");
+      if (decoration !== "none") {
+        // The one allowed form: the page's own underline on the element, in the text colour.
+        const allowed =
+          n === root &&
+          decoration === "underline" &&
+          sameColour(rgba(v("text-decoration-color")), fill) &&
+          ["auto", "from-font"].includes(v("text-decoration-thickness")) &&
+          (v("text-underline-offset") === "auto" || parseFloat(v("text-underline-offset")) >= 0);
+        if (!allowed)
+          return refuse(
+            n,
+            `has text-decoration-line: ${decoration} (colour ${v("text-decoration-color")}, thickness ${v("text-decoration-thickness")}, offset ${v("text-underline-offset")}), which is not measured`,
+          );
+      }
+      if (chain.indexOf(n) <= groundIndex && v("background-image") !== "none")
+        return refuse(n, `has background-image: ${v("background-image")}, which is not measured`);
+      for (const pseudo of ["::before", "::after"]) {
+        const ps = getComputedStyle(n, pseudo);
+        if (ps.content === "none" || ps.content === "normal") continue;
+        const paints: string[] = [];
+        if (rgba(ps.backgroundColor)[3] > 0) paints.push(`background-color ${ps.backgroundColor}`);
+        if (ps.backgroundImage !== "none") paints.push(`background-image ${ps.backgroundImage}`);
+        if (ps.boxShadow !== "none") paints.push(`box-shadow ${ps.boxShadow}`);
+        if (paints.length > 0)
+          return refuse(
+            n,
+            `has ${pseudo} content ${ps.content} with ${paints.join(" and ")}, which is not measured`,
+          );
+      }
     }
-    // An ancestor's text-decoration is drawn into el's text in the ancestor's
-    // colour, so it is hidden in every shot, as el's own decoration is.
-    const hideDeco: number[] = [];
-    for (let a = root.parentElement; a; a = a.parentElement) {
-      if (getComputedStyle(a).textDecorationLine !== "none") hideDeco.push(indexOf(a));
-    }
-    if (units.length === 0) return refuse(root, "paints no text");
-    // el and each ancestor up to the root, for the overlay shot's exclusion.
-    const chain: string[] = [];
-    for (let a: Element | null = root; a; a = a.parentElement) chain.push(path(a));
-    (window as unknown as { __ground: Ground }).__ground = {
-      nodes,
-      orig: nodes.map((n) => n.getAttribute("style")),
-      sheets: [],
+
+    // The text: its colour with its alpha times the opacity, composited over the ground.
+    const a = fill[3] * opacity;
+    const text = [
+      fill[0] * a + ground[0] * (1 - a),
+      fill[1] * a + ground[1] * (1 - a),
+      fill[2] * a + ground[2] * (1 - a),
+    ];
+    const luminance = (c: number[]) => {
+      const [r, g, b] = c.map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
-    return { ok: true as const, units, inside: subtree.length, boxes, hideDeco, chain };
+    const l1 = luminance(text);
+    const l2 = luminance(ground);
+    return { ok: true as const, ratio: (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05) };
   });
-  if (!plan.ok) throw new Error(`${name}: ${plan.why}`);
-  // One shot's state, set on a clean slate. Every touched element goes back to
-  // its own style attribute and every sheet a shot added comes off, so nothing a
-  // shot set remains: with no options, `paint()` only restores. Then `hidden`
-  // loses the text props `hide` names (`show` paints them as they were), `opaque`
-  // gets opacity 1, `deco` hides every ancestor's decoration, `ownDeco` every
-  // decoration in el, `boxless` hides the empty ::before and ::after boxes, and
-  // `overlays` the box-shadow and outline of everything outside el and its ancestors.
-  type Paint = {
-    hidden?: number[];
-    opaque?: number[];
-    show?: Record<number, Record<string, string>>;
-    hide?: string[];
-    deco?: boolean;
-    ownDeco?: boolean;
-    boxless?: boolean;
-    overlays?: boolean;
-  };
-  const paint = (o: Paint = {}) =>
-    el.evaluate(
-      (_, { o, boxes, deco, chain, inside }) => {
-        const ground = (window as unknown as { __ground?: Ground }).__ground;
-        if (!ground) return;
-        const { nodes, orig } = ground;
-        nodes.forEach((n, i) => {
-          const was = orig[i];
-          if (was === null) n.removeAttribute("style");
-          else n.setAttribute("style", was);
-        });
-        for (const sheet of ground.sheets) {
-          document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
-        }
-        ground.sheets = [];
-        const add = (css: string) => {
-          const sheet = new CSSStyleSheet();
-          sheet.replaceSync(css);
-          document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
-          ground.sheets.push(sheet);
-        };
-        if (o.boxless) add(`${boxes.join(", ")} { visibility: hidden !important; }`);
-        if (o.overlays) {
-          add(
-            `*:not(${chain.join(", ")}) { box-shadow: none !important; outline: none !important; }`,
-          );
-        }
-        if (o.deco) {
-          for (const i of deco)
-            nodes[i].style.setProperty("text-decoration-color", "transparent", "important");
-        }
-        if (o.ownDeco) {
-          for (const i of inside)
-            nodes[i].style.setProperty("text-decoration-color", "transparent", "important");
-        }
-        const hide = o.hide ?? [
-          "-webkit-text-fill-color",
-          "-webkit-text-stroke-color",
-          "text-decoration-color",
-          "text-emphasis-color",
-        ];
-        for (const i of o.hidden ?? []) {
-          for (const p of hide) {
-            nodes[i].style.setProperty(p, o.show?.[i]?.[p] ?? "transparent", "important");
-          }
-        }
-        for (const i of o.opaque ?? []) {
-          nodes[i].style.setProperty("opacity", "1", "important");
-          nodes[i].style.setProperty("isolation", "isolate", "important");
-        }
-      },
-      {
-        o,
-        boxes: plan.boxes,
-        deco: plan.hideDeco,
-        chain: plan.chain,
-        inside: [...Array(plan.inside).keys()],
-      },
-    );
-  const inside = [...Array(plan.inside).keys()];
-  // Where each shot of a take sits: the ground shots (the first, one after each
-  // unit, and the last), each unit's text and lifted-ground shots, the glyphs with
-  // every decoration hidden, the boxless one, the decoration band, and the one
-  // with the outside shadows and outlines removed.
-  type Take = {
-    shots: Buffer[];
-    grounds: number[];
-    unitIdx: { text: number; lifted: number }[];
-    glyphIdx: number;
-    bandIdx: number;
-    boxIdx: number;
-    overlayIdx: number;
-  };
-  const takeShots = async (): Promise<Take> => {
-    const shots: Buffer[] = [first];
-    const grounds: number[] = [];
-    const unitIdx: { text: number; lifted: number }[] = [];
-    const at = async (o: Paint) => {
-      await paint(o);
-      shots.push(await shot());
-      return shots.length - 1;
-    };
-    const ground = async () => {
-      await paint({ hidden: inside, deco: true });
-      grounds.push(shots.length);
-      shots.push(await shot());
-    };
-    try {
-      await ground();
-      for (const unit of plan.units) {
-        const text = await at({ hidden: inside, show: { [unit.index]: unit.paint }, deco: true });
-        let lifted = -1;
-        if (unit.opacity < 1) lifted = await at({ hidden: inside, opaque: unit.faded, deco: true });
-        unitIdx.push({ text, lifted });
-        // A ground shot after each unit, so a ground that moves while the text is
-        // measured is caught between its first and last shot, not only at the ends.
-        await ground();
-      }
-      // Every glyph, every decoration hidden: the ink's own pixels, before any grow.
-      const glyphIdx = await at({ hidden: [], ownDeco: true, deco: true });
-      // As rendered with the empty pseudo-elements' boxes hidden.
-      const boxIdx = plan.boxes.length > 0 ? await at({ boxless: true }) : -1;
-      // The decorations shown, as rendered, with the text hidden: what they paint
-      // under the glyphs is what the ink is read against.
-      const bandIdx = await at({
-        hidden: inside,
-        hide: ["-webkit-text-fill-color", "-webkit-text-stroke-color", "text-emphasis-color"],
-      });
-      // As rendered, with the box-shadows and outlines of everything outside el
-      // and its ancestors removed: what they paint over the glyphs is not ink.
-      const overlayIdx = await at({ overlays: true });
-      // Four more ground shots at the end. A ground that flickers on a steady
-      // cycle can match a few shots by chance, and matching all of them is far
-      // less likely.
-      for (let k = 0; k < 4; k++) await ground();
-      // As rendered, with nothing of the helper's left on the page.
-      await paint();
-      shots.push(await shot());
-      return { shots, grounds, unitIdx, glyphIdx, bandIdx, boxIdx, overlayIdx };
-    } finally {
-      await paint();
-    }
-  };
-  const dpr = await page.evaluate(() => devicePixelRatio);
-  const radius = Math.round(2 * dpr);
-  // Decode on a blank page, out of reach of the site's CSP.
-  const blank = await page.context().newPage();
-  type Measured = { ok: true; ratio: number } | { ok: false; why: string };
-  const measure = (take: Take): Promise<Measured> =>
-    blank.evaluate(
-      async ({
-        shots,
-        grounds,
-        unitIdx,
-        glyphIdx,
-        bandIdx,
-        boxIdx,
-        overlayIdx,
-        units,
-        radius,
-        dpr,
-      }) => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
-        const decoded: { data: Uint8ClampedArray; w: number; h: number }[] = [];
-        for (const b64 of shots) {
-          const img = new Image();
-          img.src = `data:image/png;base64,${b64}`;
-          await img.decode();
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          decoded.push({
-            data: ctx.getImageData(0, 0, img.width, img.height).data,
-            w: img.width,
-            h: img.height,
-          });
-        }
-        const { w, h } = decoded[0];
-        if (decoded.some((d) => d.w !== w || d.h !== h)) {
-          return { ok: false as const, why: "its box changed size between the screenshots" };
-        }
-        const px = decoded.map((d) => d.data);
-        const differs = (a: Uint8ClampedArray, b: Uint8ClampedArray, i: number) =>
-          a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2];
-        // As rendered, first and last; and every ground shot against the first.
-        const identical = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
-          for (let i = 0; i < a.length; i += 4) if (differs(a, b, i)) return false;
-          return true;
-        };
-        const stable =
-          identical(px[0], px[px.length - 1]) &&
-          grounds.every((g) => identical(px[grounds[0]], px[g]));
-        if (!stable) {
-          return { ok: false as const, why: "its ground moved between the screenshots" };
-        }
-        // A colour string to straight RGBA, through the canvas parser.
-        const rgba = (css: string) => {
-          canvas.width = canvas.height = 1;
-          const probe = (sentinel: string) => {
-            ctx.clearRect(0, 0, 1, 1);
-            ctx.fillStyle = sentinel;
-            ctx.fillStyle = css;
-            return ctx.fillStyle;
-          };
-          // An unparseable string leaves fillStyle at whichever sentinel was set.
-          if (probe("#010203") === "#010203" && probe("#040506") === "#040506") return null;
-          ctx.fillRect(0, 0, 1, 1);
-          const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
-          return { r, g, b, a: a / 255 };
-        };
-        const lum = (r: number, g: number, b: number) => {
-          const ch = (v: number) => {
-            const s = Math.min(255, Math.max(0, v)) / 255;
-            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-          };
-          return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
-        };
-        // Grow a mask by `radius` pixels in each direction (a square).
-        const grow = (mask: Uint8Array) => {
-          const pass = (src: Uint8Array, along: boolean) => {
-            const out = new Uint8Array(w * h);
-            const [outer, inner] = along ? [h, w] : [w, h];
-            for (let o = 0; o < outer; o++) {
-              const at = (k: number) => (along ? o * w + k : k * w + o);
-              let next = Infinity;
-              const nearest = new Float64Array(inner);
-              for (let k = inner - 1; k >= 0; k--) {
-                if (src[at(k)]) next = k;
-                nearest[k] = next - k;
-              }
-              let last = -Infinity;
-              for (let k = 0; k < inner; k++) {
-                if (src[at(k)]) last = k;
-                if (k - last <= radius || nearest[k] <= radius) out[at(k)] = 1;
-              }
-            }
-            return out;
-          };
-          return pass(pass(mask, true), false);
-        };
-        const ground = px[grounds[0]];
-        // The ink's own pixels: every glyph shown, every decoration hidden, against
-        // the ground. Before any grow, and before a decoration could hide in them.
-        const glyph = new Uint8Array(w * h);
-        for (let i = 0; i < ground.length; i += 4) {
-          if (differs(px[glyphIdx], ground, i)) glyph[i / 4] = 1;
-        }
-        // An ancestor's decoration, shown with the text hidden, must paint nothing
-        // under the glyphs: the ground shot hides it, so the ink would be read
-        // against a photo where the line is.
-        for (let i = 0; i < ground.length; i += 4) {
-          if (glyph[i / 4] && differs(px[bandIdx], ground, i)) {
-            return {
-              ok: false as const,
-              why: "an ancestor's text-decoration paints under its glyphs, which is not measured",
-            };
-          }
-        }
-        // A box-shadow or outline from outside el and its ancestors, drawn over the
-        // glyphs, is in the shot as rendered and in none of the ground shots.
-        for (let i = 0; i < ground.length; i += 4) {
-          if (glyph[i / 4] && differs(px[0], px[overlayIdx], i)) {
-            return {
-              ok: false as const,
-              why: "a box-shadow or outline from outside this element paints over its glyphs, which is not measured",
-            };
-          }
-        }
-        const measuredUnits = units.map((unit, k) => {
-          const at = unitIdx[k];
-          return { unit, text: px[at.text], lifted: at.lifted >= 0 ? px[at.lifted] : ground };
-        });
-        // As rendered with the empty pseudo-elements' boxes hidden: a pixel that
-        // differs is one such a box paints, over or under the glyphs.
-        const boxless = boxIdx >= 0 ? px[boxIdx] : px[0];
-        let worst = Infinity;
-        for (const { unit, text, lifted } of measuredUnits) {
-          const what = unit.what;
-          const mask = new Uint8Array(w * h);
-          let changed = 0;
-          let underBox = false;
-          for (let i = 0; i < text.length; i += 4) {
-            if (differs(text, ground, i)) {
-              mask[i / 4] = 1;
-              changed++;
-              if (differs(px[0], boxless, i)) underBox = true;
-            }
-          }
-          if (changed === 0)
-            return {
-              ok: false as const,
-              why: `${what}: its text changes no pixel, so it is unpainted or the colour of its ground`,
-            };
-          if (underBox)
-            return {
-              ok: false as const,
-              why: `${what}: an empty ::before or ::after box paints where its glyphs are, which is not measured`,
-            };
-          const fill = rgba(unit.fill);
-          const stroke = unit.stroke ? rgba(unit.stroke) : null;
-          const same = (p: typeof fill, q: typeof fill) =>
-            !!p && !!q && p.r === q.r && p.g === q.g && p.b === q.b && p.a === q.a;
-          if (fill && fill.a > 0 && stroke && stroke.a > 0 && !same(fill, stroke)) {
-            return {
-              ok: false as const,
-              why: `${what}: a -webkit-text-stroke of another colour outlines its fill; judge it by hand`,
-            };
-          }
-          const ink = fill && fill.a > 0 ? fill : stroke && stroke.a > 0 ? stroke : null;
-          if (!ink) {
-            return {
-              ok: false as const,
-              why: `${what}: neither its fill nor its stroke resolves to a visible colour`,
-            };
-          }
-          const alpha = ink.a * unit.opacity;
-          if (!(alpha > 0)) return { ok: false as const, why: `${what}: its opacity is zero` };
-          const ring = grow(mask);
-          // Only inside the text's own boxes (CSS px to device px, pixel centres).
-          const inText = new Uint8Array(w * h);
-          for (const [x, y, cw, ch] of unit.clip) {
-            const x0 = Math.max(0, Math.floor(x * dpr));
-            const x1 = Math.min(w, Math.ceil((x + cw) * dpr));
-            const y0 = Math.max(0, Math.floor(y * dpr));
-            const y1 = Math.min(h, Math.ceil((y + ch) * dpr));
-            for (let qy = y0; qy < y1; qy++) {
-              for (let qx = x0; qx < x1; qx++) {
-                const cx = (qx + 0.5) / dpr;
-                const cy = (qy + 0.5) / dpr;
-                if (cx >= x && cx < x + cw && cy >= y && cy < y + ch) inText[qy * w + qx] = 1;
-              }
-            }
-          }
-          const ratios: number[] = [];
-          for (let p = 0; p < ring.length; p++) {
-            if (!ring[p] || !inText[p]) continue;
-            const i = p * 4;
-            const [r, g, b] = [ground[i], ground[i + 1], ground[i + 2]];
-            const fg = lum(
-              r + alpha * (ink.r - lifted[i]),
-              g + alpha * (ink.g - lifted[i + 1]),
-              b + alpha * (ink.b - lifted[i + 2]),
-            );
-            const bg = lum(r, g, b);
-            ratios.push((Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05));
-          }
-          if (ratios.length === 0) {
-            return {
-              ok: false as const,
-              why: `${what}: its text changes no pixel inside its own boxes`,
-            };
-          }
-          ratios.sort((a, b) => a - b);
-          worst = Math.min(worst, ratios[Math.floor(ratios.length * 0.01)]);
-        }
-        return { ok: true as const, ratio: worst };
-      },
-      {
-        shots: take.shots.map((b) => b.toString("base64")),
-        grounds: take.grounds,
-        unitIdx: take.unitIdx,
-        glyphIdx: take.glyphIdx,
-        bandIdx: take.bandIdx,
-        boxIdx: take.boxIdx,
-        overlayIdx: take.overlayIdx,
-        units: plan.units,
-        radius,
-        dpr,
-      },
-    );
-  let measured: Measured;
-  try {
-    const take = await takeShots();
-    measured = await measure(take);
-    // A ground that moved once is shot again, once, before it is believed. The
-    // retake counts only if its first shot as rendered and its first ground
-    // each repeat one the first attempt took, and then only if every ground
-    // shot in it agrees with its first (measure checks that). A ground that
-    // keeps moving gets no better odds of matching itself by chance than it had.
-    if (!measured.ok && /ground moved/.test(measured.why)) {
-      first = await shot();
-      const again = await takeShots();
-      const repeats = (b: Buffer, ...was: Buffer[]) => was.some((w) => w.equals(b));
-      const firstGround = take.grounds[0];
-      if (
-        repeats(again.shots[0], take.shots[0], take.shots[take.shots.length - 1]) &&
-        repeats(
-          again.shots[again.grounds[0]],
-          take.shots[firstGround],
-          take.shots[take.grounds[take.grounds.length - 1]],
-        )
-      ) {
-        measured = await measure(again);
-      }
-    }
-  } finally {
-    await blank.close();
-    // The same restore as the shots take: nothing the helper set is left on the page.
-    await paint();
-    await el.evaluate(() => {
-      delete (window as unknown as { __ground?: Ground }).__ground;
-    });
-  }
   if (!measured.ok) throw new Error(`${name}: ${measured.why}`);
   if (!Number.isFinite(measured.ratio)) throw new Error(`${name}: contrast is ${measured.ratio}`);
   return measured.ratio;
