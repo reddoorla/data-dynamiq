@@ -21,9 +21,12 @@ import { test, expect, type Locator } from "@playwright/test";
  *   own under the text, which is where multiplying O over H counted it twice.
  * - The ground, measured, because the footer sits on a photo no computed
  *   background-color can see: the box is screenshotted with every text fill,
- *   stroke and decoration in `el` transparent. `color` itself is left alone,
- *   so a currentColor border or icon stays in the ground. `backdrop-filter`
- *   acts on the ground, so that screenshot already carries it.
+ *   stroke and decoration in `el` transparent, and with the decoration of every
+ *   ancestor that sets one transparent too, since it is drawn into `el`'s text
+ *   in the ancestor's colour. `color` itself is left alone, so a currentColor
+ *   border or icon stays in the ground, and is kept out of the score by the
+ *   clip below. `backdrop-filter` acts on the ground, so that screenshot
+ *   already carries it.
  *
  * What it refuses, on the element or any ancestor up to the root: `filter`,
  * `mix-blend-mode` and `mask-image`, which change the colour after it is
@@ -45,16 +48,20 @@ import { test, expect, type Locator } from "@playwright/test";
  * reason that is not the cause.
  *
  * Which ground pixels count: those each element's glyphs change, grown by
- * 2 CSS px, so the counters and the gaps between letters count and padding
- * does not. The verdict for an element is the 1st percentile of the per-pixel
- * ratios over that ring: a lone speck of photo noise does not decide it, while
- * a bad patch as large as one glyph stroke and its ring always does.
+ * 2 CSS px, and only inside the union of that element's text-range client
+ * rects. So the counters and the gaps between letters count, while padding,
+ * and a border or outline beside the text, do not. The verdict for an element
+ * is the 1st percentile of the per-pixel ratios over that ring: a lone speck
+ * of photo noise does not decide it, while a bad patch as large as one glyph
+ * stroke and its ring always does.
  *
  * It also throws when the text paints nothing, when the box resizes, or when
- * the ground moves between the first and last screenshots. One such move is
- * shot again before it is believed, and the retake must repeat what the first
- * attempt saw. The page's own style attributes are saved and set back exactly;
- * it never returns NaN.
+ * the ground moves: any ground shot that differs from the first, or the first
+ * and last as-rendered shots differing. A ground that moves is shot again
+ * before it is believed. The retake counts only if its first shots repeat
+ * ones the first attempt took, and then only if every one of its own ground
+ * shots agrees. The page's own style attributes are saved and set back
+ * exactly; it never returns NaN.
  */
 async function contrastAgainstGround(el: Locator, name: string): Promise<number> {
   const page = el.page();
@@ -104,7 +111,8 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         : `${path(n.parentElement!)} > :nth-child(${[...n.parentElement!.children].indexOf(n) + 1})`;
     const boxes: string[] = [];
     const units = [];
-    const owned: { n: HTMLElement; rects: DOMRect[] }[] = [];
+    const owned: { n: HTMLElement; rects: DOMRect[]; points: [number, number][] }[] = [];
+    const box = root.getBoundingClientRect();
     for (const n of subtree) {
       for (const pseudo of ["::before", "::after"]) {
         const content = getComputedStyle(n, pseudo).content;
@@ -121,7 +129,28 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         return [...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0);
       });
       if (rects.length === 0) continue;
-      owned.push({ n, rects });
+      // Where the glyphs are, for the hit test: each character's own boxes, at a
+      // quarter, half and three quarters of each side. Blank characters paint nothing.
+      const points: [number, number][] = [];
+      for (const t of n.childNodes) {
+        if (t.nodeType !== Node.TEXT_NODE) continue;
+        const text = t.textContent ?? "";
+        for (let i = 0; i < text.length; i++) {
+          if (!text.charAt(i).trim()) continue;
+          const range = document.createRange();
+          range.setStart(t, i);
+          range.setEnd(t, i + 1);
+          for (const r of range.getClientRects()) {
+            if (!(r.width > 0 && r.height > 0)) continue;
+            for (const fx of [0.25, 0.5, 0.75]) {
+              for (const fy of [0.25, 0.5, 0.75]) {
+                points.push([r.left + fx * r.width, r.top + fy * r.height]);
+              }
+            }
+          }
+        }
+      }
+      owned.push({ n, rects, points });
       const style = getComputedStyle(n);
       if (style.textShadow !== "none") {
         return refuse(n, `has text-shadow: ${style.textShadow}; a halo needs judging by hand`);
@@ -181,10 +210,13 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         stroke: strokeWidth > 0 ? style.webkitTextStrokeColor : "",
         opacity,
         faded,
+        // The text's own boxes, relative to the element's box, in CSS px: the
+        // ring is clipped to them, so a border beside the text is not ground.
+        clip: rects.map((r) => [r.left - box.left, r.top - box.top, r.width, r.height]),
       });
     }
     // Whatever is drawn over the text is in both shots and never applied to
-    // the ink, so it is refused: at points inside each text's own boxes, every
+    // the ink, so it is refused: at points on each character's own boxes, every
     // element stacked above the one that paints that text must paint nothing
     // of its own. Every element is made hit-testable for the moment it takes,
     // so a `pointer-events: none` scrim is found too.
@@ -216,36 +248,35 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     const sheets = document.adoptedStyleSheets;
     document.adoptedStyleSheets = [...sheets, hitTestable];
     try {
-      for (const { n, rects } of owned) {
-        for (const r of rects) {
-          for (const fx of [0.2, 0.5, 0.8]) {
-            for (const fy of [0.3, 0.5, 0.7]) {
-              const stack = document.elementsFromPoint(
-                r.left + fx * r.width,
-                r.top + fy * r.height,
-              );
-              if (!stack.includes(n)) continue;
-              const over = stack.slice(0, stack.indexOf(n)).find((h) => !paintsNothing(h));
-              if (!over) continue;
-              return refuse(
-                over,
-                root.contains(over)
-                  ? `is drawn over ${desc(n)}'s text and paints no text of its own there, which is not measured`
-                  : `is drawn over ${desc(n)}'s text from outside it, which is not measured`,
-              );
-            }
-          }
+      for (const { n, points } of owned) {
+        for (const [x, y] of points) {
+          const stack = document.elementsFromPoint(x, y);
+          if (!stack.includes(n)) continue;
+          const over = stack.slice(0, stack.indexOf(n)).find((h) => !paintsNothing(h));
+          if (!over) continue;
+          return refuse(
+            over,
+            root.contains(over)
+              ? `is drawn over ${desc(n)}'s text and paints no text of its own there, which is not measured`
+              : `is drawn over ${desc(n)}'s text from outside it, which is not measured`,
+          );
         }
       }
     } finally {
       document.adoptedStyleSheets = sheets;
+    }
+    // An ancestor's text-decoration is drawn into el's text in the ancestor's
+    // colour, so it is hidden in every shot, as el's own decoration is.
+    const hideDeco: number[] = [];
+    for (let a = root.parentElement; a; a = a.parentElement) {
+      if (getComputedStyle(a).textDecorationLine !== "none") hideDeco.push(indexOf(a));
     }
     if (units.length === 0) return refuse(root, "paints no text");
     (window as unknown as { __ground: Ground }).__ground = {
       nodes,
       orig: nodes.map((n) => n.getAttribute("style")),
     };
-    return { ok: true as const, units, inside: subtree.length, boxes };
+    return { ok: true as const, units, inside: subtree.length, boxes, hideDeco };
   });
   if (!plan.ok) throw new Error(`${name}: ${plan.why}`);
   // Put every touched element back to its own style attribute, then hide the
@@ -259,7 +290,7 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     boxless = false,
   ) =>
     el.evaluate(
-      (_, { hidden, opaque, show, boxless, boxes }) => {
+      (_, { hidden, opaque, show, boxless, boxes, deco }) => {
         const ground = (window as unknown as { __ground: Ground }).__ground;
         const { nodes, orig } = ground;
         nodes.forEach((n, i) => {
@@ -267,6 +298,8 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           if (was === null) n.removeAttribute("style");
           else n.setAttribute("style", was);
         });
+        for (const i of deco)
+          nodes[i].style.setProperty("text-decoration-color", "transparent", "important");
         if (ground.boxes) {
           const sheet = ground.boxes;
           document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
@@ -293,42 +326,67 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           nodes[i].style.setProperty("isolation", "isolate", "important");
         }
       },
-      { hidden, opaque, show: show ?? {}, boxless, boxes: plan.boxes },
+      { hidden, opaque, show: show ?? {}, boxless, boxes: plan.boxes, deco: plan.hideDeco },
     );
   const inside = [...Array(plan.inside).keys()];
-  const takeShots = async () => {
-    const shots = [first];
-    try {
+  // Where each shot of a take sits: the ground shots (the first, one after each
+  // unit, and the last), each unit's text and lifted-ground shots, and the boxless one.
+  type Take = {
+    shots: Buffer[];
+    grounds: number[];
+    unitIdx: { text: number; lifted: number }[];
+    boxIdx: number;
+  };
+  const takeShots = async (): Promise<Take> => {
+    const shots: Buffer[] = [first];
+    const grounds: number[] = [];
+    const unitIdx: { text: number; lifted: number }[] = [];
+    let boxIdx = -1;
+    const ground = async () => {
       await paintState(inside, []);
+      grounds.push(shots.length);
       shots.push(await shot());
+    };
+    try {
+      await ground();
       for (const unit of plan.units) {
         await paintState(inside, [], { [unit.index]: unit.paint });
+        const text = shots.length;
         shots.push(await shot());
+        let lifted = -1;
         if (unit.opacity < 1) {
           await paintState(inside, unit.faded);
+          lifted = shots.length;
           shots.push(await shot());
         }
+        unitIdx.push({ text, lifted });
+        // A ground shot after each unit, so a ground that moves while the text is
+        // measured is caught between its first and last shot, not only at the ends.
+        await ground();
       }
       if (plan.boxes.length > 0) {
         await paintState([], [], {}, true);
+        boxIdx = shots.length;
         shots.push(await shot());
       }
-      // The ground again, so a ground that moves while it is measured is caught.
-      await paintState(inside, []);
-      shots.push(await shot());
+      // Four more ground shots at the end. A ground that flickers on a steady
+      // cycle can match a few shots by chance, and matching all of them is far
+      // less likely.
+      for (let k = 0; k < 4; k++) await ground();
     } finally {
       await paintState([], []);
     }
     shots.push(await shot());
-    return shots;
+    return { shots, grounds, unitIdx, boxIdx };
   };
-  const radius = Math.round(2 * (await page.evaluate(() => devicePixelRatio)));
+  const dpr = await page.evaluate(() => devicePixelRatio);
+  const radius = Math.round(2 * dpr);
   // Decode on a blank page, out of reach of the site's CSP.
   const blank = await page.context().newPage();
   type Measured = { ok: true; ratio: number } | { ok: false; why: string };
-  const measure = (shots: Buffer[]): Promise<Measured> =>
+  const measure = (take: Take): Promise<Measured> =>
     blank.evaluate(
-      async ({ shots, units, radius, boxes }) => {
+      async ({ shots, grounds, unitIdx, boxIdx, units, radius, dpr }) => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
         const decoded: { data: Uint8ClampedArray; w: number; h: number }[] = [];
@@ -352,16 +410,16 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         const px = decoded.map((d) => d.data);
         const differs = (a: Uint8ClampedArray, b: Uint8ClampedArray, i: number) =>
           a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2];
-        // As rendered, first and last; and the ground, first and last.
-        for (const [a, b] of [
-          [px[0], px[px.length - 1]],
-          [px[1], px[px.length - 2]],
-        ]) {
-          for (let i = 0; i < a.length; i += 4) {
-            if (differs(a, b, i)) {
-              return { ok: false as const, why: "its ground moved between the screenshots" };
-            }
-          }
+        // As rendered, first and last; and every ground shot against the first.
+        const identical = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
+          for (let i = 0; i < a.length; i += 4) if (differs(a, b, i)) return false;
+          return true;
+        };
+        const stable =
+          identical(px[0], px[px.length - 1]) &&
+          grounds.every((g) => identical(px[grounds[0]], px[g]));
+        if (!stable) {
+          return { ok: false as const, why: "its ground moved between the screenshots" };
         }
         // A colour string to straight RGBA, through the canvas parser.
         const rgba = (css: string) => {
@@ -408,16 +466,14 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           };
           return pass(pass(mask, true), false);
         };
-        const ground = px[1];
-        let next = 2;
-        const measuredUnits = units.map((unit) => {
-          const text = px[next++];
-          const lifted = unit.opacity < 1 ? px[next++] : ground;
-          return { unit, text, lifted };
+        const ground = px[grounds[0]];
+        const measuredUnits = units.map((unit, k) => {
+          const at = unitIdx[k];
+          return { unit, text: px[at.text], lifted: at.lifted >= 0 ? px[at.lifted] : ground };
         });
         // As rendered with the empty pseudo-elements' boxes hidden: a pixel that
         // differs is one such a box paints, over or under the glyphs.
-        const boxless = boxes ? px[next++] : px[0];
+        const boxless = boxIdx >= 0 ? px[boxIdx] : px[0];
         let worst = Infinity;
         for (const { unit, text, lifted } of measuredUnits) {
           const what = unit.what;
@@ -461,9 +517,24 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           const alpha = ink.a * unit.opacity;
           if (!(alpha > 0)) return { ok: false as const, why: `${what}: its opacity is zero` };
           const ring = grow(mask);
+          // Only inside the text's own boxes (CSS px to device px, pixel centres).
+          const inText = new Uint8Array(w * h);
+          for (const [x, y, cw, ch] of unit.clip) {
+            const x0 = Math.max(0, Math.floor(x * dpr));
+            const x1 = Math.min(w, Math.ceil((x + cw) * dpr));
+            const y0 = Math.max(0, Math.floor(y * dpr));
+            const y1 = Math.min(h, Math.ceil((y + ch) * dpr));
+            for (let qy = y0; qy < y1; qy++) {
+              for (let qx = x0; qx < x1; qx++) {
+                const cx = (qx + 0.5) / dpr;
+                const cy = (qy + 0.5) / dpr;
+                if (cx >= x && cx < x + cw && cy >= y && cy < y + ch) inText[qy * w + qx] = 1;
+              }
+            }
+          }
           const ratios: number[] = [];
           for (let p = 0; p < ring.length; p++) {
-            if (!ring[p]) continue;
+            if (!ring[p] || !inText[p]) continue;
             const i = p * 4;
             const [r, g, b] = [ground[i], ground[i + 1], ground[i + 2]];
             const fg = lum(
@@ -474,33 +545,48 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
             const bg = lum(r, g, b);
             ratios.push((Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05));
           }
+          if (ratios.length === 0) {
+            return {
+              ok: false as const,
+              why: `${what}: its text changes no pixel inside its own boxes`,
+            };
+          }
           ratios.sort((a, b) => a - b);
           worst = Math.min(worst, ratios[Math.floor(ratios.length * 0.01)]);
         }
         return { ok: true as const, ratio: worst };
       },
       {
-        shots: shots.map((b) => b.toString("base64")),
+        shots: take.shots.map((b) => b.toString("base64")),
+        grounds: take.grounds,
+        unitIdx: take.unitIdx,
+        boxIdx: take.boxIdx,
         units: plan.units,
         radius,
-        boxes: plan.boxes.length > 0,
+        dpr,
       },
     );
   let measured: Measured;
   try {
-    const shots = await takeShots();
-    measured = await measure(shots);
+    const take = await takeShots();
+    measured = await measure(take);
     // A ground that moved once is shot again, once, before it is believed. The
     // retake counts only if its first shot as rendered and its first ground
-    // each repeat one the first attempt took, so a ground that keeps moving
-    // gets no better odds of matching itself by chance than it had.
+    // each repeat one the first attempt took, and then only if every ground
+    // shot in it agrees with its first (measure checks that). A ground that
+    // keeps moving gets no better odds of matching itself by chance than it had.
     if (!measured.ok && /ground moved/.test(measured.why)) {
       first = await shot();
       const again = await takeShots();
       const repeats = (b: Buffer, ...was: Buffer[]) => was.some((w) => w.equals(b));
+      const firstGround = take.grounds[0];
       if (
-        repeats(again[0], shots[0], shots[shots.length - 1]) &&
-        repeats(again[1], shots[1], shots[shots.length - 2])
+        repeats(again.shots[0], take.shots[0], take.shots[take.shots.length - 1]) &&
+        repeats(
+          again.shots[again.grounds[0]],
+          take.shots[firstGround],
+          take.shots[take.grounds[take.grounds.length - 1]],
+        )
       ) {
         measured = await measure(again);
       }
