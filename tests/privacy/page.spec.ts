@@ -26,7 +26,10 @@ import { test, expect, type Locator } from "@playwright/test";
  *   in the ancestor's colour. `color` itself is left alone, so a currentColor
  *   border or icon stays in the ground, and is kept out of the score by the
  *   clip below. `backdrop-filter` acts on the ground, so that screenshot
- *   already carries it.
+ *   already carries it. A decoration can also be the ground under the glyphs
+ *   (a thick, raised underline is a highlighter band), and the ground shot has
+ *   none of them, so one shot shows every decoration with the text hidden, and
+ *   the helper throws if one paints under a glyph.
  *
  * What it refuses, on the element or any ancestor up to the root: `filter`,
  * `mix-blend-mode` and `mask-image`, which change the colour after it is
@@ -61,7 +64,12 @@ import { test, expect, type Locator } from "@playwright/test";
  * before it is believed. The retake counts only if its first shots repeat
  * ones the first attempt took, and then only if every one of its own ground
  * shots agrees. The page's own style attributes are saved and set back
- * exactly; it never returns NaN.
+ * exactly, before the last shot and in the end, so no style the helper set
+ * remains on the page; it never returns NaN.
+ *
+ * Box-shadows and outlines are not hit-testable: one shot removes them from
+ * everything outside el and its ancestors, and the helper throws when that
+ * changes a glyph pixel, since they paint over the ink.
  */
 async function contrastAgainstGround(el: Locator, name: string): Promise<number> {
   const page = el.page();
@@ -70,7 +78,7 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
   await el.scrollIntoViewIfNeeded();
   const shot = () => el.screenshot({ animations: "disabled" });
   let first = await shot();
-  type Ground = { nodes: HTMLElement[]; orig: (string | null)[]; boxes?: CSSStyleSheet };
+  type Ground = { nodes: HTMLElement[]; orig: (string | null)[]; sheets: CSSStyleSheet[] };
   const plan = await el.evaluate((root) => {
     const desc = (n: Element) =>
       n.tagName.toLowerCase() +
@@ -245,7 +253,8 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     };
     const hitTestable = new CSSStyleSheet();
     hitTestable.replaceSync("*, *::before, *::after { pointer-events: auto !important; }");
-    const sheets = document.adoptedStyleSheets;
+    // A copy: adoptedStyleSheets is live, so the restore below would keep the sheet.
+    const sheets = [...document.adoptedStyleSheets];
     document.adoptedStyleSheets = [...sheets, hitTestable];
     try {
       for (const { n, points } of owned) {
@@ -272,112 +281,156 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
       if (getComputedStyle(a).textDecorationLine !== "none") hideDeco.push(indexOf(a));
     }
     if (units.length === 0) return refuse(root, "paints no text");
+    // el and each ancestor up to the root, for the overlay shot's exclusion.
+    const chain: string[] = [];
+    for (let a: Element | null = root; a; a = a.parentElement) chain.push(path(a));
     (window as unknown as { __ground: Ground }).__ground = {
       nodes,
       orig: nodes.map((n) => n.getAttribute("style")),
+      sheets: [],
     };
-    return { ok: true as const, units, inside: subtree.length, boxes, hideDeco };
+    return { ok: true as const, units, inside: subtree.length, boxes, hideDeco, chain };
   });
   if (!plan.ok) throw new Error(`${name}: ${plan.why}`);
-  // Put every touched element back to its own style attribute, then hide the
-  // text of `hidden` but `show`, which paints as it did, and lift `opaque` to
-  // opacity 1 (isolated, so the stacking context that opacity made stays).
-  // `boxless` hides the boxes that empty ::before and ::after paint.
-  const paintState = (
-    hidden: number[],
-    opaque: number[],
-    show?: Record<number, Record<string, string>>,
-    boxless = false,
-  ) =>
+  // One shot's state, set on a clean slate. Every touched element goes back to
+  // its own style attribute and every sheet a shot added comes off, so nothing a
+  // shot set remains: with no options, `paint()` only restores. Then `hidden`
+  // loses the text props `hide` names (`show` paints them as they were), `opaque`
+  // gets opacity 1, `deco` hides every ancestor's decoration, `ownDeco` every
+  // decoration in el, `boxless` hides the empty ::before and ::after boxes, and
+  // `overlays` the box-shadow and outline of everything outside el and its ancestors.
+  type Paint = {
+    hidden?: number[];
+    opaque?: number[];
+    show?: Record<number, Record<string, string>>;
+    hide?: string[];
+    deco?: boolean;
+    ownDeco?: boolean;
+    boxless?: boolean;
+    overlays?: boolean;
+  };
+  const paint = (o: Paint = {}) =>
     el.evaluate(
-      (_, { hidden, opaque, show, boxless, boxes, deco }) => {
-        const ground = (window as unknown as { __ground: Ground }).__ground;
+      (_, { o, boxes, deco, chain, inside }) => {
+        const ground = (window as unknown as { __ground?: Ground }).__ground;
+        if (!ground) return;
         const { nodes, orig } = ground;
         nodes.forEach((n, i) => {
           const was = orig[i];
           if (was === null) n.removeAttribute("style");
           else n.setAttribute("style", was);
         });
-        for (const i of deco)
-          nodes[i].style.setProperty("text-decoration-color", "transparent", "important");
-        if (ground.boxes) {
-          const sheet = ground.boxes;
+        for (const sheet of ground.sheets) {
           document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
-          delete ground.boxes;
         }
-        if (boxless) {
-          ground.boxes = new CSSStyleSheet();
-          ground.boxes.replaceSync(`${boxes.join(", ")} { visibility: hidden !important; }`);
-          document.adoptedStyleSheets = [...document.adoptedStyleSheets, ground.boxes];
+        ground.sheets = [];
+        const add = (css: string) => {
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(css);
+          document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+          ground.sheets.push(sheet);
+        };
+        if (o.boxless) add(`${boxes.join(", ")} { visibility: hidden !important; }`);
+        if (o.overlays) {
+          add(
+            `*:not(${chain.join(", ")}) { box-shadow: none !important; outline: none !important; }`,
+          );
         }
-        const hide = [
+        if (o.deco) {
+          for (const i of deco)
+            nodes[i].style.setProperty("text-decoration-color", "transparent", "important");
+        }
+        if (o.ownDeco) {
+          for (const i of inside)
+            nodes[i].style.setProperty("text-decoration-color", "transparent", "important");
+        }
+        const hide = o.hide ?? [
           "-webkit-text-fill-color",
           "-webkit-text-stroke-color",
           "text-decoration-color",
           "text-emphasis-color",
         ];
-        for (const i of hidden) {
+        for (const i of o.hidden ?? []) {
           for (const p of hide) {
-            nodes[i].style.setProperty(p, show[i]?.[p] ?? "transparent", "important");
+            nodes[i].style.setProperty(p, o.show?.[i]?.[p] ?? "transparent", "important");
           }
         }
-        for (const i of opaque) {
+        for (const i of o.opaque ?? []) {
           nodes[i].style.setProperty("opacity", "1", "important");
           nodes[i].style.setProperty("isolation", "isolate", "important");
         }
       },
-      { hidden, opaque, show: show ?? {}, boxless, boxes: plan.boxes, deco: plan.hideDeco },
+      {
+        o,
+        boxes: plan.boxes,
+        deco: plan.hideDeco,
+        chain: plan.chain,
+        inside: [...Array(plan.inside).keys()],
+      },
     );
   const inside = [...Array(plan.inside).keys()];
   // Where each shot of a take sits: the ground shots (the first, one after each
-  // unit, and the last), each unit's text and lifted-ground shots, and the boxless one.
+  // unit, and the last), each unit's text and lifted-ground shots, the glyphs with
+  // every decoration hidden, the boxless one, the decoration band, and the one
+  // with the outside shadows and outlines removed.
   type Take = {
     shots: Buffer[];
     grounds: number[];
     unitIdx: { text: number; lifted: number }[];
+    glyphIdx: number;
+    bandIdx: number;
     boxIdx: number;
+    overlayIdx: number;
   };
   const takeShots = async (): Promise<Take> => {
     const shots: Buffer[] = [first];
     const grounds: number[] = [];
     const unitIdx: { text: number; lifted: number }[] = [];
-    let boxIdx = -1;
+    const at = async (o: Paint) => {
+      await paint(o);
+      shots.push(await shot());
+      return shots.length - 1;
+    };
     const ground = async () => {
-      await paintState(inside, []);
+      await paint({ hidden: inside, deco: true });
       grounds.push(shots.length);
       shots.push(await shot());
     };
     try {
       await ground();
       for (const unit of plan.units) {
-        await paintState(inside, [], { [unit.index]: unit.paint });
-        const text = shots.length;
-        shots.push(await shot());
+        const text = await at({ hidden: inside, show: { [unit.index]: unit.paint }, deco: true });
         let lifted = -1;
-        if (unit.opacity < 1) {
-          await paintState(inside, unit.faded);
-          lifted = shots.length;
-          shots.push(await shot());
-        }
+        if (unit.opacity < 1) lifted = await at({ hidden: inside, opaque: unit.faded, deco: true });
         unitIdx.push({ text, lifted });
         // A ground shot after each unit, so a ground that moves while the text is
         // measured is caught between its first and last shot, not only at the ends.
         await ground();
       }
-      if (plan.boxes.length > 0) {
-        await paintState([], [], {}, true);
-        boxIdx = shots.length;
-        shots.push(await shot());
-      }
+      // Every glyph, every decoration hidden: the ink's own pixels, before any grow.
+      const glyphIdx = await at({ hidden: [], ownDeco: true, deco: true });
+      // As rendered with the empty pseudo-elements' boxes hidden.
+      const boxIdx = plan.boxes.length > 0 ? await at({ boxless: true }) : -1;
+      // The decorations shown, as rendered, with the text hidden: what they paint
+      // under the glyphs is what the ink is read against.
+      const bandIdx = await at({
+        hidden: inside,
+        hide: ["-webkit-text-fill-color", "-webkit-text-stroke-color", "text-emphasis-color"],
+      });
+      // As rendered, with the box-shadows and outlines of everything outside el
+      // and its ancestors removed: what they paint over the glyphs is not ink.
+      const overlayIdx = await at({ overlays: true });
       // Four more ground shots at the end. A ground that flickers on a steady
       // cycle can match a few shots by chance, and matching all of them is far
       // less likely.
       for (let k = 0; k < 4; k++) await ground();
+      // As rendered, with nothing of the helper's left on the page.
+      await paint();
+      shots.push(await shot());
+      return { shots, grounds, unitIdx, glyphIdx, bandIdx, boxIdx, overlayIdx };
     } finally {
-      await paintState([], []);
+      await paint();
     }
-    shots.push(await shot());
-    return { shots, grounds, unitIdx, boxIdx };
   };
   const dpr = await page.evaluate(() => devicePixelRatio);
   const radius = Math.round(2 * dpr);
@@ -386,7 +439,18 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
   type Measured = { ok: true; ratio: number } | { ok: false; why: string };
   const measure = (take: Take): Promise<Measured> =>
     blank.evaluate(
-      async ({ shots, grounds, unitIdx, boxIdx, units, radius, dpr }) => {
+      async ({
+        shots,
+        grounds,
+        unitIdx,
+        glyphIdx,
+        bandIdx,
+        boxIdx,
+        overlayIdx,
+        units,
+        radius,
+        dpr,
+      }) => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
         const decoded: { data: Uint8ClampedArray; w: number; h: number }[] = [];
@@ -467,6 +531,33 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           return pass(pass(mask, true), false);
         };
         const ground = px[grounds[0]];
+        // The ink's own pixels: every glyph shown, every decoration hidden, against
+        // the ground. Before any grow, and before a decoration could hide in them.
+        const glyph = new Uint8Array(w * h);
+        for (let i = 0; i < ground.length; i += 4) {
+          if (differs(px[glyphIdx], ground, i)) glyph[i / 4] = 1;
+        }
+        // An ancestor's decoration, shown with the text hidden, must paint nothing
+        // under the glyphs: the ground shot hides it, so the ink would be read
+        // against a photo where the line is.
+        for (let i = 0; i < ground.length; i += 4) {
+          if (glyph[i / 4] && differs(px[bandIdx], ground, i)) {
+            return {
+              ok: false as const,
+              why: "an ancestor's text-decoration paints under its glyphs, which is not measured",
+            };
+          }
+        }
+        // A box-shadow or outline from outside el and its ancestors, drawn over the
+        // glyphs, is in the shot as rendered and in none of the ground shots.
+        for (let i = 0; i < ground.length; i += 4) {
+          if (glyph[i / 4] && differs(px[0], px[overlayIdx], i)) {
+            return {
+              ok: false as const,
+              why: "a box-shadow or outline from outside this element paints over its glyphs, which is not measured",
+            };
+          }
+        }
         const measuredUnits = units.map((unit, k) => {
           const at = unitIdx[k];
           return { unit, text: px[at.text], lifted: at.lifted >= 0 ? px[at.lifted] : ground };
@@ -560,7 +651,10 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         shots: take.shots.map((b) => b.toString("base64")),
         grounds: take.grounds,
         unitIdx: take.unitIdx,
+        glyphIdx: take.glyphIdx,
+        bandIdx: take.bandIdx,
         boxIdx: take.boxIdx,
+        overlayIdx: take.overlayIdx,
         units: plan.units,
         radius,
         dpr,
@@ -593,6 +687,8 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     }
   } finally {
     await blank.close();
+    // The same restore as the shots take: nothing the helper set is left on the page.
+    await paint();
     await el.evaluate(() => {
       delete (window as unknown as { __ground?: Ground }).__ground;
     });
