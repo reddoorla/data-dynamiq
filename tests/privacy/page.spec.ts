@@ -23,15 +23,19 @@ import { test, expect, type Locator } from "@playwright/test";
  * What is refused, by name, with a throw:
  * - a running infinite transition or animation on the element or an ancestor,
  *   which never settles; a running animation on a scroll or view timeline, which
- *   is not waited on; and a running finite one with more than 3 s left to run;
+ *   is not waited on; a running animation with a playback rate of 0, which never
+ *   finishes; and a running finite one with more than 3 s of wall-clock time left
+ *   to run, its time left divided by its playback rate;
  * - on the element or any ancestor up to `<html>`: `filter`, `backdrop-filter`,
- *   `mix-blend-mode`, `mask-image`, `background-clip: text`, `box-shadow`, and a
+ *   `mix-blend-mode`, `mask-image`, `-webkit-mask-box-image-source` (a mask given
+ *   as a border image), `background-clip: text`, `box-shadow`, and a
  *   visible outline (a non-zero width and an outline colour with alpha above 0);
  * - on the element, `text-shadow` and a `-webkit-text-stroke-width` other than 0;
  * - on the element and each ancestor up to the ground, `background-image`;
  * - on the element or an ancestor, a `::first-line` or `::first-letter` whose
  *   colour differs from the element's own, or that paints a background colour
- *   (alpha above 0), a background image, a `text-shadow`, or a `text-decoration-line`
+ *   (alpha above 0), a background image, a `text-shadow` that differs from the
+ *   element's own, or a `text-decoration-line`
  *   other than `none` that differs from the element's (decorations are not
  *   inherited, so a first line reads `none` under an underlined element, and that
  *   underline is measured as the element's own);
@@ -42,8 +46,9 @@ import { test, expect, type Locator } from "@playwright/test";
  *   composited over white, not over what the faded group sits on;
  * - a candidate ground that covers the text only in part;
  * - on the element or an ancestor, a `::before` or `::after` with generated content
- *   at all, empty or not (`content` other than `none` or `normal`): its paint is
- *   not enumerated, so any generated box is refused by name;
+ *   at all, empty or not (`content` other than `none` or `normal`), unless its
+ *   computed `display` is `none` and it generates no box: its paint is not
+ *   enumerated, so any generated box is refused by name;
  * - a text decoration on the element or an ancestor that is not a plain
  *   `underline`, and an underline with a negative `text-underline-offset`
  *   (overline and line-through are refused).
@@ -83,7 +88,9 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     // pseudo-element animations, so the document's list is filtered by target. An
     // infinite animation never ends, and a scroll- or view-timeline one ends only
     // when the user scrolls, so both are refused by name rather than waited on. A
-    // finite one with more than SETTLE_MS left is refused too, so no test hangs.
+    // playback rate of 0 never finishes, so it is refused too. A finite one whose
+    // wall-clock time left (its time left in local time, divided by the playback
+    // rate) is more than SETTLE_MS is refused as well, so no test hangs.
     const SETTLE_MS = 3000;
     for (;;) {
       const pending: Promise<unknown>[] = [];
@@ -104,11 +111,18 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
             ok: false as const,
             why: `${who} has a running animation on a scroll or view timeline, which is not waited on`,
           };
-        const left = endTime - Number(a.currentTime ?? 0);
+        const rate = a.playbackRate;
+        if (rate === 0)
+          return {
+            ok: false as const,
+            why: `${who} has a running animation with playbackRate 0, which never finishes`,
+          };
+        const current = Number(a.currentTime ?? 0);
+        const left = rate > 0 ? (endTime - current) / rate : current / -rate;
         if (left > SETTLE_MS)
           return {
             ok: false as const,
-            why: `${who} has a running animation with ${Math.round(left)} ms left, which is too long to wait for`,
+            why: `${who} has a running animation with ${Math.round(left)} ms left at playbackRate ${rate}, which is too long to wait for`,
           };
         pending.push(a.finished.catch(() => {}));
       }
@@ -141,10 +155,23 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
 
     // The text's extent: its own text rects, not the border box, which includes any
     // vertical padding of an inline element and so is not where the glyphs are.
+    // Each text rect is clipped to the link's own border boxes, and an empty one is
+    // dropped: text clipped out of the link (an sr-only span inside it, say) is not
+    // the link's text, and a clipped span would otherwise reach the ground tests.
     const textRange = document.createRange();
     textRange.selectNodeContents(root);
-    const textRects = Array.from(textRange.getClientRects());
-    if (root.getClientRects().length === 0) return refuse(root, "has no box to measure");
+    const borderRects = Array.from(root.getClientRects());
+    if (borderRects.length === 0) return refuse(root, "has no box to measure");
+    const textRects: { left: number; right: number; top: number; bottom: number }[] = [];
+    for (const r of Array.from(textRange.getClientRects())) {
+      for (const b of borderRects) {
+        const left = Math.max(r.left, b.left);
+        const right = Math.min(r.right, b.right);
+        const top = Math.max(r.top, b.top);
+        const bottom = Math.min(r.bottom, b.bottom);
+        if (right > left && bottom > top) textRects.push({ left, right, top, bottom });
+      }
+    }
     if (textRects.length === 0) return refuse(root, "has no text box to measure");
 
     // The ground: translucent backgrounds from the element up, composited back to
@@ -231,6 +258,11 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         return refuse(n, `has mix-blend-mode: ${v("mix-blend-mode")}, which is not measured`);
       if (v("mask-image") !== "none")
         return refuse(n, `has mask-image: ${v("mask-image")}, which is not measured`);
+      if (v("-webkit-mask-box-image-source") !== "none")
+        return refuse(
+          n,
+          `has -webkit-mask-box-image-source: ${v("-webkit-mask-box-image-source")}, which is not measured`,
+        );
       if (v("background-clip") === "text" || v("-webkit-background-clip") === "text")
         return refuse(n, "has background-clip: text, which is not measured");
       if (v("box-shadow") !== "none")
@@ -274,7 +306,9 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
             n,
             `has ${pseudo} background-image ${ps.backgroundImage}, which is not measured`,
           );
-        if (ps.textShadow !== "none")
+        // text-shadow is inherited, so a first line under an element that sets its own
+        // shadow reads that same shadow; only a first line that adds a different one is refused.
+        if (ps.textShadow !== "none" && ps.textShadow !== cs.textShadow)
           return refuse(n, `has ${pseudo} text-shadow ${ps.textShadow}, which is not measured`);
         // A decoration is not inherited, so a first line reads `none` under an element
         // that is underlined, and the element's own decoration is measured already. The
@@ -305,6 +339,7 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
       // because every way it can cover the text would need its own entry.
       for (const pseudo of ["::before", "::after"]) {
         const ps = getComputedStyle(n, pseudo);
+        if (ps.display === "none") continue;
         if (ps.content !== "none" && ps.content !== "normal")
           return refuse(n, `has ${pseudo} content ${ps.content}, which is not measured`);
       }
