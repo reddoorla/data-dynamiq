@@ -7,31 +7,43 @@ import { test, expect, type Locator } from "@playwright/test";
  * which is `color` unless set), parsed by a canvas so rgba, oklch and color-mix
  * all work, with its alpha multiplied by the `opacity` of the element and of each
  * ancestor below the ground. Before it reads anything, the helper waits for every
- * running transition and animation on the element and its ancestors to finish, so
- * a colour or fade that is still changing is read at rest, not mid-way.
+ * running transition and animation on the element, its ancestors and their
+ * `::before` and `::after` to finish, so a colour or fade that is still changing
+ * is read at rest, not mid-way.
  *
  * The ground is the nearest painted ancestor's computed `background-color`. A
  * candidate is painted only if its `visibility` is `visible`, it is not
  * `display: contents`, and its box has area and overlaps the text; the others are
- * skipped. Each translucent background from the element up is composited back to
+ * skipped. The text's extent is the element's own text rects (a Range over its
+ * contents), not its border box, so padding on a tap target does not count as
+ * text. Each translucent background from the element up is composited back to
  * front until one is opaque, and the ground is white if none is. The text is
  * composited over that ground and scored with the WCAG ratio.
  *
  * What is refused, by name, with a throw:
  * - a running infinite transition or animation on the element or an ancestor,
- *   which never settles;
+ *   which never settles; a running animation on a scroll or view timeline, which
+ *   is not waited on; and a running finite one with more than 3 s left to run;
  * - on the element or any ancestor up to `<html>`: `filter`, `backdrop-filter`,
- *   `mix-blend-mode`, `mask-image`, `background-clip: text`, `box-shadow`, a
- *   visible outline, and a `::first-line` or `::first-letter` whose colour differs
- *   from the element's own colour;
+ *   `mix-blend-mode`, `mask-image`, `background-clip: text`, `box-shadow`, and a
+ *   visible outline (a non-zero width and an outline colour with alpha above 0);
  * - on the element, `text-shadow` and a `-webkit-text-stroke-width` other than 0;
  * - on the element and each ancestor up to the ground, `background-image`;
+ * - on the element or an ancestor, a `::first-line` or `::first-letter` whose
+ *   colour differs from the element's own, or that paints a background colour
+ *   (alpha above 0), a background image, a `text-shadow`, or a `text-decoration-line`
+ *   other than `none` that differs from the element's (decorations are not
+ *   inherited, so a first line reads `none` under an underlined element, and that
+ *   underline is measured as the element's own);
+ * - a translucent background under an opacity below 1 (on it, or on any element
+ *   between it and the ground): the group's opacity fades that layer too, which
+ *   this check does not model;
  * - `opacity` below 1 on the ground or on any ancestor above it: the ground is
  *   composited over white, not over what the faded group sits on;
  * - a candidate ground that covers the text only in part;
- * - on the element or an ancestor, a `::before` or `::after` whose `content` is
- *   not empty (glyphs or an image), or an empty one that paints a background, a
- *   background image, a box shadow, a visible border or a visible outline;
+ * - on the element or an ancestor, a `::before` or `::after` with generated content
+ *   at all, empty or not (`content` other than `none` or `normal`): its paint is
+ *   not enumerated, so any generated box is refused by name;
  * - a text decoration on the element or an ancestor that is not a plain
  *   `underline`, and an underline with a negative `text-underline-offset`
  *   (overline and line-through are refused).
@@ -66,31 +78,60 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     const chain: Element[] = [];
     for (let n: Element | null = root; n; n = n.parentElement) chain.push(n);
 
-    // Settle: wait for the running transitions and animations on the chain to end.
-    // An infinite one never ends, so it is refused by name rather than waited on.
+    // Settle: wait for the running transitions and animations that drive the chain,
+    // including those on its pseudo-elements, to end. Element.getAnimations() omits
+    // pseudo-element animations, so the document's list is filtered by target. An
+    // infinite animation never ends, and a scroll- or view-timeline one ends only
+    // when the user scrolls, so both are refused by name rather than waited on. A
+    // finite one with more than SETTLE_MS left is refused too, so no test hangs.
+    const SETTLE_MS = 3000;
     for (;;) {
       const pending: Promise<unknown>[] = [];
-      for (const n of chain) {
-        for (const a of n.getAnimations()) {
-          if (a.playState !== "running") continue;
-          if (a.effect?.getComputedTiming().endTime === Infinity)
-            return refuse(n, "has a running infinite transition or animation, which never settles");
-          pending.push(a.finished.catch(() => {}));
-        }
+      for (const a of document.getAnimations()) {
+        const effect = a.effect as KeyframeEffect | null;
+        if (!effect || !effect.target || !chain.includes(effect.target)) continue;
+        const target = effect.target;
+        if (a.playState !== "running") continue;
+        const who = `${desc(target)}${effect?.pseudoElement ?? ""}`;
+        const endTime = Number(effect.getComputedTiming().endTime);
+        if (endTime === Infinity)
+          return {
+            ok: false as const,
+            why: `${who} has a running infinite transition or animation, which never settles`,
+          };
+        if (a.timeline && a.timeline !== document.timeline)
+          return {
+            ok: false as const,
+            why: `${who} has a running animation on a scroll or view timeline, which is not waited on`,
+          };
+        const left = endTime - Number(a.currentTime ?? 0);
+        if (left > SETTLE_MS)
+          return {
+            ok: false as const,
+            why: `${who} has a running animation with ${Math.round(left)} ms left, which is too long to wait for`,
+          };
+        pending.push(a.finished.catch(() => {}));
       }
       if (pending.length === 0) break;
       await Promise.all(pending);
     }
 
-    // Colours are read through a canvas, which parses any CSS colour. Setting an
-    // unparseable fillStyle is ignored, so the sentinel shows when that happened.
-    const SENTINEL = "#010203";
+    // Colours are read through a canvas, which parses any CSS colour. An unparseable
+    // colour leaves fillStyle at whatever it was, so each parse is tried against two
+    // sentinels, and it throws only when both sentinels survive.
+    const SENTINELS = ["#010203", "#fefdfc"];
     const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true })!;
     const rgba = (c: string): [number, number, number, number] => {
-      ctx.fillStyle = SENTINEL;
-      ctx.fillStyle = c;
-      if (ctx.fillStyle === SENTINEL && c.trim().toLowerCase() !== SENTINEL)
-        throw new Error(`the canvas cannot parse the colour ${JSON.stringify(c)}`);
+      let parsed = false;
+      for (const sentinel of SENTINELS) {
+        ctx.fillStyle = sentinel;
+        ctx.fillStyle = c;
+        if (ctx.fillStyle !== sentinel) {
+          parsed = true;
+          break;
+        }
+      }
+      if (!parsed) throw new Error(`the canvas cannot parse the colour ${JSON.stringify(c)}`);
       ctx.clearRect(0, 0, 1, 1);
       ctx.fillRect(0, 0, 1, 1);
       const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
@@ -98,11 +139,17 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     };
     const sameColour = (a: number[], b: number[]) => a.every((v, i) => v === b[i]);
 
+    // The text's extent: its own text rects, not the border box, which includes any
+    // vertical padding of an inline element and so is not where the glyphs are.
+    const textRange = document.createRange();
+    textRange.selectNodeContents(root);
+    const textRects = Array.from(textRange.getClientRects());
+    if (root.getClientRects().length === 0) return refuse(root, "has no box to measure");
+    if (textRects.length === 0) return refuse(root, "has no text box to measure");
+
     // The ground: translucent backgrounds from the element up, composited back to
     // front until one is opaque. `groundIndex` is the element that is opaque.
-    const linkRects = Array.from(root.getClientRects());
-    if (linkRects.length === 0) return refuse(root, "has no box to measure");
-    const layers: [number, number, number, number][] = [];
+    const layers: { i: number; bg: [number, number, number, number] }[] = [];
     let groundIndex = chain.length - 1;
     for (let i = 0; i < chain.length; i++) {
       const n = chain[i];
@@ -113,11 +160,11 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
       const painted =
         cs.visibility === "visible" && cs.display !== "contents" && box.width * box.height > 0;
       if (!painted) continue;
-      const overlaps = linkRects.some(
+      const overlaps = textRects.some(
         (r) => r.left < box.right && r.right > box.left && r.top < box.bottom && r.bottom > box.top,
       );
       if (!overlaps) continue;
-      const inside = linkRects.every(
+      const inside = textRects.every(
         (r) =>
           r.left >= box.left - 0.5 &&
           r.right <= box.right + 0.5 &&
@@ -125,15 +172,28 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           r.bottom <= box.bottom + 0.5,
       );
       if (!inside) return refuse(n, "covers the text only in part, which is not measured");
-      layers.push(bg);
+      layers.push({ i, bg });
       if (bg[3] === 1) {
         groundIndex = i;
         break;
       }
     }
+    // A translucent layer is faded by the opacity of every element from it up to the
+    // ground, not only by the text's opacity, so such a layer is refused.
+    for (const { i, bg } of layers) {
+      if (bg[3] === 1) continue;
+      for (let j = i; j < groundIndex; j++) {
+        const o = parseFloat(getComputedStyle(chain[j]).opacity);
+        if (o < 1)
+          return refuse(
+            chain[i],
+            `has a translucent background (alpha ${bg[3]}) under opacity ${o} on ${desc(chain[j])}, which is not measured`,
+          );
+      }
+    }
     let ground: [number, number, number] = [1, 1, 1];
     for (let i = layers.length - 1; i >= 0; i--) {
-      const [r, g, b, a] = layers[i];
+      const [r, g, b, a] = layers[i].bg;
       ground = [
         r * a + ground[0] * (1 - a),
         g * a + ground[1] * (1 - a),
@@ -175,10 +235,14 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
         return refuse(n, "has background-clip: text, which is not measured");
       if (v("box-shadow") !== "none")
         return refuse(n, `has box-shadow: ${v("box-shadow")}, which is not measured`);
-      if (v("outline-style") !== "none" && parseFloat(v("outline-width")) > 0)
+      if (
+        v("outline-style") !== "none" &&
+        parseFloat(v("outline-width")) > 0 &&
+        rgba(v("outline-color"))[3] > 0
+      )
         return refuse(
           n,
-          `has an outline: ${v("outline-style")} ${v("outline-width")}, which is not measured`,
+          `has an outline: ${v("outline-style")} ${v("outline-width")} ${v("outline-color")}, which is not measured`,
         );
       if (n === root) {
         if (v("text-shadow") !== "none")
@@ -189,8 +253,8 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
             `has -webkit-text-stroke-width: ${v("-webkit-text-stroke-width")}, which is not measured`,
           );
       }
-      // A first line or first letter whose colour differs from the element's own
-      // paints text the element's computed colour does not describe.
+      // A first line or first letter that paints a colour, background, shadow or
+      // decoration of its own is text the element's computed style does not describe.
       for (const pseudo of ["::first-line", "::first-letter"]) {
         const ps = getComputedStyle(n, pseudo);
         const own = [cs.color, cs.getPropertyValue("-webkit-text-fill-color")].map(rgba);
@@ -199,6 +263,26 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
           return refuse(
             n,
             `has ${pseudo} colour ${ps.color} (fill ${ps.getPropertyValue("-webkit-text-fill-color")}) that differs from its own ${cs.color}, which is not measured`,
+          );
+        if (rgba(ps.backgroundColor)[3] > 0)
+          return refuse(
+            n,
+            `has ${pseudo} background-color ${ps.backgroundColor}, which is not measured`,
+          );
+        if (ps.backgroundImage !== "none")
+          return refuse(
+            n,
+            `has ${pseudo} background-image ${ps.backgroundImage}, which is not measured`,
+          );
+        if (ps.textShadow !== "none")
+          return refuse(n, `has ${pseudo} text-shadow ${ps.textShadow}, which is not measured`);
+        // A decoration is not inherited, so a first line reads `none` under an element
+        // that is underlined, and the element's own decoration is measured already. The
+        // refusal is for a first line that adds a decoration of a different kind.
+        if (ps.textDecorationLine !== "none" && ps.textDecorationLine !== cs.textDecorationLine)
+          return refuse(
+            n,
+            `has ${pseudo} text-decoration-line ${ps.textDecorationLine}, which differs from its own ${cs.textDecorationLine} and is not measured`,
           );
       }
       const decoration = v("text-decoration-line");
@@ -216,34 +300,13 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
       }
       if (chain.indexOf(n) <= groundIndex && v("background-image") !== "none")
         return refuse(n, `has background-image: ${v("background-image")}, which is not measured`);
+      // Generated content on a pseudo-element is refused by name, empty or not. Its
+      // paint (a background, border, outline, shadow, filter or blend) is not listed,
+      // because every way it can cover the text would need its own entry.
       for (const pseudo of ["::before", "::after"]) {
         const ps = getComputedStyle(n, pseudo);
-        if (ps.content === "none" || ps.content === "normal") continue;
-        if (ps.content !== '""' && ps.content !== "''")
+        if (ps.content !== "none" && ps.content !== "normal")
           return refuse(n, `has ${pseudo} content ${ps.content}, which is not measured`);
-        const paints: string[] = [];
-        if (rgba(ps.backgroundColor)[3] > 0) paints.push(`background-color ${ps.backgroundColor}`);
-        if (ps.backgroundImage !== "none") paints.push(`background-image ${ps.backgroundImage}`);
-        if (ps.boxShadow !== "none") paints.push(`box-shadow ${ps.boxShadow}`);
-        for (const side of ["top", "right", "bottom", "left"]) {
-          const style = ps.getPropertyValue(`border-${side}-style`);
-          const width = parseFloat(ps.getPropertyValue(`border-${side}-width`));
-          const colour = rgba(ps.getPropertyValue(`border-${side}-color`));
-          if (style !== "none" && width > 0 && colour[3] > 0)
-            paints.push(`border-${side} ${style} ${width}px`);
-        }
-        const outlineWidth = parseFloat(ps.getPropertyValue("outline-width"));
-        if (
-          ps.getPropertyValue("outline-style") !== "none" &&
-          outlineWidth > 0 &&
-          rgba(ps.getPropertyValue("outline-color"))[3] > 0
-        )
-          paints.push(`outline ${outlineWidth}px`);
-        if (paints.length > 0)
-          return refuse(
-            n,
-            `has ${pseudo} content "" with ${paints.join(" and ")}, which is not measured`,
-          );
       }
     }
 
