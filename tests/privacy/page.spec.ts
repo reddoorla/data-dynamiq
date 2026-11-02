@@ -14,13 +14,17 @@ import { test, expect, type Locator } from "@playwright/test";
  * The ground is the nearest painted ancestor's computed `background-color`. A
  * candidate is painted only if its `visibility` is `visible`, it is not
  * `display: contents`, and its box has area and overlaps the text; the others are
- * skipped. The text's extent is the element's own text rects (a Range over its
- * contents), not its border box, so padding on a tap target does not count as
- * text. Each translucent background from the element up is composited back to
- * front until one is opaque, and the ground is white if none is. The text is
+ * skipped. The text's extent is the text rects of each text node under the element,
+ * not its border box, so padding on a tap target does not count as text; each rect
+ * is cut by the overflow, clip and clip-path of the elements between it and the
+ * element, so text an `sr-only` span hides is not measured, and glyphs that overflow
+ * a short box are. Each translucent background from the element up is composited
+ * back to front until one is opaque, and the ground is white if none is. The text is
  * composited over that ground and scored with the WCAG ratio.
  *
  * What is refused, by name, with a throw:
+ * - a clip-path other than `inset()`, or a `clip` other than `rect()`, on an element
+ *   from the text up to the link, since the text it cuts is not computed here;
  * - a running infinite transition or animation on the element or an ancestor,
  *   which never settles; a running animation on a scroll or view timeline, which
  *   is not waited on; a running animation with a playback rate of 0, which never
@@ -153,23 +157,105 @@ async function contrastAgainstGround(el: Locator, name: string): Promise<number>
     };
     const sameColour = (a: number[], b: number[]) => a.every((v, i) => v === b[i]);
 
-    // The text's extent: its own text rects, not the border box, which includes any
-    // vertical padding of an inline element and so is not where the glyphs are.
-    // Each text rect is clipped to the link's own border boxes, and an empty one is
-    // dropped: text clipped out of the link (an sr-only span inside it, say) is not
-    // the link's text, and a clipped span would otherwise reach the ground tests.
-    const textRange = document.createRange();
-    textRange.selectNodeContents(root);
+    // The text's extent: the text rects of each text node under the link, not its
+    // border box, which includes any vertical padding of an inline element and so is
+    // not where the glyphs are. Each rect is cut by what actually clips that text: every
+    // element from the text node's parent up to and including the link clips it to its
+    // padding box when `overflow` is not `visible` on a box that is not inline; to the
+    // rect a `clip` leaves when the element is absolutely or fixed positioned; and to the
+    // inset an `inset()` clip-path leaves. A clip-path other than `inset()`, or a `clip`
+    // other than `rect()`, is refused by name. A rect the clips leave empty is dropped.
+    // The link's own border box does not clip its text: glyphs taller than a short
+    // link box paint outside it, and are measured where they paint.
+    type Box = { left: number; right: number; top: number; bottom: number };
+    const boxOf = (r: DOMRect): Box => ({
+      left: r.left,
+      right: r.right,
+      top: r.top,
+      bottom: r.bottom,
+    });
+    const clipsOf = (n: Element): Box[] | string => {
+      const cs = getComputedStyle(n);
+      const r = n.getBoundingClientRect();
+      const boxes: Box[] = [];
+      if (cs.display !== "inline" && (cs.overflowX !== "visible" || cs.overflowY !== "visible")) {
+        boxes.push({
+          left: r.left + parseFloat(cs.borderLeftWidth),
+          right: r.right - parseFloat(cs.borderRightWidth),
+          top: r.top + parseFloat(cs.borderTopWidth),
+          bottom: r.bottom - parseFloat(cs.borderBottomWidth),
+        });
+      }
+      if (cs.clip !== "auto" && (cs.position === "absolute" || cs.position === "fixed")) {
+        const m = /^rect\((.*)\)$/.exec(cs.clip);
+        const v = m ? m[1].split(/[\s,]+/).filter(Boolean) : [];
+        if (v.length !== 4) return `has clip ${cs.clip}, which is not measured`;
+        // rect(top, right, bottom, left), each an offset from the border box's top-left
+        // corner, or `auto` for that edge.
+        const at = (s: string, edge: number, origin: number) =>
+          s === "auto" ? edge : origin + parseFloat(s);
+        const box = {
+          top: at(v[0], r.top, r.top),
+          right: at(v[1], r.right, r.left),
+          bottom: at(v[2], r.bottom, r.top),
+          left: at(v[3], r.left, r.left),
+        };
+        if (Object.values(box).some(Number.isNaN))
+          return `has clip ${cs.clip}, which is not measured`;
+        boxes.push(box);
+      }
+      if (cs.clipPath !== "none") {
+        const m = /^inset\((.*)\)$/.exec(cs.clipPath);
+        const args = m
+          ? m[1]
+              .split(/\s+round\b/)[0]
+              .trim()
+              .split(/\s+/)
+          : [];
+        if (args.length < 1 || args.length > 4)
+          return `has clip-path ${cs.clipPath}, which is not measured`;
+        const [T, R = T, B = T, L = R] = args;
+        const len = (s: string, size: number) =>
+          s.endsWith("%") ? (parseFloat(s) / 100) * size : parseFloat(s);
+        const top = len(T, r.height);
+        const right = len(R, r.width);
+        const bottom = len(B, r.height);
+        const left = len(L, r.width);
+        if ([top, right, bottom, left].some(Number.isNaN))
+          return `has clip-path ${cs.clipPath}, which is not measured`;
+        boxes.push({
+          left: r.left + left,
+          right: r.right - right,
+          top: r.top + top,
+          bottom: r.bottom - bottom,
+        });
+      }
+      return boxes;
+    };
     const borderRects = Array.from(root.getClientRects());
     if (borderRects.length === 0) return refuse(root, "has no box to measure");
-    const textRects: { left: number; right: number; top: number; bottom: number }[] = [];
-    for (const r of Array.from(textRange.getClientRects())) {
-      for (const b of borderRects) {
-        const left = Math.max(r.left, b.left);
-        const right = Math.min(r.right, b.right);
-        const top = Math.max(r.top, b.top);
-        const bottom = Math.min(r.bottom, b.bottom);
-        if (right > left && bottom > top) textRects.push({ left, right, top, bottom });
+    const textRects: Box[] = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      const clips: Box[] = [];
+      for (let n = t.parentElement; n; n = n.parentElement) {
+        const own = clipsOf(n);
+        if (typeof own === "string") return refuse(n, own);
+        clips.push(...own);
+        if (n === root) break;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(t);
+      for (const r of Array.from(range.getClientRects())) {
+        let b = boxOf(r);
+        for (const c of clips)
+          b = {
+            left: Math.max(b.left, c.left),
+            right: Math.min(b.right, c.right),
+            top: Math.max(b.top, c.top),
+            bottom: Math.min(b.bottom, c.bottom),
+          };
+        if (b.right > b.left && b.bottom > b.top) textRects.push(b);
       }
     }
     if (textRects.length === 0) return refuse(root, "has no text box to measure");
