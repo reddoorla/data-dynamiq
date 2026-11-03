@@ -232,4 +232,10 @@ Usage: not readable.
 
 ## 2026-11-03 — `@types/node` is declared, so a lockfile refresh cannot take Node's types away
 
+> Superseded in part by 2026-11-03 — `@types/node` follows the runtime's Node 24, not 26.
+
 Renovate's lock file maintenance (#92, into `staging`) went red on 2026-11-02 and stayed red after its 2026-11-03 rebase: `svelte-check found 41 errors`, every one of them "Cannot find name 'process'" or "Cannot find name 'node:fs'", in `sveltekit.config.js`, `playwright.config.ts` and the smoke specs, plus implicit-`any` errors that follow from them. This repo never declared `@types/node`. The old lockfile resolved it only as some dependency's optional peer, and the refresh dropped it, which is how a lockfile-only change took away the types the config files rely on. Reddoor's site broke the same way on the same night (reddoorla/reddoor-website#314). Declaring `@types/node` (`^26.6.6`, the major the old lockfile had) as a devDependency fixes it. Measured on #92's own branch with the line added: `svelte-check` went from 41 errors to 0 (the 47 warnings were there before and do not fail CI), and `pnpm lint` and `pnpm build` passed. The same result held on `staging` with the line added. Once this lands on `staging`, #92 rebases onto it.
+
+## 2026-11-03 — `@types/node` follows the runtime's Node 24, not 26
+
+The entry above declared `@types/node` at `^26.6.6`, calling it "the major the old lockfile had". Review then pointed out that 26 was only what pnpm had picked for an optional peer, which nobody chose. The site runs on Node 24 (`.nvmrc` 24.22.2, CI `node-version: "24"`, Netlify `NODE_VERSION = "24"`). Types for Node 26 would let code that calls a Node 25 or 26 API pass `svelte-check` and then fail on Netlify. The fix was written after #97 had already merged at `^26`, so it lands here as its own change: `@types/node` is now `^24` (24.19.2), and `undici-types` moves to 7.24.6 with it. Measured on `staging` at `bdc1d0b`: `svelte-check` 0 errors (the 47 warnings were there before), and `pnpm lint` and `pnpm build` pass.
