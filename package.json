@@ -42,7 +42,7 @@
   "type": "module",
   "packageManager": "pnpm@12.5.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@lucide/svelte": "^1.17.0",
