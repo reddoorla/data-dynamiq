@@ -48,7 +48,6 @@ export const smokeRoutes: SmokeRoute[] = [
   { path: "/mastheads", name: "masthead sections", hydrationMarker: "main" },
   { path: "/navs", name: "nav sections", hydrationMarker: "main" },
   { path: "/plans", name: "plan sections", hydrationMarker: "main" },
-  { path: "/portfolios", name: "portfolio sections", hydrationMarker: "main" },
   { path: "/sliders", name: "slider sections", hydrationMarker: "main" },
   {
     path: "/teams",
