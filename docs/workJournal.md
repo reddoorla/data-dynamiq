@@ -239,3 +239,18 @@ Renovate's lock file maintenance (#92, into `staging`) went red on 2026-11-02 an
 ## 2026-11-03 — `@types/node` follows the runtime's Node 24, not 26
 
 The entry above declared `@types/node` at `^26.6.6`, calling it "the major the old lockfile had". Review then pointed out that 26 was only what pnpm had picked for an optional peer, which nobody chose. The site runs on Node 24 (`.nvmrc` 24.22.2, CI `node-version: "24"`, Netlify `NODE_VERSION = "24"`). Types for Node 26 would let code that calls a Node 25 or 26 API pass `svelte-check` and then fail on Netlify. The fix was written after #97 had already merged at `^26`, so it lands here as its own change: `@types/node` is now `^24` (24.19.2), and `undici-types` moves to 7.24.6 with it. Measured on `staging` at `bdc1d0b`: `svelte-check` 0 errors (the 47 warnings were there before), and `pnpm lint` and `pnpm build` pass.
+
+## 2026-11-04 — svelte-select leaves with the /portfolios demo; svelte-gestures stays (#99)
+
+`svelte-select` had one real importer, `/portfolios`. That page is a wireframer-scaffold demo: six "Item 1…6" cards over lorem ipsum, behind a Dev/UX/UI multi-select. Nothing linked to it, but it served 200 with no `noindex`. Two `FullWidth/Styled*Select.svelte` wrappers also imported it, and nothing imported them. On 11-04 the operator chose removal over a bump to 6, the only release in 31 months and still not a WAI-ARIA combobox (workspace `decisions/2026-11-04-1740-select-gestures-keep-or-replace.md`). So the route, its smoke entry, both wrappers, the svelte-select CSS and the dependency go. With them go two files only the route or wrappers used: `icons/dropdown-arrow-light.svg`, and `ScreenWidth/ScreenWidthGallerySliderLarge.svelte`, which an Opus review of the diff found orphaned. The lockfile lost 38 lines: `svelte-select`, `svelte-floating-ui` and `@floating-ui/*`, and nothing else.
+
+One belief corrected on contact. The brief said to delete the CSS block that opened at `app.css:286` whole. That block also held a global `::placeholder` rule, and that rule styles the live home-page contact form: NAME, EMAIL and YOUR MESSAGE are set in Chakra Petch, 14px, uppercase, `#c2d1d9`. The rule stays, with a comment saying what it styles. The rest of the block was select-only, plus `input[type="textarea"]::placeholder`, which matches nothing.
+
+`svelte-gestures` 5.2.2 stays: the home page's mobile "Evolving Digital Age" carousel swipes through `src/lib/utils/swipeAction.ts`. That carousel's dots are `<div onclick aria-hidden>`, out of reach of the keyboard and screen readers. That is filed as #100 and not fixed here.
+
+Proof, after a fresh install in a new clone:
+
+- `grep -rn "svelte-select\|svelte-gestures" src` prints only `swipeAction.ts:1` and `:4`.
+- `pnpm lint` is clean, and `pnpm check` gives 0 errors (42 warnings, against 43 before the slider went). `pnpm build` passes, and no `portfolios` file is in its output.
+- `pnpm test` passed 89 of 89 on the final tree. On the first run, the two GA4 analytics-gate tests ("loads gtag … on www" and "… apex twin") timed out waiting for the gtag request. A control on an untouched `staging` worktree failed the same two, so the cause was the container's outbound proxy, not this change.
+- Re-adding `import Select from "svelte-select"` to `slice-simulator/+page.svelte` turned `pnpm check` red: `Cannot find module 'svelte-select'`, 1 error.
