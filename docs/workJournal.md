@@ -254,3 +254,11 @@ Proof, after a fresh install in a new clone:
 - `pnpm lint` is clean, and `pnpm check` gives 0 errors (42 warnings, against 43 before the slider went). `pnpm build` passes, and no `portfolios` file is in its output.
 - `pnpm test` passed 89 of 89 on the final tree. On the first run, the two GA4 analytics-gate tests ("loads gtag … on www" and "… apex twin") timed out waiting for the gtag request. A control on an untouched `staging` worktree failed the same two, so the cause was the container's outbound proxy, not this change.
 - Re-adding `import Select from "svelte-select"` to `slice-simulator/+page.svelte` turned `pnpm check` red: `Cannot find module 'svelte-select'`, 1 error.
+
+## 2026-11-04 — `@prismicio/svelte` 2 → 3 (this PR, into `staging`)
+
+Part of the fleet majors sweep (reddoorla/reddoor-maintenance#1949, phase 2 group A), following the ERP pilot's recipe. It waited for the svelte-select removal (#99), which merged into `staging` at about 10:16am PT, and is cut from that `staging` at `a35cce0`. Renovate's v3 PR was still "Awaiting Schedule" on the Dependency Dashboard (#38).
+
+`@prismicio/svelte` goes from 2.2.4 to 3.2.0. `@prismicio/client`'s specifier goes from `^7.21.8` to `^7.23.0`, v3's peer floor. **No call site needed a change.** The slice simulator already used v3's `{#snippet children({ slices })}` form, nothing imports `SvelteRichTextSerializer`, and the site ships its own `PrismicPreview` copy.
+
+Measured on Node 24.22.2, on this branch and on `staging` in a separate worktree. Both had lint clean, `svelte-check` at 0 errors and the same 42 warnings, and the build green. There is no vitest here; CI's `test:smoke` covers it. All 17 prerendered pages are identical once asset hashes, the kit version, the `__sveltekit_<id>` name, the CSP hash and HTML comments are normalised. As on MSOT, that diff proves less than it looks. The homepage is hand-built and the gallery routes are scaffold demos, so no prerendered page renders a SliceZone. The pages carry 0 `prismic-slice-start` markers on both builds. The proof that v3 is in the build is the client bundle, where the marker string appears on this branch and nowhere on `staging`. Mutation: putting the v2 `<SliceSimulator let:slices>` slot back gives `svelte-check` `'$$_rotalumiSecilS0.$$slot_def' is of type 'unknown'` on v3, and the same file passes on v2.
