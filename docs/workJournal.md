@@ -268,3 +268,9 @@ The review (runtime, tests, deps) found only minors and nits. The minors were bo
 ## 2026-11-04 — main brought into staging before the next promotion (this PR)
 
 `main`'s only commit that `staging` lacked was the previous promotion's merge commit, 13b77f5 (#96's promotion merge), so `main` was not an ancestor of `staging` and the next promotion PR would not have been a clean fast path. Maintenance's `scripts/staging-bring-main.mjs` merged `main` into a branch cut from `staging` at `fad371a`, with the site's pinned pnpm passing the lockfile through `pnpm install --lockfile-only`. The merge is tree-identical to `staging` (`git diff origin/staging` was empty before this entry), so nothing a visitor sees changes. It lands as a merge commit, never a squash, so `main` is a parent; the promotion that follows (fleet majors phase 2, group A: reddoorla/reddoor-maintenance#1949) stays the operator's.
+
+## 2026-11-05 — source-map-js high cleared with an override (#105, P1-101)
+
+The cockpit had listed this site in Watch since 10-28 for one transitive high: source-map-js 1.2.1 (GHSA-68fv-2mgg-jv7q). It comes in prod through `@tailwindcss/vite > @tailwindcss/node`, and in dev through postcss in eslint-plugin-svelte. Every parent asks `^1.x`, so a range-scoped override to `^1.2.2` clears it without crossing a major. Removing the override, or pinning it to 1.2.1, made the audit fail again, starting from `staging`'s lockfile.
+
+Renovate's staging lock-file maintenance, https://github.com/reddoorla/data-dynamiq/pull/92, also drops 1.2.1. It has had automerge on and green CI, yet it has sat open since 11-02. `staging`'s ruleset requires only `ci / ci`, so whatever holds it is in Renovate's shared config (`reddoorla/.github`), outside this item. That PR was left untouched. **What this means for the Watch rule:** a transitive vuln "waiting on its lockfile window" can wait forever when the window's PR never merges. The override does not depend on that PR.
