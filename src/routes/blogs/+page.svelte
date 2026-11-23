@@ -66,8 +66,8 @@
       <FourByThreeImage />
       <Accordian contents={CONTENTS} labels={LABELS} />
     </div>
-  </div></ContentWidth
->
+  </div>
+</ContentWidth>
 <Spacer color="#424B5A" />
 <!-- blog #1 -->
 
@@ -106,8 +106,8 @@
       </p>
       <DefaultButton filled={false} text="READ BUTTON" />
     </div>
-  </div></ContentWidth
->
+  </div>
+</ContentWidth>
 
 <Spacer color="#424B5A" />
 <!-- blog #2 -->
