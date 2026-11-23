@@ -1,0 +1,19 @@
+{
+  "mode": "warn",
+  "exempt": [
+    "src/routes/blogs/**",
+    "src/routes/contacts/**",
+    "src/routes/content/**",
+    "src/routes/ctas/**",
+    "src/routes/faqs/**",
+    "src/routes/footers/**",
+    "src/routes/lists/**",
+    "src/routes/mastheads/**",
+    "src/routes/navs/**",
+    "src/routes/plans/**",
+    "src/routes/sliders/**",
+    "src/routes/teams/**",
+    "src/routes/testimonials/**",
+    "src/routes/values/**"
+  ]
+}
