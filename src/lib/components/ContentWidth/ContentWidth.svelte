@@ -16,11 +16,11 @@
 </script>
 
 {#if animateIn}
-  <AnimateIn
-    ><div class="max-w-[1220px] xl:max-w-[1440px] xl:mx-auto mx-[4%] w-[92%] {klass}">
+  <AnimateIn>
+    <div class="max-w-[1220px] xl:max-w-[1440px] xl:mx-auto mx-[4%] w-[92%] {klass}">
       {@render children?.()}
-    </div></AnimateIn
-  >
+    </div>
+  </AnimateIn>
 {:else}
   <div class="max-w-[1220px] xl:max-w-[1440px] xl:mx-auto mx-[4%] w-[92%] {klass}">
     {@render children?.()}

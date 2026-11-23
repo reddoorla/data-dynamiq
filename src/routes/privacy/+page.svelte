@@ -28,9 +28,9 @@
 
 {#snippet contact()}
   {#if email}
-    <a href={`mailto:${email}`} class="text-inherit [font-size:inherit] underline hover:text-light"
-      >{email}</a
-    >
+    <a href={`mailto:${email}`} class="text-inherit [font-size:inherit] underline hover:text-light">
+      {email}
+    </a>
   {:else}
     <span>[privacy contact email]</span>
   {/if}
@@ -144,8 +144,10 @@
           reports for us. You can opt out with Google's
           <a
             href="https://tools.google.com/dlpage/gaoptout"
-            class="text-inherit [font-size:inherit] underline hover:text-light">browser add-on</a
-          >.
+            class="text-inherit [font-size:inherit] underline hover:text-light"
+          >
+            browser add-on
+          </a>.
         </li>
       {/if}
       {#if s.googleFonts}

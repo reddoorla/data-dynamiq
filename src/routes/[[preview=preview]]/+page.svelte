@@ -184,9 +184,9 @@
       ? 'visible translate-x-0 opacity-100'
       : 'invisible -translate-x-full opacity-0'}"
   >
-    <button class="absolute top-6 right-6" onclick={() => (isFormOpen = false)}
-      ><X class="text-white hover:text-light transtition bump" size={32} /></button
-    >
+    <button class="absolute top-6 right-6" onclick={() => (isFormOpen = false)}>
+      <X class="text-white hover:text-light transtition bump" size={32} />
+    </button>
 
     <div class="xl:w-1/2 xl:h-4/5 flex flex-col justify-start items-start gap-7">
       <h5 class="text-white">Contact us</h5>
@@ -267,9 +267,9 @@
 
 <div class="h-16 w-screen fixed top-0 left-0 z-10">
   <ContentWidth class="h-16 flex flex-row justify-between lg:justify-center items-center relative">
-    <button class="h-6" onclick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
-      ><img src={logo} alt="evidence 360" /></button
-    >
+    <button class="h-6" onclick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}>
+      <img src={logo} alt="evidence 360" />
+    </button>
 
     <ContactButton
       text="CONTACT US"
@@ -305,8 +305,10 @@
         bind:this={evolve}
         class="{isEvolveHollow
           ? 'text-black'
-          : 'text-white'} transition duration-[3200ms] ease-fast-slow">Evolving</span
-      > Digital Age
+          : 'text-white'} transition duration-[3200ms] ease-fast-slow"
+      >
+        Evolving
+      </span> Digital Age
     </h2>
     <ContentWidth>
       <div
@@ -480,9 +482,9 @@
     <ContactButton click={() => (isFormOpen = true)} text="Contact Us" />
     <footer class="label text-white mb-4">
       ©2024 Data Dynamiq | All Rights Reserved |
-      <a href={PRIVACY_PATH} class="text-inherit [font-size:inherit] underline hover:text-light"
-        >Privacy Policy</a
-      >
+      <a href={PRIVACY_PATH} class="text-inherit [font-size:inherit] underline hover:text-light">
+        Privacy Policy
+      </a>
     </footer>
   </div>
 </ScreenWidthImage>
